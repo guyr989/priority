@@ -1,0 +1,29 @@
+node_modules
+dist
+dist-ssr
+*.local
+
+.env
+.env.*
+!.env.example
+
+.vite
+coverage
+
+.vercel
+
+.DS_Store
+Thumbs.db
+
+.idea
+.vscode/*
+!.vscode/extensions.json
+
+# internal, never pushed
+CLAUDE.md
+PLAN.md
+docs/api-notes.md
+docs/pdf-dump.txt
+email from client.txt
+*.pdf
+.claude/
