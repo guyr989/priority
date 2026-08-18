@@ -122,7 +122,7 @@ describe('App', () => {
 
     const player = screen.getByTitle('first result player')
     expect(player).toHaveAttribute('src', 'https://player.test/?feed=first result')
-    expect(player).toHaveAttribute('allow', 'autoplay')
+    expect(player).toHaveAttribute('allow', 'autoplay; encrypted-media')
 
     await user.click(screen.getByRole('button', { name: 'second result' }))
 

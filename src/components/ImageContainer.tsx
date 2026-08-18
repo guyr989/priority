@@ -79,7 +79,7 @@ export function ImageContainer({
           className={styles.player}
           title={`${track.title} player`}
           src={track.embedUrl}
-          allow="autoplay"
+          allow="autoplay; encrypted-media"
           sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"
           referrerPolicy="no-referrer"
           loading="lazy"
