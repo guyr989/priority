@@ -29,6 +29,55 @@
   outline-offset: 2px;
 }
 
+.tiles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.tile {
+  font: inherit;
+  font-size: 14px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 8px;
+  text-align: left;
+  color: var(--text-h);
+  background: var(--social-bg);
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.tile:hover {
+  border-color: var(--accent-border);
+}
+
+.tile:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.tileImage {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 6px;
+  background: var(--accent-bg);
+}
+
+.tileTitle {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .message {
   display: flex;
   flex-direction: column;

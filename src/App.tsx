@@ -3,10 +3,11 @@ import { FlyingResult } from './components/FlyingResult'
 import { ImageContainer } from './components/ImageContainer'
 import { RecentSearches } from './components/RecentSearches'
 import { Results } from './components/Results'
-import { SearchContainer, type ViewMode } from './components/SearchContainer'
+import { SearchContainer } from './components/SearchContainer'
 import { useSearch } from './hooks/useSearch'
 import { useSearchHistory } from './hooks/useSearchHistory'
 import type { SoundProvider } from './domain/soundProvider'
+import type { ViewMode } from './domain/view'
 import type { Store } from './storage/store'
 import type { Track } from './domain/track'
 import styles from './App.module.css'
@@ -28,11 +29,12 @@ function prefersReducedMotion(): boolean {
 interface AppProps {
   readonly provider: SoundProvider
   readonly historyStore: Store<readonly string[]>
+  readonly viewStore: Store<ViewMode>
 }
 
-function App({ provider, historyStore }: AppProps) {
+function App({ provider, historyStore, viewStore }: AppProps) {
   const [query, setQuery] = useState('')
-  const [view, setView] = useState<ViewMode>('list')
+  const [view, setView] = useState<ViewMode>(() => viewStore.read() ?? 'list')
   const [selected, setSelected] = useState<Track | null>(null)
   const [flight, setFlight] = useState<Flight | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -71,12 +73,16 @@ function App({ provider, historyStore }: AppProps) {
         hasNext={hasNext}
         onQueryChange={setQuery}
         onSubmit={restart}
-        onViewChange={setView}
+        onViewChange={(next) => {
+          setView(next)
+          viewStore.write(next)
+        }}
         onPrev={goToPrevPage}
         onNext={goToNextPage}
       >
         <Results
           status={status}
+          view={view}
           tracks={tracks}
           onSelect={selectTrack}
           onRetry={retry}

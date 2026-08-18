@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
+import type { ViewMode } from '../domain/view'
 import styles from './SearchContainer.module.css'
-
-export type ViewMode = 'list' | 'tile'
 
 interface SearchContainerProps {
   readonly query: string

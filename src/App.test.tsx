@@ -6,6 +6,7 @@ import type { Page } from './domain/page'
 import type { SoundProvider } from './domain/soundProvider'
 import type { Track } from './domain/track'
 import type { Store } from './storage/store'
+import type { ViewMode } from './domain/view'
 
 function track(title: string): Track {
   return {
@@ -28,7 +29,7 @@ function createProvider(pages: readonly Page<Track>[]): SoundProvider {
   }
 }
 
-function createMemoryStore(initial: readonly string[]): Store<readonly string[]> {
+function createMemoryStore<T>(initial: T | null): Store<T> {
   let value = initial
   return {
     read: () => value,
@@ -38,10 +39,21 @@ function createMemoryStore(initial: readonly string[]): Store<readonly string[]>
   }
 }
 
-function renderApp(pages: readonly Page<Track>[], history: readonly string[] = []) {
-  const store = createMemoryStore(history)
-  render(<App provider={createProvider(pages)} historyStore={store} />)
-  return { user: userEvent.setup(), store }
+function renderApp(
+  pages: readonly Page<Track>[],
+  history: readonly string[] = [],
+  view: ViewMode | null = null,
+) {
+  const store = createMemoryStore<readonly string[]>(history)
+  const viewStore = createMemoryStore<ViewMode>(view)
+  render(
+    <App
+      provider={createProvider(pages)}
+      historyStore={store}
+      viewStore={viewStore}
+    />,
+  )
+  return { user: userEvent.setup(), store, viewStore }
 }
 
 describe('App', () => {
@@ -99,6 +111,30 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: 'second result' }))
 
     expect(screen.queryByTitle('first result player')).not.toBeInTheDocument()
+  })
+
+  it('remembers the layout the user picked', async () => {
+    const { user, viewStore } = renderApp([pageOf(['first result'], null)])
+
+    await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
+    await screen.findByRole('button', { name: 'first result' })
+
+    await user.click(screen.getByRole('button', { name: 'Tile' }))
+
+    expect(screen.getByRole('button', { name: 'Tile' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    expect(viewStore.read()).toBe('tile')
+  })
+
+  it('opens in the layout stored from the last visit', async () => {
+    renderApp([pageOf(['first result'], null)], [], 'tile')
+
+    expect(screen.getByRole('button', { name: 'Tile' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
   })
 
   it('shows the selected track in the image container', async () => {

@@ -12,20 +12,20 @@ const noop = () => {}
 
 describe('Results', () => {
   it('invites a first search while idle', () => {
-    render(<Results status="idle" tracks={[]} onSelect={noop} onRetry={noop} />)
+    render(<Results status="idle" view="list" tracks={[]} onSelect={noop} onRetry={noop} />)
 
     expect(screen.getByText(/search for a track/i)).toBeInTheDocument()
   })
 
   it('says it is searching while loading', () => {
-    render(<Results status="loading" tracks={[]} onSelect={noop} onRetry={noop} />)
+    render(<Results status="loading" view="list" tracks={[]} onSelect={noop} onRetry={noop} />)
 
     expect(screen.getByText(/searching/i)).toBeInTheDocument()
     expect(screen.queryByRole('list')).not.toBeInTheDocument()
   })
 
   it('explains an empty result instead of showing a blank list', () => {
-    render(<Results status="ready" tracks={[]} onSelect={noop} onRetry={noop} />)
+    render(<Results status="ready" view="list" tracks={[]} onSelect={noop} onRetry={noop} />)
 
     expect(screen.getByText(/no tracks match/i)).toBeInTheDocument()
     expect(screen.queryByRole('list')).not.toBeInTheDocument()
@@ -34,7 +34,7 @@ describe('Results', () => {
   it('announces a failure and offers a retry', async () => {
     const onRetry = vi.fn()
     const user = userEvent.setup()
-    render(<Results status="error" tracks={[]} onSelect={noop} onRetry={onRetry} />)
+    render(<Results status="error" view="list" tracks={[]} onSelect={noop} onRetry={onRetry} />)
 
     expect(screen.getByRole('alert')).toHaveTextContent(/did not go through/i)
 
@@ -43,12 +43,28 @@ describe('Results', () => {
     expect(onRetry).toHaveBeenCalledOnce()
   })
 
+  it('tiles the same tracks with their artwork', () => {
+    render(
+      <Results
+        status="ready"
+        view="tile"
+        tracks={[track('one'), track('two')]}
+        onSelect={noop}
+        onRetry={noop}
+      />,
+    )
+
+    expect(screen.getAllByRole('listitem')).toHaveLength(2)
+    expect(screen.getByRole('button', { name: 'one' })).toBeInTheDocument()
+  })
+
   it('lists tracks and reports which one was chosen', async () => {
     const onSelect = vi.fn()
     const user = userEvent.setup()
     render(
       <Results
         status="ready"
+        view="list"
         tracks={[track('one'), track('two')]}
         onSelect={onSelect}
         onRetry={noop}
