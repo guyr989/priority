@@ -1,26 +1,30 @@
 import { useEffect, useState } from 'react'
-import { soundProvider } from './api/mixcloud'
 import { ImageContainer } from './components/ImageContainer'
 import { RecentSearches } from './components/RecentSearches'
 import { SearchContainer, type ViewMode } from './components/SearchContainer'
 import { useSearch } from './hooks/useSearch'
 import { useSearchHistory } from './hooks/useSearchHistory'
-import { isHistory } from './domain/history'
-import { createLocalStore } from './storage/localStore'
+import type { SoundProvider } from './domain/soundProvider'
+import type { Store } from './storage/store'
 import type { Track } from './domain/track'
 import styles from './App.module.css'
 
-const historyStore = createLocalStore('priority.recent-searches', isHistory)
+const DEBOUNCE_MS = 300
 
-function App() {
+interface AppProps {
+  readonly provider: SoundProvider
+  readonly historyStore: Store<readonly string[]>
+}
+
+function App({ provider, historyStore }: AppProps) {
   const [query, setQuery] = useState('')
   const [view, setView] = useState<ViewMode>('list')
   const [selected, setSelected] = useState<Track | null>(null)
 
   const { tracks, hasNext, hasPrev, goToNextPage, goToPrevPage, refresh } = useSearch(
-    soundProvider,
+    provider,
     query,
-    300,
+    DEBOUNCE_MS,
   )
   const { terms, record } = useSearchHistory(historyStore)
 
@@ -58,7 +62,13 @@ function App() {
 
       <div className={styles.side}>
         <ImageContainer track={selected} onImageClick={() => { }} />
-        <RecentSearches terms={terms} onSelect={setQuery} />
+        <RecentSearches
+          terms={terms}
+          onSelect={(term) => {
+            setQuery(term)
+            if (term === query) refresh()
+          }}
+        />
       </div>
     </main>
   )

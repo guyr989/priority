@@ -14,6 +14,9 @@ export function addSearch(history: readonly string[], term: string): readonly st
     const trimmed = term.trim()
     if (trimmed === '') return history
 
+    const [latest] = history
+    if (latest !== undefined && isSameTerm(latest, trimmed)) return history
+
     const kept = extendsPreviousTerm(history, trimmed) ? history.slice(1) : history
 
     return [trimmed, ...kept.filter((entry) => !isSameTerm(entry, trimmed))].slice(

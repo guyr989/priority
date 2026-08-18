@@ -15,7 +15,7 @@ describe('search history', () => {
     })
 
     it('treats terms that differ only by case as the same entry', () => {
-        expect(addSearch(['adele'], 'ADELE')).toEqual(['ADELE'])
+        expect(addSearch(['jazz', 'adele'], 'ADELE')).toEqual(['ADELE', 'jazz'])
     })
 
     it('keeps at most five terms', () => {
@@ -25,6 +25,13 @@ describe('search history', () => {
         expect(result).toHaveLength(HISTORY_LIMIT)
         expect(result[0]).toBe('f')
         expect(result).not.toContain('a')
+    })
+
+    it('returns the same list when the term is already on top', () => {
+        const history = ['adele', 'jazz']
+
+        expect(addSearch(history, 'adele')).toBe(history)
+        expect(addSearch(history, 'ADELE')).toBe(history)
     })
 
     it('ignores blank terms', () => {
