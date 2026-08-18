@@ -48,7 +48,6 @@ export function ImageContainer({
               alt={`${track.title} by ${track.artist}`}
             />
             <span className={styles.caption}>
-              {isPlaying ? 'isPlaying' : 'not playing'}
               {isPlaying && (
                 <span className={styles.equaliser} aria-hidden="true">
                   <span />

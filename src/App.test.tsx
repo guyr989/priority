@@ -182,6 +182,18 @@ describe('App', () => {
     expect(image).toHaveFocus()
   })
 
+  it('captions the artwork with the track title and artist, nothing else', async () => {
+    const { user } = renderApp([pageOf(['first result'], null)])
+
+    await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
+    await user.click(await screen.findByRole('button', { name: 'first result' }))
+
+    const image = screen.getByRole('region', { name: /now showing/i })
+    const caption = within(image).getByRole('button').textContent
+
+    expect(caption).toBe('first resultartist')
+  })
+
   it('shows the selected track in the image container', async () => {
     const { user } = renderApp([pageOf(['first result'], null)])
 
