@@ -48,8 +48,15 @@
 }
 
 .result:hover::before,
-.result:focus-visible::before {
+.result:focus-visible::before,
+.result[aria-current='true']::before {
   background: var(--accent);
+}
+
+.result[aria-current='true'],
+.tile[aria-current='true'] {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
 }
 
 .tiles {

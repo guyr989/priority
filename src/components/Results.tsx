@@ -7,6 +7,7 @@ interface ResultsProps {
   readonly status: SearchStatus
   readonly view: ViewMode
   readonly tracks: readonly Track[]
+  readonly showingId: string | null
   readonly onSelect: (track: Track, origin: HTMLElement) => void
   readonly onRetry: () => void
 }
@@ -14,11 +15,18 @@ interface ResultsProps {
 function announcement(status: SearchStatus, count: number): string {
   if (status === 'loading') return 'Searching'
   if (status !== 'ready') return ''
-  if (count === 0) return 'No tracks match that search'
+  if (count === 0) return 'Nothing found'
   return `${count} ${count === 1 ? 'result' : 'results'} ready`
 }
 
-export function Results({ status, view, tracks, onSelect, onRetry }: ResultsProps) {
+export function Results({
+  status,
+  view,
+  tracks,
+  showingId,
+  onSelect,
+  onRetry,
+}: ResultsProps) {
   return (
     <>
       <p className="visually-hidden" role="status">
@@ -28,6 +36,7 @@ export function Results({ status, view, tracks, onSelect, onRetry }: ResultsProp
         status={status}
         view={view}
         tracks={tracks}
+        showingId={showingId}
         onSelect={onSelect}
         onRetry={onRetry}
       />
@@ -35,12 +44,19 @@ export function Results({ status, view, tracks, onSelect, onRetry }: ResultsProp
   )
 }
 
-function ResultsBody({ status, view, tracks, onSelect, onRetry }: ResultsProps) {
+function ResultsBody({
+  status,
+  view,
+  tracks,
+  showingId,
+  onSelect,
+  onRetry,
+}: ResultsProps) {
   if (status === 'error') {
     return (
       <div className={styles.message} role="alert">
         <p className={styles.error}>
-          The search did not go through. Check your connection and try again.
+          That search did not land. Check your connection, then try again.
         </p>
         <button type="button" className={styles.retry} onClick={onRetry}>
           Try again
@@ -51,16 +67,16 @@ function ResultsBody({ status, view, tracks, onSelect, onRetry }: ResultsProps) 
 
   if (status === 'loading') {
     return (
-      <p className={`${styles.message} ${styles.loading}`}>Searching for tracks</p>
+      <p className={`${styles.message} ${styles.loading}`}>Digging</p>
     )
   }
 
   if (status === 'idle') {
-    return <p className={styles.message}>Search for a track to see results here.</p>
+    return <p className={styles.message}>Type a name and start digging.</p>
   }
 
   if (tracks.length === 0) {
-    return <p className={styles.message}>No tracks match that search. Try another term.</p>
+    return <p className={styles.message}>Nothing under that name. Try a shorter one.</p>
   }
 
   if (view === 'tile') {
@@ -71,6 +87,7 @@ function ResultsBody({ status, view, tracks, onSelect, onRetry }: ResultsProps) 
             <button
               type="button"
               className={styles.tile}
+              aria-current={track.id === showingId}
               onClick={(event) => onSelect(track, event.currentTarget)}
             >
               <img
@@ -94,6 +111,7 @@ function ResultsBody({ status, view, tracks, onSelect, onRetry }: ResultsProps) 
           <button
             type="button"
             className={styles.result}
+            aria-current={track.id === showingId}
             onClick={(event) => onSelect(track, event.currentTarget)}
           >
             {track.title}

@@ -7,7 +7,7 @@ describe('RecentSearches', () => {
   it('tells the user what the panel is for while it is empty', () => {
     render(<RecentSearches terms={[]} onSelect={vi.fn()} />)
 
-    expect(screen.getByText(/recent searches will appear here/i)).toBeInTheDocument()
+    expect(screen.getByText(/show up here/i)).toBeInTheDocument()
     expect(screen.queryByRole('list')).not.toBeInTheDocument()
   })
 

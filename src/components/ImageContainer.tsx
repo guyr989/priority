@@ -32,7 +32,7 @@ export function ImageContainer({
       <div className={styles.slot} ref={slotRef}>
         {track === null ? (
           <p className={styles.placeholder}>
-            Select a result to see its artwork here.
+            Pick a set to see its cover.
           </p>
         ) : (
           <button
@@ -40,13 +40,23 @@ export function ImageContainer({
             className={styles.imageButton}
             onClick={onImageClick}
           >
-            <img
-              key={track.id}
-              className={styles.image}
-              src={track.imageUrl}
-              referrerPolicy="no-referrer"
-              alt={`${track.title} by ${track.artist}`}
-            />
+            <span className={styles.cover}>
+              <img
+                key={track.id}
+                className={styles.image}
+                src={track.imageUrl}
+                referrerPolicy="no-referrer"
+                alt={`${track.title} by ${track.artist}`}
+              />
+              {!isPlaying && (
+                <span className={styles.play} aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="22" height="22" focusable="false">
+                    <path d="M9 6.5v11l9-5.5z" fill="currentColor" />
+                  </svg>
+                  Tap to play
+                </span>
+              )}
+            </span>
             <span className={styles.caption}>
               {isPlaying && (
                 <span className={styles.equaliser} aria-hidden="true">

@@ -6,3 +6,7 @@ import '@testing-library/jest-dom/vitest'
 afterEach(() => {
   cleanup()
 })
+
+if (typeof Element.prototype.scrollIntoView !== 'function') {
+  Element.prototype.scrollIntoView = () => undefined
+}

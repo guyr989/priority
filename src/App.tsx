@@ -55,9 +55,14 @@ function App({
     if (tracks.length > 0) record(query)
   }, [tracks, query, record])
 
+  useEffect(() => {
+    if (selected === null) return
+    imageSectionRef.current?.scrollIntoView({ block: 'nearest' })
+  }, [selected])
+
   const showTrack = useCallback((track: Track) => {
     setSelected(track)
-    imageSectionRef.current?.focus()
+    imageSectionRef.current?.focus({ preventScroll: true })
   }, [])
 
   const landFlight = useCallback(() => {
@@ -69,6 +74,7 @@ function App({
 
   const selectTrack = (track: Track, origin: HTMLElement) => {
     setIsPlaying(false)
+    imageSectionRef.current?.scrollIntoView({ block: 'nearest' })
     if (prefersReducedMotion()) {
       showTrack(track)
       return
@@ -98,6 +104,7 @@ function App({
           status={status}
           view={view}
           tracks={tracks}
+          showingId={selected?.id ?? null}
           onSelect={selectTrack}
           onRetry={retry}
         />

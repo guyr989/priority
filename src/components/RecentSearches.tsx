@@ -13,7 +13,7 @@ export function RecentSearches({ terms, onSelect }: RecentSearchesProps) {
       </h2>
 
       {terms.length === 0 ? (
-        <p className={styles.empty}>Your recent searches will appear here.</p>
+        <p className={styles.empty}>Searches you make show up here.</p>
       ) : (
         <ul className={styles.list}>
           {terms.map((term) => (

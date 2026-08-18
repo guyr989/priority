@@ -182,16 +182,21 @@ describe('App', () => {
     expect(image).toHaveFocus()
   })
 
-  it('captions the artwork with the track title and artist, nothing else', async () => {
+  it('captions the artwork with the title, the artist, and how to play it', async () => {
     const { user } = renderApp([pageOf(['first result'], null)])
 
     await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
     await user.click(await screen.findByRole('button', { name: 'first result' }))
 
     const image = screen.getByRole('region', { name: /now showing/i })
-    const caption = within(image).getByRole('button').textContent
+    expect(within(image).getByText('first result')).toBeInTheDocument()
+    expect(within(image).getByText('artist')).toBeInTheDocument()
+    expect(within(image).getByText(/tap to play/i)).toBeInTheDocument()
 
-    expect(caption).toBe('first resultartist')
+    await user.click(within(image).getByRole('img', { name: /first result by artist/i }))
+
+    expect(within(image).queryByText(/tap to play/i)).not.toBeInTheDocument()
+    expect(within(image).getByTitle('first result player')).toBeInTheDocument()
   })
 
   it('shows the selected track in the image container', async () => {

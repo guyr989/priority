@@ -73,17 +73,35 @@ export function SearchContainer({
         <div className={styles.views} role="group" aria-label="Result layout">
           <button
             type="button"
+            className={styles.view}
+            aria-label="List"
             aria-pressed={view === 'list'}
+            title="List"
             onClick={() => onViewChange('list')}
           >
-            List
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+              <path
+                d="M4 6h16M4 12h16M4 18h16"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
           </button>
           <button
             type="button"
+            className={styles.view}
+            aria-label="Tile"
             aria-pressed={view === 'tile'}
+            title="Tile"
             onClick={() => onViewChange('tile')}
           >
-            Tile
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+              <path
+                d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"
+                fill="currentColor"
+              />
+            </svg>
           </button>
         </div>
       </div>

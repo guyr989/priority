@@ -56,6 +56,7 @@
 }
 
 .imageButton {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -71,6 +72,35 @@
 .imageButton:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 4px;
+}
+
+.cover {
+  position: relative;
+  display: block;
+  line-height: 0;
+}
+
+.play {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 15px 9px 11px;
+  border-radius: 999px;
+  font-size: var(--micro);
+  letter-spacing: var(--micro-tracking);
+  text-transform: uppercase;
+  color: var(--panel);
+  background: rgba(23, 20, 29, 0.72);
+  backdrop-filter: blur(6px);
+  transition: opacity 160ms ease-out;
+}
+
+.imageButton:hover .play {
+  background: var(--text-h);
 }
 
 .image {
@@ -166,5 +196,9 @@
 @media (prefers-reduced-motion: reduce) {
   .image {
     animation: none;
+  }
+
+  .play {
+    transition: none;
   }
 }

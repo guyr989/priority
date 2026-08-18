@@ -12,37 +12,53 @@ const noop = () => {}
 
 describe('Results', () => {
   it('invites a first search while idle', () => {
-    render(<Results status="idle" view="list" tracks={[]} onSelect={noop} onRetry={noop} />)
+    render(<Results status="idle" view="list" showingId={null} tracks={[]} onSelect={noop} onRetry={noop} />)
 
-    expect(screen.getByText(/search for a track/i)).toBeInTheDocument()
+    expect(screen.getByText(/start digging/i)).toBeInTheDocument()
   })
 
   it('says it is searching while loading', () => {
-    render(<Results status="loading" view="list" tracks={[]} onSelect={noop} onRetry={noop} />)
+    render(<Results status="loading" view="list" showingId={null} tracks={[]} onSelect={noop} onRetry={noop} />)
 
-    expect(screen.getByText(/searching for tracks/i)).toBeInTheDocument()
+    expect(screen.getByText('Digging')).toBeInTheDocument()
     expect(screen.getByRole('status')).toHaveTextContent('Searching')
     expect(screen.queryByRole('list')).not.toBeInTheDocument()
   })
 
   it('explains an empty result instead of showing a blank list', () => {
-    render(<Results status="ready" view="list" tracks={[]} onSelect={noop} onRetry={noop} />)
+    render(<Results status="ready" view="list" showingId={null} tracks={[]} onSelect={noop} onRetry={noop} />)
 
-    expect(screen.getByText(/try another term/i)).toBeInTheDocument()
-    expect(screen.getByRole('status')).toHaveTextContent(/no tracks match/i)
+    expect(screen.getByText(/try a shorter one/i)).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent(/nothing found/i)
     expect(screen.queryByRole('list')).not.toBeInTheDocument()
   })
 
   it('announces a failure and offers a retry', async () => {
     const onRetry = vi.fn()
     const user = userEvent.setup()
-    render(<Results status="error" view="list" tracks={[]} onSelect={noop} onRetry={onRetry} />)
+    render(<Results status="error" view="list" showingId={null} tracks={[]} onSelect={noop} onRetry={onRetry} />)
 
-    expect(screen.getByRole('alert')).toHaveTextContent(/did not go through/i)
+    expect(screen.getByRole('alert')).toHaveTextContent(/did not land/i)
 
     await user.click(screen.getByRole('button', { name: /try again/i }))
 
     expect(onRetry).toHaveBeenCalledOnce()
+  })
+
+  it('marks the track that is on the sleeve', () => {
+    render(
+      <Results
+        status="ready"
+        view="list"
+        showingId="two"
+        tracks={[track('one'), track('two')]}
+        onSelect={noop}
+        onRetry={noop}
+      />,
+    )
+
+    expect(screen.getByRole('button', { name: 'two' })).toHaveAttribute('aria-current', 'true')
+    expect(screen.getByRole('button', { name: 'one' })).toHaveAttribute('aria-current', 'false')
   })
 
   it('tiles the same tracks with their artwork', () => {
@@ -50,6 +66,7 @@ describe('Results', () => {
       <Results
         status="ready"
         view="tile"
+        showingId={null}
         tracks={[track('one'), track('two')]}
         onSelect={noop}
         onRetry={noop}
@@ -67,6 +84,7 @@ describe('Results', () => {
       <Results
         status="ready"
         view="list"
+        showingId={null}
         tracks={[track('one'), track('two')]}
         onSelect={onSelect}
         onRetry={noop}
