@@ -43,3 +43,7 @@ email from client.txt
 .claude/
 
 .vercel
+
+# agent instructions, internal
+AGENTS.md
+.agents/
