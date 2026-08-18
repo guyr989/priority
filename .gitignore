@@ -41,3 +41,5 @@ docs/pdf-dump.txt
 email from client.txt
 *.pdf
 .claude/
+
+.vercel

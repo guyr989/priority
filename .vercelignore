@@ -1,0 +1,13 @@
+node_modules
+dist
+coverage
+.git
+
+# internal, never uploaded
+CLAUDE.md
+PLAN.md
+docs/
+email from client.txt
+*.pdf
+.claude/
+.vercel
