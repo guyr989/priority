@@ -247,6 +247,66 @@ describe('useSearch paging', () => {
     expect(callAt(calls, 2).cursor).toBeNull()
   })
 
+  it('reports idle, loading, ready, and error as the search moves', async () => {
+    const { provider, calls } = createProvider()
+    const { result, rerender } = renderHook(
+      ({ query }) => useSearch(provider, query, DEBOUNCE),
+      { initialProps: { query: '' } },
+    )
+
+    expect(result.current.status).toBe('idle')
+
+    rerender({ query: 'adele' })
+    await flushDebounce()
+    expect(result.current.status).toBe('loading')
+
+    await act(async () => {
+      callAt(calls, 0).resolve(page(['a'], null, null))
+    })
+    expect(result.current.status).toBe('ready')
+
+    act(() => {
+      result.current.retry()
+    })
+    await flushDebounce()
+    await act(async () => {
+      callAt(calls, 1).reject(new Error('offline'))
+    })
+    expect(result.current.status).toBe('error')
+
+    act(() => {
+      result.current.retry()
+    })
+    await flushDebounce()
+    await act(async () => {
+      callAt(calls, 2).resolve(page(['a'], null, null))
+    })
+    expect(result.current.status).toBe('ready')
+  })
+
+  it('retries the page it failed on, not the first page', async () => {
+    const { provider, calls } = createProvider()
+    const { result } = renderHook(() => useSearch(provider, 'adele', DEBOUNCE))
+
+    await flushDebounce()
+    await act(async () => {
+      callAt(calls, 0).resolve(page(['a'], 'cursor-2', null))
+    })
+    act(() => {
+      result.current.goToNextPage()
+    })
+    await flushDebounce()
+    await act(async () => {
+      callAt(calls, 1).reject(new Error('offline'))
+    })
+    act(() => {
+      result.current.retry()
+    })
+    await flushDebounce()
+
+    expect(callAt(calls, 2).cursor).toBe('cursor-2')
+  })
+
   it('empties the results when the search fails', async () => {
     const { provider, calls } = createProvider()
     const { result } = renderHook(() => useSearch(provider, 'adele', DEBOUNCE))

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { FlyingResult } from './components/FlyingResult'
 import { ImageContainer } from './components/ImageContainer'
 import { RecentSearches } from './components/RecentSearches'
+import { Results } from './components/Results'
 import { SearchContainer, type ViewMode } from './components/SearchContainer'
 import { useSearch } from './hooks/useSearch'
 import { useSearchHistory } from './hooks/useSearchHistory'
@@ -37,11 +38,8 @@ function App({ provider, historyStore }: AppProps) {
   const [isPlaying, setIsPlaying] = useState(false)
   const imageSlotRef = useRef<HTMLDivElement>(null)
 
-  const { tracks, hasNext, hasPrev, goToNextPage, goToPrevPage, restart } = useSearch(
-    provider,
-    query,
-    DEBOUNCE_MS,
-  )
+  const { tracks, status, hasNext, hasPrev, goToNextPage, goToPrevPage, restart, retry } =
+    useSearch(provider, query, DEBOUNCE_MS)
   const { terms, record } = useSearchHistory(historyStore)
 
   useEffect(() => {
@@ -77,19 +75,12 @@ function App({ provider, historyStore }: AppProps) {
         onPrev={goToPrevPage}
         onNext={goToNextPage}
       >
-        <ul className={styles.results}>
-          {tracks.map((track) => (
-            <li key={track.id}>
-              <button
-                type="button"
-                className={styles.result}
-                onClick={(event) => selectTrack(track, event.currentTarget)}
-              >
-                {track.title}
-              </button>
-            </li>
-          ))}
-        </ul>
+        <Results
+          status={status}
+          tracks={tracks}
+          onSelect={selectTrack}
+          onRetry={retry}
+        />
       </SearchContainer>
 
       <div className={styles.side}>

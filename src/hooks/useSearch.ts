@@ -11,13 +11,17 @@ import {
 import type { SoundProvider } from '../domain/soundProvider'
 import type { Track } from '../domain/track'
 
+export type SearchStatus = 'idle' | 'loading' | 'ready' | 'error'
+
 export interface SearchResult {
   readonly tracks: readonly Track[]
+  readonly status: SearchStatus
   readonly hasNext: boolean
   readonly hasPrev: boolean
   readonly goToNextPage: () => void
   readonly goToPrevPage: () => void
   readonly restart: () => void
+  readonly retry: () => void
 }
 
 export function useSearch(
@@ -26,6 +30,7 @@ export function useSearch(
   debounceMs: number,
 ): SearchResult {
   const [tracks, setTracks] = useState<readonly Track[]>([])
+  const [status, setStatus] = useState<SearchStatus>('idle')
   const [pagination, setPagination] = useState<PaginationState>(initialPagination)
   const [requestCount, setRequestCount] = useState(0)
   const [activeQuery, setActiveQuery] = useState(query)
@@ -34,6 +39,7 @@ export function useSearch(
     setActiveQuery(query)
     setPagination(initialPagination)
     setTracks([])
+    setStatus(query === '' ? 'idle' : 'loading')
   }
 
   const cursor = pagination.cursor
@@ -46,17 +52,20 @@ export function useSearch(
 
     const timer = setTimeout(
       () => {
+        setStatus('loading')
         provider
           .search(query, cursor, controller.signal)
           .then((page) => {
             if (!current) return
             setTracks(page.items)
             setPagination((state) => receivePage(state, page))
+            setStatus('ready')
           })
           .catch((error: unknown) => {
             if (!current) return
             if (!(error instanceof Error) || error.name !== 'AbortError') {
               setTracks([])
+              setStatus('error')
             }
           })
       },
@@ -72,6 +81,7 @@ export function useSearch(
 
   return {
     tracks,
+    status,
     hasNext: canGoNext(pagination),
     hasPrev: canGoPrev(pagination),
     goToNextPage: () => {
@@ -86,5 +96,6 @@ export function useSearch(
       setPagination(initialPagination)
       setRequestCount((count) => count + 1)
     },
+    retry: () => setRequestCount((count) => count + 1),
   }
 }
