@@ -1,31 +1,21 @@
 import { useState } from 'react'
+import { soundProvider } from './api/mixcloud'
 import { ImageContainer } from './components/ImageContainer'
 import { RecentSearches } from './components/RecentSearches'
 import { SearchContainer, type ViewMode } from './components/SearchContainer'
+import { useSearch } from './hooks/useSearch'
 import type { Track } from './domain/track'
 import styles from './App.module.css'
 
-// Placeholder data. Slice 4 replaces it with api/mixcloud.ts, slice 12 with real history.
-const PLACEHOLDER_ART =
-  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"><rect width="1" height="1" fill="%23d9d7d2"/></svg>'
-
-const PLACEHOLDER_TRACKS: readonly Track[] = Array.from(
-  { length: 6 },
-  (_unused, index) => ({
-    id: `placeholder-${index + 1}`,
-    title: `Placeholder show ${index + 1}`,
-    artist: 'Placeholder artist',
-    imageUrl: PLACEHOLDER_ART,
-    embedUrl: '',
-  }),
-)
-
+// Placeholder history. Slice 12 replaces it with domain/history.ts.
 const PLACEHOLDER_TERMS: readonly string[] = ['adele', 'boiler room', 'jazz']
 
 function App() {
   const [query, setQuery] = useState('')
   const [view, setView] = useState<ViewMode>('list')
   const [selected, setSelected] = useState<Track | null>(null)
+
+  const tracks = useSearch(soundProvider, query)
 
   return (
     <main className={styles.layout}>
@@ -41,7 +31,7 @@ function App() {
         onNext={() => {}}
       >
         <ul className={styles.results}>
-          {PLACEHOLDER_TRACKS.map((track) => (
+          {tracks.map((track) => (
             <li key={track.id}>
               <button
                 type="button"
