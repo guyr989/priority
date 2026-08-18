@@ -7,28 +7,29 @@ import { useSearch } from './hooks/useSearch'
 import type { Track } from './domain/track'
 import styles from './App.module.css'
 
-// Placeholder history. Slice 12 replaces it with domain/history.ts.
-const PLACEHOLDER_TERMS: readonly string[] = ['adele', 'boiler room', 'jazz']
-
 function App() {
   const [query, setQuery] = useState('')
   const [view, setView] = useState<ViewMode>('list')
   const [selected, setSelected] = useState<Track | null>(null)
 
-  const tracks = useSearch(soundProvider, query, 300)
+  const { tracks, hasNext, hasPrev, goToNextPage, goToPrevPage } = useSearch(
+    soundProvider,
+    query,
+    300,
+  )
 
   return (
     <main className={styles.layout}>
       <SearchContainer
         query={query}
         view={view}
-        hasPrev={false}
-        hasNext={false}
+        hasPrev={hasPrev}
+        hasNext={hasNext}
         onQueryChange={setQuery}
         onSubmit={() => { }}
         onViewChange={setView}
-        onPrev={() => { }}
-        onNext={() => { }}
+        onPrev={goToPrevPage}
+        onNext={goToNextPage}
       >
         <ul className={styles.results}>
           {tracks.map((track) => (
@@ -47,7 +48,7 @@ function App() {
 
       <div className={styles.side}>
         <ImageContainer track={selected} onImageClick={() => { }} />
-        <RecentSearches terms={PLACEHOLDER_TERMS} onSelect={setQuery} />
+        <RecentSearches terms={[]} onSelect={setQuery} />
       </div>
     </main>
   )

@@ -1,6 +1,5 @@
 import type { Page } from './page'
 
-
 export interface PaginationState {
     readonly cursor: string | null
     readonly nextCursor: string | null
@@ -35,7 +34,6 @@ export function canGoNext(state: PaginationState): boolean {
 export function canGoPrev(state: PaginationState): boolean {
     return state.prevCursor !== null
 }
-
 
 export function goNext(state: PaginationState): PaginationState {
     if (state.nextCursor === null) return state
