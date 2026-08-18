@@ -34,6 +34,16 @@
   --micro-tracking: 0.1em;
   --micro-weight: 600;
 
+  --radius: 10px;
+  --radius-s: 8px;
+  --cover: 300px;
+
+  --billing-family: var(--display);
+  --billing-size: 23px;
+  --billing-weight: 400;
+  --billing-case: none;
+  --billing-tracking: -0.2px;
+
   font: 17px/150% var(--sans);
   letter-spacing: normal;
   color-scheme: light dark;
@@ -60,6 +70,82 @@
     --accent-bg: rgba(196, 165, 255, 0.14);
     --accent-border: rgba(196, 165, 255, 0.45);
     --social-bg: #221e2b;
+  }
+}
+
+/*
+ * One look per attribute. Palette and proportions live here; the layout token
+ * lives with the layout in App.module.css, so a look never needs a component
+ * to know its name.
+ */
+
+:root[data-appearance='after-hours'] {
+  color-scheme: dark;
+  --text: #97a49c;
+  --text-h: #f2f5f1;
+  --bg: #0d1210;
+  --panel: #141b17;
+  --border: #24302a;
+  --accent: #ffb545;
+  --accent-bg: rgba(255, 181, 69, 0.13);
+  --accent-border: rgba(255, 181, 69, 0.5);
+  --social-bg: #1b241f;
+  --cover: 320px;
+  --billing-size: 30px;
+  --billing-tracking: -0.6px;
+}
+
+:root[data-appearance='riso'] {
+  color-scheme: light;
+  --text: #55534c;
+  --text-h: #16161a;
+  --bg: #f2efe6;
+  --panel: #fbfaf5;
+  --border: #d9d4c4;
+  --accent: #2b4bd8;
+  --accent-bg: rgba(255, 74, 141, 0.12);
+  --accent-border: #ff4a8d;
+  --social-bg: #eae5d8;
+  --radius: 2px;
+  --radius-s: 2px;
+  --cover: 210px;
+  --billing-family: var(--sans);
+  --billing-size: 16px;
+  --billing-weight: 600;
+  --billing-case: uppercase;
+  --billing-tracking: 0.06em;
+}
+
+:root[data-appearance='gallery'] {
+  color-scheme: light;
+  --text: #6f6f6f;
+  --text-h: #111111;
+  --bg: #fafafa;
+  --panel: #ffffff;
+  --border: #e6e6e6;
+  --accent: #111111;
+  --accent-bg: rgba(17, 17, 17, 0.06);
+  --accent-border: #111111;
+  --social-bg: #f2f2f2;
+  --radius: 3px;
+  --radius-s: 3px;
+  --cover: 420px;
+  --billing-size: 21px;
+  --billing-tracking: 0.02em;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-appearance='gallery'] {
+    color-scheme: dark;
+    --text: #8f8f92;
+    --text-h: #f4f4f5;
+    --bg: #0c0c0d;
+    --panel: #141416;
+    --border: #262629;
+    --accent: #f4f4f5;
+    --accent-bg: rgba(244, 244, 245, 0.08);
+    --accent-border: #f4f4f5;
+    --social-bg: #1c1c1f;
   }
 }
 

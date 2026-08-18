@@ -1,10 +1,11 @@
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 import type { Page } from './domain/page'
 import type { SoundProvider } from './domain/soundProvider'
 import type { Track } from './domain/track'
+import type { PlaybackSource } from './domain/playback'
 import type { Store } from './storage/store'
 import type { ViewMode } from './domain/view'
 
@@ -39,6 +40,24 @@ function createMemoryStore<T>(initial: T | null): Store<T> {
   }
 }
 
+function createPlayer() {
+  let report: ((playing: boolean) => void) | null = null
+  const source: PlaybackSource = {
+    isPlaying: true,
+    subscribe(onChange) {
+      report = onChange
+      return () => {
+        report = null
+      }
+    },
+  }
+  return {
+    attach: () => Promise.resolve(source),
+    say: (playing: boolean) => act(() => report?.(playing)),
+    attached: () => waitFor(() => expect(report).not.toBeNull()),
+  }
+}
+
 function renderApp(
   pages: readonly Page<Track>[],
   history: readonly string[] = [],
@@ -48,20 +67,25 @@ function renderApp(
   const store = createMemoryStore<readonly string[]>(history)
   const viewStore = createMemoryStore<ViewMode>(view)
   const lastTrackStore = createMemoryStore<Track>(lastTrack)
+  const appearanceStore = createMemoryStore<string>(null)
+  const player = createPlayer()
   render(
     <App
       provider={createProvider(pages)}
       historyStore={store}
       viewStore={viewStore}
       lastTrackStore={lastTrackStore}
+      appearanceStore={appearanceStore}
+      attachPlayback={player.attach}
       debounceMs={0}
     />,
   )
-  return { user: userEvent.setup(), store, viewStore, lastTrackStore }
+  return { user: userEvent.setup(), store, viewStore, lastTrackStore, appearanceStore, player }
 }
 
 afterEach(() => {
   Reflect.deleteProperty(window, 'matchMedia')
+  Reflect.deleteProperty(document.documentElement.dataset, 'appearance')
 })
 
 function askForReducedMotion() {
@@ -204,6 +228,48 @@ describe('App', () => {
       within(image).queryByRole('button', { name: /^play /i }),
     ).not.toBeInTheDocument()
     expect(within(image).getByTitle('first result player')).toBeInTheDocument()
+  })
+
+  it('keeps the embed when the listener pauses on the player itself', async () => {
+    const { user, player } = renderApp([pageOf(['first result'], null)])
+
+    await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
+    await user.click(await screen.findByRole('button', { name: 'first result' }))
+    await user.click(screen.getByRole('img', { name: /first result by artist/i }))
+
+    await player.attached()
+    player.say(false)
+
+    expect(screen.getByTitle('first result player')).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: /^play /i }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('changes the look and keeps it for the next visit', async () => {
+    const { user, appearanceStore } = renderApp([pageOf(['first result'], null)])
+
+    expect(document.documentElement.dataset.appearance).toBe('studio')
+
+    await user.click(screen.getByRole('button', { name: /appearance/i }))
+    await user.click(screen.getByRole('radio', { name: /^after hours/i }))
+
+    expect(document.documentElement.dataset.appearance).toBe('after-hours')
+    expect(appearanceStore.read()).toBe('after-hours')
+  })
+
+  it('shows the sleeve as artwork in a look that carries no player', async () => {
+    const { user } = renderApp([pageOf(['first result'], null)])
+
+    await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
+    await user.click(await screen.findByRole('button', { name: 'first result' }))
+    await user.click(screen.getByRole('button', { name: /appearance/i }))
+    await user.click(screen.getByRole('radio', { name: /^gallery/i }))
+
+    const image = screen.getByRole('region', { name: /now playing/i })
+    expect(within(image).getByRole('img', { name: /first result by artist/i })).toBeInTheDocument()
+    expect(within(image).queryByRole('button')).not.toBeInTheDocument()
+    expect(screen.queryByTitle('first result player')).not.toBeInTheDocument()
   })
 
   it('keeps no now playing panel until something has been picked', () => {

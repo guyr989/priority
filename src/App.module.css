@@ -1,12 +1,50 @@
+.band {
+  border-bottom: 1px solid var(--border);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1126px;
+  margin: 0 auto;
+  padding: 14px 20px;
+  box-sizing: border-box;
+}
+
+.wordmark {
+  font-size: 27px;
+  line-height: 100%;
+}
+
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 344px) minmax(0, 1fr);
   gap: 20px;
   align-items: start;
-  padding: 28px 20px 40px;
+  padding: 18px 20px 40px;
   max-width: 1126px;
   margin: 0 auto;
   box-sizing: border-box;
+}
+
+/* Sleeve in its own column, the search beside it. */
+.side {
+  grid-template-columns: minmax(0, 344px) minmax(0, 1fr);
+}
+
+/* One column, sleeve first and large. */
+.stack {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 780px;
+}
+
+/* Sleeve and player laid across the top, results underneath. */
+.banner {
+  grid-template-columns: minmax(0, 1fr);
+  --now-flow: row;
+  --slot-width: auto;
+  --player-flex: 1 1 280px;
 }
 
 /* Nothing playing yet: one column, no empty half. */
@@ -16,17 +54,27 @@
 }
 
 @media (max-width: 900px) {
+  .bar {
+    padding: 11px 14px;
+  }
+
   .layout {
     grid-template-columns: minmax(0, 1fr);
     gap: 14px;
-    padding: 16px 14px 28px;
+    padding: 12px 14px 28px;
+  }
+
+  .banner {
+    --now-flow: column;
+    --slot-width: 100%;
+    --player-flex: 0 0 auto;
   }
 }
 
 /* Sticky only where the whole panel fits, otherwise it clips its own player. */
 @media (min-width: 901px) and (min-height: 720px) {
-  .now {
+  .side .now {
     position: sticky;
-    top: 28px;
+    top: 22px;
   }
 }

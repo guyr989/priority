@@ -33,7 +33,7 @@
 .result {
   font-size: 16px;
   padding: 11px 14px;
-  border-radius: 8px;
+  border-radius: var(--radius-s);
 }
 
 .result::before {
@@ -74,14 +74,14 @@
   flex-direction: column;
   gap: 8px;
   padding: 8px;
-  border-radius: 8px;
+  border-radius: var(--radius-s);
 }
 
 .tileImage {
   width: 100%;
   aspect-ratio: 1;
   object-fit: cover;
-  border-radius: 6px;
+  border-radius: var(--radius-s);
   background: var(--accent-bg);
 }
 
@@ -110,7 +110,7 @@
   font-size: 16px;
   min-height: 44px;
   padding: 8px 16px;
-  border-radius: 6px;
+  border-radius: var(--radius-s);
   color: var(--text-h);
   background: var(--accent-bg);
   border: 1px solid var(--accent-border);

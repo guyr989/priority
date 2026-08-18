@@ -1,11 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { AppearanceMenu } from './components/AppearanceMenu'
 import { FlyingResult } from './components/FlyingResult'
 import { ImageContainer } from './components/ImageContainer'
 import { RecentSearches } from './components/RecentSearches'
 import { Results } from './components/Results'
 import { SearchContainer } from './components/SearchContainer'
+import { useAppearance } from './hooks/useAppearance'
+import { usePlayback } from './hooks/usePlayback'
 import { useSearch } from './hooks/useSearch'
 import { useSearchHistory } from './hooks/useSearchHistory'
+import { APPEARANCES } from './domain/appearance'
+import type { LayoutName } from './domain/appearance'
+import type { AttachPlayback } from './hooks/usePlayback'
 import type { SoundProvider } from './domain/soundProvider'
 import type { ViewMode } from './domain/view'
 import type { Store } from './storage/store'
@@ -13,6 +19,12 @@ import type { Track } from './domain/track'
 import styles from './App.module.css'
 
 const DEBOUNCE_MS = 300
+
+const LAYOUT_CLASS = {
+  side: styles.side,
+  stack: styles.stack,
+  banner: styles.banner,
+} satisfies Record<LayoutName, string | undefined>
 
 interface Flight {
   readonly track: Track
@@ -31,6 +43,8 @@ interface AppProps {
   readonly historyStore: Store<readonly string[]>
   readonly viewStore: Store<ViewMode>
   readonly lastTrackStore: Store<Track>
+  readonly appearanceStore: Store<string>
+  readonly attachPlayback: AttachPlayback
   readonly debounceMs?: number
 }
 
@@ -39,16 +53,23 @@ function App({
   historyStore,
   viewStore,
   lastTrackStore,
+  appearanceStore,
+  attachPlayback,
   debounceMs = DEBOUNCE_MS,
 }: AppProps) {
   const [query, setQuery] = useState('')
   const [view, setView] = useState<ViewMode>(() => viewStore.read() ?? 'list')
   const [selected, setSelected] = useState<Track | null>(() => lastTrackStore.read())
   const [flight, setFlight] = useState<Flight | null>(null)
-  const [isPlaying, setIsPlaying] = useState(false)
+  const [embedded, setEmbedded] = useState(false)
   const chosenHere = useRef(false)
   const imageSlotRef = useRef<HTMLDivElement>(null)
   const imageSectionRef = useRef<HTMLElement>(null)
+  const playerRef = useRef<HTMLIFrameElement>(null)
+
+  const { look, choose } = useAppearance(appearanceStore)
+  const playing = embedded && look.showsPlayer
+  const isPlaying = usePlayback(playerRef, attachPlayback, playing, selected?.id ?? null)
 
   const { tracks, status, hasNext, hasPrev, goToNextPage, goToPrevPage, restart, retry } =
     useSearch(provider, query, debounceMs)
@@ -78,7 +99,7 @@ function App({
 
   const selectTrack = (track: Track, origin: HTMLElement) => {
     chosenHere.current = true
-    setIsPlaying(false)
+    setEmbedded(false)
     lastTrackStore.write(track)
     imageSectionRef.current?.scrollIntoView({ block: 'nearest' })
     if (prefersReducedMotion()) {
@@ -91,63 +112,80 @@ function App({
   const showNowPlaying = selected !== null || flight !== null
 
   return (
-    <main className={showNowPlaying ? styles.layout : `${styles.layout} ${styles.solo}`}>
-      <h1 className="visually-hidden">Sound search</h1>
-
-      {showNowPlaying && (
-        <div className={styles.now}>
-          <ImageContainer
-            track={selected}
-            sectionRef={imageSectionRef}
-            slotRef={imageSlotRef}
-            isPlaying={isPlaying}
-            onImageClick={() => setIsPlaying(true)}
-          />
+    <>
+      <header className={styles.band}>
+        <div className={styles.bar}>
+          <h1 className={styles.wordmark}>Sound search</h1>
+          <AppearanceMenu looks={APPEARANCES} current={look} onChoose={choose} />
         </div>
-      )}
+      </header>
 
-      <SearchContainer
-        query={query}
-        view={view}
-        hasPrev={hasPrev}
-        hasNext={hasNext}
-        onQueryChange={setQuery}
-        onSubmit={restart}
-        onViewChange={(next) => {
-          setView(next)
-          viewStore.write(next)
-        }}
-        onPrev={goToPrevPage}
-        onNext={goToNextPage}
-        recent={
-          <RecentSearches
-            terms={terms}
-            onSelect={(term) => {
-              setQuery(term)
-              if (term === query) restart()
-            }}
-          />
-        }
+      <main
+        className={[
+          styles.layout,
+          showNowPlaying ? LAYOUT_CLASS[look.layout] : styles.solo,
+        ]
+          .filter(Boolean)
+          .join(' ')}
       >
-        <Results
-          status={status}
-          view={view}
-          tracks={tracks}
-          showingId={selected?.id ?? null}
-          onSelect={selectTrack}
-          onRetry={retry}
-        />
-      </SearchContainer>
+        {showNowPlaying && (
+          <div className={styles.now}>
+            <ImageContainer
+              track={selected}
+              sectionRef={imageSectionRef}
+              slotRef={imageSlotRef}
+              frameRef={playerRef}
+              playable={look.showsPlayer}
+              embedded={playing}
+              isPlaying={isPlaying}
+              onImageClick={() => setEmbedded(true)}
+            />
+          </div>
+        )}
 
-      {flight !== null && (
-        <FlyingResult
-          label={flight.track.title}
-          from={flight.from}
-          targetRef={imageSlotRef}
-          onFinish={landFlight}
-        />
-      )}
-    </main>
+        <SearchContainer
+          query={query}
+          view={view}
+          hasPrev={hasPrev}
+          hasNext={hasNext}
+          onQueryChange={setQuery}
+          onSubmit={restart}
+          onViewChange={(next) => {
+            setView(next)
+            viewStore.write(next)
+          }}
+          onPrev={goToPrevPage}
+          onNext={goToNextPage}
+          recent={
+            <RecentSearches
+              terms={terms}
+              onSelect={(term) => {
+                setQuery(term)
+                if (term === query) restart()
+              }}
+            />
+          }
+        >
+          <Results
+            status={status}
+            view={view}
+            tracks={tracks}
+            showingId={selected?.id ?? null}
+            onSelect={selectTrack}
+            onRetry={retry}
+          />
+        </SearchContainer>
+
+        {flight !== null && (
+          <FlyingResult
+            label={flight.track.title}
+            from={flight.from}
+            targetRef={imageSlotRef}
+            onFinish={landFlight}
+          />
+        )}
+      </main>
+    </>
   )
 }
 
