@@ -187,6 +187,103 @@ describe('useSearch paging', () => {
     expect(result.current.tracks.map((item) => item.id)).toEqual(['fresh'])
   })
 
+  it('refetches the same page when the search is resubmitted', async () => {
+    const { provider, calls } = createProvider()
+    const { result } = renderHook(() => useSearch(provider, 'adele', DEBOUNCE))
+
+    await flushDebounce()
+    await act(async () => {
+      callAt(calls, 0).resolve(page(['a'], 'cursor-2', null))
+    })
+    act(() => {
+      result.current.refresh()
+    })
+    await flushDebounce()
+
+    expect(calls).toHaveLength(2)
+    expect(callAt(calls, 1).cursor).toBeNull()
+  })
+
+  it('moves on even when the API hands back the cursor it is already on', async () => {
+    const { provider, calls } = createProvider()
+    const { result } = renderHook(() => useSearch(provider, 'adele', DEBOUNCE))
+
+    await flushDebounce()
+    await act(async () => {
+      callAt(calls, 0).resolve(page(['a'], 'cursor-1', null))
+    })
+    act(() => {
+      result.current.goToNextPage()
+    })
+    await flushDebounce()
+    await act(async () => {
+      callAt(calls, 1).resolve(page(['b'], null, null))
+    })
+
+    expect(calls).toHaveLength(2)
+    expect(result.current.tracks.map((item) => item.id)).toEqual(['b'])
+  })
+
+  it('empties the results when the search fails', async () => {
+    const { provider, calls } = createProvider()
+    const { result } = renderHook(() => useSearch(provider, 'adele', DEBOUNCE))
+
+    await flushDebounce()
+    await act(async () => {
+      callAt(calls, 0).resolve(page(['a'], null, null))
+    })
+    act(() => {
+      result.current.refresh()
+    })
+    await flushDebounce()
+    await act(async () => {
+      callAt(calls, 1).reject(new Error('network down'))
+    })
+
+    expect(result.current.tracks).toEqual([])
+  })
+
+  it('keeps the results when an aborted request rejects', async () => {
+    const { provider, calls } = createProvider()
+    const { result, rerender } = renderHook(
+      ({ query }) => useSearch(provider, query, DEBOUNCE),
+      { initialProps: { query: 'adele' } },
+    )
+
+    await flushDebounce()
+    await act(async () => {
+      callAt(calls, 0).resolve(page(['a'], null, null))
+    })
+
+    rerender({ query: 'adele live' })
+    await flushDebounce()
+    await act(async () => {
+      const abortError = new Error('aborted')
+      abortError.name = 'AbortError'
+      callAt(calls, 1).reject(abortError)
+    })
+
+    expect(result.current.tracks).toEqual([])
+  })
+
+  it('drops the previous results as soon as the query changes', async () => {
+    const { provider, calls } = createProvider()
+    const { result, rerender } = renderHook(
+      ({ query }) => useSearch(provider, query, DEBOUNCE),
+      { initialProps: { query: 'adele' } },
+    )
+
+    await flushDebounce()
+    await act(async () => {
+      callAt(calls, 0).resolve(page(['a'], 'cursor-2', null))
+    })
+
+    rerender({ query: 'radiohead' })
+
+    expect(result.current.tracks).toEqual([])
+    expect(result.current.hasNext).toBe(false)
+  })
+
   it('clears results when the query is emptied', async () => {
     const { provider, calls } = createProvider()
     const { result, rerender } = renderHook(

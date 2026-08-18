@@ -12,10 +12,6 @@ export const initialPagination: PaginationState = {
     prevCursor: null,
 }
 
-export function resetPagination(): PaginationState {
-    return initialPagination
-}
-
 export function receivePage(
     state: PaginationState,
     page: Page<unknown>,

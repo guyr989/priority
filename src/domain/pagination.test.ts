@@ -7,7 +7,6 @@ import {
     goPrev,
     initialPagination,
     receivePage,
-    resetPagination,
 } from './pagination'
 
 const page = (next: string | null, prev: string | null): Page<string> => ({
@@ -62,9 +61,9 @@ describe('pagination', () => {
         expect(second.prevCursor).toBe('c1')
     })
 
-    it('sends a new query back to the first page', () => {
-        const deep = receivePage({ cursor: 'c9', nextCursor: 'c10', prevCursor: 'c8' }, page('c10', 'c8'))
-        expect(resetPagination()).toEqual(initialPagination)
+    it('keeps the cursor that produced the page it is given', () => {
+        const deep = receivePage({ cursor: 'c9', nextCursor: null, prevCursor: null }, page('c10', 'c8'))
         expect(deep.cursor).toBe('c9')
+        expect(deep.nextCursor).toBe('c10')
     })
 })

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   canGoNext,
   canGoPrev,
@@ -6,7 +6,6 @@ import {
   goPrev,
   initialPagination,
   receivePage,
-  resetPagination,
   type PaginationState,
 } from '../domain/pagination'
 import type { SoundProvider } from '../domain/soundProvider'
@@ -18,6 +17,7 @@ export interface SearchResult {
   readonly hasPrev: boolean
   readonly goToNextPage: () => void
   readonly goToPrevPage: () => void
+  readonly refresh: () => void
 }
 
 export function useSearch(
@@ -27,12 +27,16 @@ export function useSearch(
 ): SearchResult {
   const [tracks, setTracks] = useState<readonly Track[]>([])
   const [pagination, setPagination] = useState<PaginationState>(initialPagination)
+  const [requestCount, setRequestCount] = useState(0)
   const [activeQuery, setActiveQuery] = useState(query)
 
   if (query !== activeQuery) {
     setActiveQuery(query)
-    setPagination(resetPagination())
+    setPagination(initialPagination)
+    setTracks([])
   }
+
+  const cursor = pagination.cursor
 
   useEffect(() => {
     if (query === '') {
@@ -43,37 +47,44 @@ export function useSearch(
     const controller = new AbortController()
     let current = true
 
-    const timer = setTimeout(() => {
-      provider
-        .search(query, pagination.cursor, controller.signal)
-        .then((page) => {
-          if (!current) return
-          setTracks(page.items)
-          setPagination((state) => receivePage(state, page))
-        })
-        .catch((error: unknown) => {
-          if (!current) return
-          if (!(error instanceof Error) || error.name !== 'AbortError') {
-            setTracks([])
-          }
-        })
-    }, debounceMs)
+    const timer = setTimeout(
+      () => {
+        provider
+          .search(query, cursor, controller.signal)
+          .then((page) => {
+            if (!current) return
+            setTracks(page.items)
+            setPagination((state) => receivePage(state, page))
+          })
+          .catch((error: unknown) => {
+            if (!current) return
+            if (!(error instanceof Error) || error.name !== 'AbortError') {
+              setTracks([])
+            }
+          })
+      },
+      cursor === null ? debounceMs : 0,
+    )
 
     return () => {
       clearTimeout(timer)
       controller.abort()
       current = false
     }
-  }, [provider, query, pagination.cursor, debounceMs])
-
-  const goToNextPage = useCallback(() => setPagination(goNext), [])
-  const goToPrevPage = useCallback(() => setPagination(goPrev), [])
+  }, [provider, query, cursor, requestCount, debounceMs])
 
   return {
     tracks,
     hasNext: canGoNext(pagination),
     hasPrev: canGoPrev(pagination),
-    goToNextPage,
-    goToPrevPage,
+    goToNextPage: () => {
+      setPagination(goNext)
+      setRequestCount((count) => count + 1)
+    },
+    goToPrevPage: () => {
+      setPagination(goPrev)
+      setRequestCount((count) => count + 1)
+    },
+    refresh: () => setRequestCount((count) => count + 1),
   }
 }

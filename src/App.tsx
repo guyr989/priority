@@ -12,7 +12,7 @@ function App() {
   const [view, setView] = useState<ViewMode>('list')
   const [selected, setSelected] = useState<Track | null>(null)
 
-  const { tracks, hasNext, hasPrev, goToNextPage, goToPrevPage } = useSearch(
+  const { tracks, hasNext, hasPrev, goToNextPage, goToPrevPage, refresh } = useSearch(
     soundProvider,
     query,
     300,
@@ -26,7 +26,7 @@ function App() {
         hasPrev={hasPrev}
         hasNext={hasNext}
         onQueryChange={setQuery}
-        onSubmit={() => { }}
+        onSubmit={refresh}
         onViewChange={setView}
         onPrev={goToPrevPage}
         onNext={goToNextPage}
