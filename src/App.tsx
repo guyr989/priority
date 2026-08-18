@@ -21,7 +21,7 @@ function App({ provider, historyStore }: AppProps) {
   const [view, setView] = useState<ViewMode>('list')
   const [selected, setSelected] = useState<Track | null>(null)
 
-  const { tracks, hasNext, hasPrev, goToNextPage, goToPrevPage, refresh } = useSearch(
+  const { tracks, hasNext, hasPrev, goToNextPage, goToPrevPage, restart } = useSearch(
     provider,
     query,
     DEBOUNCE_MS,
@@ -40,7 +40,7 @@ function App({ provider, historyStore }: AppProps) {
         hasPrev={hasPrev}
         hasNext={hasNext}
         onQueryChange={setQuery}
-        onSubmit={refresh}
+        onSubmit={restart}
         onViewChange={setView}
         onPrev={goToPrevPage}
         onNext={goToNextPage}
@@ -66,7 +66,7 @@ function App({ provider, historyStore }: AppProps) {
           terms={terms}
           onSelect={(term) => {
             setQuery(term)
-            if (term === query) refresh()
+            if (term === query) restart()
           }}
         />
       </div>

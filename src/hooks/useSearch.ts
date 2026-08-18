@@ -17,7 +17,7 @@ export interface SearchResult {
   readonly hasPrev: boolean
   readonly goToNextPage: () => void
   readonly goToPrevPage: () => void
-  readonly refresh: () => void
+  readonly restart: () => void
 }
 
 export function useSearch(
@@ -82,6 +82,9 @@ export function useSearch(
       setPagination(goPrev)
       setRequestCount((count) => count + 1)
     },
-    refresh: () => setRequestCount((count) => count + 1),
+    restart: () => {
+      setPagination(initialPagination)
+      setRequestCount((count) => count + 1)
+    },
   }
 }

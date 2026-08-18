@@ -187,7 +187,7 @@ describe('useSearch paging', () => {
     expect(result.current.tracks.map((item) => item.id)).toEqual(['fresh'])
   })
 
-  it('refetches the same page when the search is resubmitted', async () => {
+  it('goes back to the first page when the search is resubmitted', async () => {
     const { provider, calls } = createProvider()
     const { result } = renderHook(() => useSearch(provider, 'adele', DEBOUNCE))
 
@@ -196,7 +196,7 @@ describe('useSearch paging', () => {
       callAt(calls, 0).resolve(page(['a'], 'cursor-2', null))
     })
     act(() => {
-      result.current.refresh()
+      result.current.restart()
     })
     await flushDebounce()
 
@@ -224,6 +224,29 @@ describe('useSearch paging', () => {
     expect(result.current.tracks.map((item) => item.id)).toEqual(['b'])
   })
 
+  it('returns to the first page when a resubmitted search happens mid-paging', async () => {
+    const { provider, calls } = createProvider()
+    const { result } = renderHook(() => useSearch(provider, 'adele', DEBOUNCE))
+
+    await flushDebounce()
+    await act(async () => {
+      callAt(calls, 0).resolve(page(['a'], 'cursor-2', null))
+    })
+    act(() => {
+      result.current.goToNextPage()
+    })
+    await flushDebounce()
+    await act(async () => {
+      callAt(calls, 1).resolve(page(['b'], 'cursor-3', 'cursor-1'))
+    })
+    act(() => {
+      result.current.restart()
+    })
+    await flushDebounce()
+
+    expect(callAt(calls, 2).cursor).toBeNull()
+  })
+
   it('empties the results when the search fails', async () => {
     const { provider, calls } = createProvider()
     const { result } = renderHook(() => useSearch(provider, 'adele', DEBOUNCE))
@@ -233,7 +256,7 @@ describe('useSearch paging', () => {
       callAt(calls, 0).resolve(page(['a'], null, null))
     })
     act(() => {
-      result.current.refresh()
+      result.current.restart()
     })
     await flushDebounce()
     await act(async () => {
