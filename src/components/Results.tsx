@@ -21,15 +21,21 @@ function announcement(status: SearchStatus, count: number): string {
 export function Results({ status, view, tracks, onSelect, onRetry }: ResultsProps) {
   return (
     <>
-      <p className={styles.announcer} role="status">
+      <p className="visually-hidden" role="status">
         {announcement(status, tracks.length)}
       </p>
-      {body({ status, view, tracks, onSelect, onRetry })}
+      <ResultsBody
+        status={status}
+        view={view}
+        tracks={tracks}
+        onSelect={onSelect}
+        onRetry={onRetry}
+      />
     </>
   )
 }
 
-function body({ status, view, tracks, onSelect, onRetry }: ResultsProps) {
+function ResultsBody({ status, view, tracks, onSelect, onRetry }: ResultsProps) {
   if (status === 'error') {
     return (
       <div className={styles.message} role="alert">

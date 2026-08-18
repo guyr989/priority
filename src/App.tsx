@@ -78,7 +78,7 @@ function App({
 
   return (
     <main className={styles.layout}>
-      <h1 className={styles.pageTitle}>Sound search</h1>
+      <h1 className="visually-hidden">Sound search</h1>
 
       <SearchContainer
         query={query}

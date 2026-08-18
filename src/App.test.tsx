@@ -1,6 +1,6 @@
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 import type { Page } from './domain/page'
 import type { SoundProvider } from './domain/soundProvider'
@@ -55,6 +55,18 @@ function renderApp(
     />,
   )
   return { user: userEvent.setup(), store, viewStore }
+}
+
+afterEach(() => {
+  Reflect.deleteProperty(window, 'matchMedia')
+})
+
+function askForReducedMotion() {
+  Object.defineProperty(window, 'matchMedia', {
+    value: () => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() }),
+    configurable: true,
+    writable: true,
+  })
 }
 
 describe('App', () => {
@@ -156,6 +168,18 @@ describe('App', () => {
     await screen.findByRole('button', { name: 'first result' })
 
     expect(screen.getByRole('status')).toHaveTextContent('1 result ready')
+  })
+
+  it('skips the flight for readers who ask for reduced motion', async () => {
+    askForReducedMotion()
+    const { user } = renderApp([pageOf(['first result'], null)])
+
+    await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
+    await user.click(await screen.findByRole('button', { name: 'first result' }))
+
+    const image = screen.getByRole('region', { name: /now showing/i })
+    expect(within(image).getByRole('img', { name: /first result by artist/i })).toBeInTheDocument()
+    expect(image).toHaveFocus()
   })
 
   it('shows the selected track in the image container', async () => {

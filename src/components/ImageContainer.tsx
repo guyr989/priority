@@ -57,6 +57,7 @@ export function ImageContainer({
           title={`${track.title} player`}
           src={track.embedUrl}
           allow="autoplay"
+          referrerPolicy="no-referrer"
           loading="lazy"
         />
       )}
