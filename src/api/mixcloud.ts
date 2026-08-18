@@ -50,7 +50,13 @@ function toPage(body: unknown): Page<Track> {
 }
 
 function buildUrl(query: string, cursor: string | null): string {
-    if (cursor !== null) return cursor;
+    if (cursor !== null) {
+        const target = new URL(cursor, SEARCH_URL);
+        if (target.origin !== new URL(SEARCH_URL).origin) {
+            throw new Error("Refusing to follow a cursor to another host");
+        }
+        return target.toString();
+    }
 
     const url = new URL(SEARCH_URL);
     url.searchParams.set("q", query);
