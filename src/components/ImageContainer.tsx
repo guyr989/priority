@@ -44,6 +44,7 @@ export function ImageContainer({
               key={track.id}
               className={styles.image}
               src={track.imageUrl}
+              referrerPolicy="no-referrer"
               alt={`${track.title} by ${track.artist}`}
             />
             <span className={styles.caption}>{track.title}</span>

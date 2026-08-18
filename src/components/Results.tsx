@@ -73,7 +73,12 @@ function ResultsBody({ status, view, tracks, onSelect, onRetry }: ResultsProps) 
               className={styles.tile}
               onClick={(event) => onSelect(track, event.currentTarget)}
             >
-              <img className={styles.tileImage} src={track.imageUrl} alt="" />
+              <img
+                className={styles.tileImage}
+                src={track.imageUrl}
+                referrerPolicy="no-referrer"
+                alt=""
+              />
               <span className={styles.tileTitle}>{track.title}</span>
             </button>
           </li>

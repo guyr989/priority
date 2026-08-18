@@ -3,20 +3,6 @@ import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { FlyingResult } from './FlyingResult'
 
-function rect(): DOMRect {
-  return {
-    x: 0,
-    y: 0,
-    top: 100,
-    left: 20,
-    width: 300,
-    height: 40,
-    right: 320,
-    bottom: 140,
-    toJSON: () => ({}),
-  }
-}
-
 function renderFlight(onFinish: () => void) {
   const target = document.createElement('div')
   document.body.appendChild(target)
@@ -24,7 +10,12 @@ function renderFlight(onFinish: () => void) {
   Object.assign(targetRef, { current: target })
 
   render(
-    <FlyingResult label="a track" from={rect()} targetRef={targetRef} onFinish={onFinish} />,
+    <FlyingResult
+      label="a track"
+      from={new DOMRect(20, 100, 300, 40)}
+      targetRef={targetRef}
+      onFinish={onFinish}
+    />,
   )
 }
 
