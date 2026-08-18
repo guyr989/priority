@@ -48,6 +48,7 @@ export function ImageContainer({
               alt={`${track.title} by ${track.artist}`}
             />
             <span className={styles.caption}>
+              {isPlaying ? 'isPlaying' : 'not playing'}
               {isPlaying && (
                 <span className={styles.equaliser} aria-hidden="true">
                   <span />
@@ -68,6 +69,7 @@ export function ImageContainer({
           title={`${track.title} player`}
           src={track.embedUrl}
           allow="autoplay"
+          sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"
           referrerPolicy="no-referrer"
           loading="lazy"
         />
