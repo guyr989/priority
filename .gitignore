@@ -36,8 +36,7 @@ Thumbs.db
 # internal, never pushed
 CLAUDE.md
 PLAN.md
-docs/api-notes.md
-docs/pdf-dump.txt
+docs/
 email from client.txt
 *.pdf
 .claude/
