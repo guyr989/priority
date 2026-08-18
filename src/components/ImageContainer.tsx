@@ -47,7 +47,17 @@ export function ImageContainer({
               referrerPolicy="no-referrer"
               alt={`${track.title} by ${track.artist}`}
             />
-            <span className={styles.caption}>{track.title}</span>
+            <span className={styles.caption}>
+              {isPlaying && (
+                <span className={styles.equaliser} aria-hidden="true">
+                  <span />
+                  <span />
+                  <span />
+                </span>
+              )}
+              {track.title}
+            </span>
+            <span className={styles.artist}>{track.artist}</span>
           </button>
         )}
       </div>

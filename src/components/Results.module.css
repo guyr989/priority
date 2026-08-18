@@ -32,8 +32,24 @@
 
 .result {
   font-size: 16px;
-  padding: 10px 12px;
-  border-radius: 6px;
+  padding: 11px 14px;
+  border-radius: 8px;
+}
+
+.result::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 10px;
+  border-radius: 50%;
+  background: var(--border);
+  vertical-align: middle;
+}
+
+.result:hover::before,
+.result:focus-visible::before {
+  background: var(--accent);
 }
 
 .tiles {
@@ -74,7 +90,8 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 12px;
-  padding: 24px 12px;
+  padding: 32px 4px;
+  font-size: 16px;
 }
 
 .error {
