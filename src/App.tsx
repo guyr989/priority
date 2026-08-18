@@ -30,35 +30,47 @@ interface AppProps {
   readonly provider: SoundProvider
   readonly historyStore: Store<readonly string[]>
   readonly viewStore: Store<ViewMode>
+  readonly debounceMs?: number
 }
 
-function App({ provider, historyStore, viewStore }: AppProps) {
+function App({
+  provider,
+  historyStore,
+  viewStore,
+  debounceMs = DEBOUNCE_MS,
+}: AppProps) {
   const [query, setQuery] = useState('')
   const [view, setView] = useState<ViewMode>(() => viewStore.read() ?? 'list')
   const [selected, setSelected] = useState<Track | null>(null)
   const [flight, setFlight] = useState<Flight | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const imageSlotRef = useRef<HTMLDivElement>(null)
+  const imageSectionRef = useRef<HTMLElement>(null)
 
   const { tracks, status, hasNext, hasPrev, goToNextPage, goToPrevPage, restart, retry } =
-    useSearch(provider, query, DEBOUNCE_MS)
+    useSearch(provider, query, debounceMs)
   const { terms, record } = useSearchHistory(historyStore)
 
   useEffect(() => {
     if (tracks.length > 0) record(query)
   }, [tracks, query, record])
 
+  const showTrack = useCallback((track: Track) => {
+    setSelected(track)
+    imageSectionRef.current?.focus()
+  }, [])
+
   const landFlight = useCallback(() => {
     setFlight((current) => {
-      if (current !== null) setSelected(current.track)
+      if (current !== null) showTrack(current.track)
       return null
     })
-  }, [])
+  }, [showTrack])
 
   const selectTrack = (track: Track, origin: HTMLElement) => {
     setIsPlaying(false)
     if (prefersReducedMotion()) {
-      setSelected(track)
+      showTrack(track)
       return
     }
     setFlight({ track, from: origin.getBoundingClientRect() })
@@ -66,6 +78,8 @@ function App({ provider, historyStore, viewStore }: AppProps) {
 
   return (
     <main className={styles.layout}>
+      <h1 className={styles.pageTitle}>Sound search</h1>
+
       <SearchContainer
         query={query}
         view={view}
@@ -92,6 +106,7 @@ function App({ provider, historyStore, viewStore }: AppProps) {
       <div className={styles.side}>
         <ImageContainer
           track={selected}
+          sectionRef={imageSectionRef}
           slotRef={imageSlotRef}
           isPlaying={isPlaying}
           onImageClick={() => setIsPlaying(true)}

@@ -20,14 +20,16 @@ describe('Results', () => {
   it('says it is searching while loading', () => {
     render(<Results status="loading" view="list" tracks={[]} onSelect={noop} onRetry={noop} />)
 
-    expect(screen.getByText(/searching/i)).toBeInTheDocument()
+    expect(screen.getByText(/searching for tracks/i)).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('Searching')
     expect(screen.queryByRole('list')).not.toBeInTheDocument()
   })
 
   it('explains an empty result instead of showing a blank list', () => {
     render(<Results status="ready" view="list" tracks={[]} onSelect={noop} onRetry={noop} />)
 
-    expect(screen.getByText(/no tracks match/i)).toBeInTheDocument()
+    expect(screen.getByText(/try another term/i)).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent(/no tracks match/i)
     expect(screen.queryByRole('list')).not.toBeInTheDocument()
   })
 
@@ -72,6 +74,7 @@ describe('Results', () => {
     )
 
     expect(screen.getAllByRole('listitem')).toHaveLength(2)
+    expect(screen.getByRole('status')).toHaveTextContent('2 results ready')
 
     await user.click(screen.getByRole('button', { name: 'two' }))
 

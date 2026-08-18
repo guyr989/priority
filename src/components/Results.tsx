@@ -11,7 +11,25 @@ interface ResultsProps {
   readonly onRetry: () => void
 }
 
+function announcement(status: SearchStatus, count: number): string {
+  if (status === 'loading') return 'Searching'
+  if (status !== 'ready') return ''
+  if (count === 0) return 'No tracks match that search'
+  return `${count} ${count === 1 ? 'result' : 'results'} ready`
+}
+
 export function Results({ status, view, tracks, onSelect, onRetry }: ResultsProps) {
+  return (
+    <>
+      <p className={styles.announcer} role="status">
+        {announcement(status, tracks.length)}
+      </p>
+      {body({ status, view, tracks, onSelect, onRetry })}
+    </>
+  )
+}
+
+function body({ status, view, tracks, onSelect, onRetry }: ResultsProps) {
   if (status === 'error') {
     return (
       <div className={styles.message} role="alert">
@@ -27,7 +45,7 @@ export function Results({ status, view, tracks, onSelect, onRetry }: ResultsProp
 
   if (status === 'loading') {
     return (
-      <p className={`${styles.message} ${styles.loading}`}>Searching</p>
+      <p className={`${styles.message} ${styles.loading}`}>Searching for tracks</p>
     )
   }
 

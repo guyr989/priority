@@ -4,6 +4,7 @@ import styles from './ImageContainer.module.css'
 
 interface ImageContainerProps {
   readonly track: Track | null
+  readonly sectionRef?: RefObject<HTMLElement | null>
   readonly slotRef?: RefObject<HTMLDivElement | null>
   readonly isPlaying: boolean
   readonly onImageClick: () => void
@@ -11,12 +12,14 @@ interface ImageContainerProps {
 
 export function ImageContainer({
   track,
+  sectionRef,
   slotRef,
   isPlaying,
   onImageClick,
 }: ImageContainerProps) {
   return (
     <section
+      ref={sectionRef}
       id="image-container"
       className={styles.container}
       aria-labelledby="image-heading"

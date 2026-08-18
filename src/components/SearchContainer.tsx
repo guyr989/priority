@@ -61,7 +61,7 @@ export function SearchContainer({
       <div className={styles.results}>{children}</div>
 
       <div className={styles.controls}>
-        <div className={styles.paging}>
+        <div className={styles.paging} role="group" aria-label="Result pages">
           <button type="button" onClick={onPrev} disabled={!hasPrev}>
             Previous
           </button>

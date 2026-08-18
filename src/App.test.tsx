@@ -51,6 +51,7 @@ function renderApp(
       provider={createProvider(pages)}
       historyStore={store}
       viewStore={viewStore}
+      debounceMs={0}
     />,
   )
   return { user: userEvent.setup(), store, viewStore }
@@ -135,6 +136,26 @@ describe('App', () => {
       'aria-pressed',
       'true',
     )
+  })
+
+  it('moves focus to the image container when a result is chosen', async () => {
+    const { user } = renderApp([pageOf(['first result'], null)])
+
+    await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
+    await user.click(await screen.findByRole('button', { name: 'first result' }))
+
+    expect(screen.getByRole('region', { name: /now showing/i })).toHaveFocus()
+  })
+
+  it('announces what the search did', async () => {
+    const { user } = renderApp([pageOf(['first result'], null)])
+
+    expect(screen.getByRole('status')).toHaveTextContent('')
+
+    await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
+    await screen.findByRole('button', { name: 'first result' })
+
+    expect(screen.getByRole('status')).toHaveTextContent('1 result ready')
   })
 
   it('shows the selected track in the image container', async () => {
