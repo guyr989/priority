@@ -26,18 +26,21 @@ export function ImageContainer({
       tabIndex={-1}
     >
       <h2 id="image-heading" className={styles.heading}>
-        Now showing
+        Now playing
       </h2>
 
       <div className={styles.slot} ref={slotRef}>
         {track === null ? (
-          <p className={styles.placeholder}>
-            Pick a set to see its cover.
-          </p>
+          <div className={styles.pad} aria-hidden="true" />
         ) : (
           <button
             type="button"
             className={styles.imageButton}
+            aria-label={
+              isPlaying
+                ? `${track.title} by ${track.artist}`
+                : `Play ${track.title} by ${track.artist}`
+            }
             onClick={onImageClick}
           >
             <span className={styles.cover}>
@@ -50,10 +53,9 @@ export function ImageContainer({
               />
               {!isPlaying && (
                 <span className={styles.play} aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="22" height="22" focusable="false">
-                    <path d="M9 6.5v11l9-5.5z" fill="currentColor" />
+                  <svg viewBox="0 0 24 24" width="26" height="26" focusable="false">
+                    <path d="M8.7 5.3 19.3 12 8.7 18.7Z" fill="currentColor" />
                   </svg>
-                  Tap to play
                 </span>
               )}
             </span>

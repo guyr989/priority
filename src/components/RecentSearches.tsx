@@ -6,29 +6,27 @@ interface RecentSearchesProps {
 }
 
 export function RecentSearches({ terms, onSelect }: RecentSearchesProps) {
+  if (terms.length === 0) return null
+
   return (
     <section className={styles.container} aria-labelledby="recent-heading">
       <h2 id="recent-heading" className={styles.heading}>
         Recent searches
       </h2>
 
-      {terms.length === 0 ? (
-        <p className={styles.empty}>Searches you make show up here.</p>
-      ) : (
-        <ul className={styles.list}>
-          {terms.map((term) => (
-            <li key={term}>
-              <button
-                type="button"
-                className={styles.term}
-                onClick={() => onSelect(term)}
-              >
-                {term}
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+      <ul className={styles.list}>
+        {terms.map((term) => (
+          <li key={term}>
+            <button
+              type="button"
+              className={styles.term}
+              onClick={() => onSelect(term)}
+            >
+              {term}
+            </button>
+          </li>
+        ))}
+      </ul>
     </section>
   )
 }

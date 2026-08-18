@@ -4,11 +4,10 @@ import { describe, expect, it, vi } from 'vitest'
 import { RecentSearches } from './RecentSearches'
 
 describe('RecentSearches', () => {
-  it('tells the user what the panel is for while it is empty', () => {
-    render(<RecentSearches terms={[]} onSelect={vi.fn()} />)
+  it('takes up no room at all while the list is empty', () => {
+    const { container } = render(<RecentSearches terms={[]} onSelect={vi.fn()} />)
 
-    expect(screen.getByText(/show up here/i)).toBeInTheDocument()
-    expect(screen.queryByRole('list')).not.toBeInTheDocument()
+    expect(container).toBeEmptyDOMElement()
   })
 
   it('lists the terms newest first', () => {

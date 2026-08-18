@@ -43,18 +43,21 @@ function renderApp(
   pages: readonly Page<Track>[],
   history: readonly string[] = [],
   view: ViewMode | null = null,
+  lastTrack: Track | null = null,
 ) {
   const store = createMemoryStore<readonly string[]>(history)
   const viewStore = createMemoryStore<ViewMode>(view)
+  const lastTrackStore = createMemoryStore<Track>(lastTrack)
   render(
     <App
       provider={createProvider(pages)}
       historyStore={store}
       viewStore={viewStore}
+      lastTrackStore={lastTrackStore}
       debounceMs={0}
     />,
   )
-  return { user: userEvent.setup(), store, viewStore }
+  return { user: userEvent.setup(), store, viewStore, lastTrackStore }
 }
 
 afterEach(() => {
@@ -156,7 +159,7 @@ describe('App', () => {
     await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
     await user.click(await screen.findByRole('button', { name: 'first result' }))
 
-    expect(screen.getByRole('region', { name: /now showing/i })).toHaveFocus()
+    expect(screen.getByRole('region', { name: /now playing/i })).toHaveFocus()
   })
 
   it('announces what the search did', async () => {
@@ -177,7 +180,7 @@ describe('App', () => {
     await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
     await user.click(await screen.findByRole('button', { name: 'first result' }))
 
-    const image = screen.getByRole('region', { name: /now showing/i })
+    const image = screen.getByRole('region', { name: /now playing/i })
     expect(within(image).getByRole('img', { name: /first result by artist/i })).toBeInTheDocument()
     expect(image).toHaveFocus()
   })
@@ -188,15 +191,47 @@ describe('App', () => {
     await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
     await user.click(await screen.findByRole('button', { name: 'first result' }))
 
-    const image = screen.getByRole('region', { name: /now showing/i })
+    const image = screen.getByRole('region', { name: /now playing/i })
     expect(within(image).getByText('first result')).toBeInTheDocument()
     expect(within(image).getByText('artist')).toBeInTheDocument()
-    expect(within(image).getByText(/tap to play/i)).toBeInTheDocument()
+    expect(
+      within(image).getByRole('button', { name: 'Play first result by artist' }),
+    ).toBeInTheDocument()
 
     await user.click(within(image).getByRole('img', { name: /first result by artist/i }))
 
-    expect(within(image).queryByText(/tap to play/i)).not.toBeInTheDocument()
+    expect(
+      within(image).queryByRole('button', { name: /^play /i }),
+    ).not.toBeInTheDocument()
     expect(within(image).getByTitle('first result player')).toBeInTheDocument()
+  })
+
+  it('keeps no now playing panel until something has been picked', () => {
+    renderApp([pageOf(['first result'], null)])
+
+    expect(
+      screen.queryByRole('region', { name: /now playing/i }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('opens on the cover it was left on and does not grab focus for it', () => {
+    renderApp([pageOf(['first result'], null)], [], null, track('kept from last time'))
+
+    const image = screen.getByRole('region', { name: /now playing/i })
+    expect(
+      within(image).getByRole('img', { name: /kept from last time by artist/i }),
+    ).toBeInTheDocument()
+    expect(image).not.toHaveFocus()
+    expect(screen.queryByTitle('kept from last time player')).not.toBeInTheDocument()
+  })
+
+  it('remembers the cover it showed for the next visit', async () => {
+    const { user, lastTrackStore } = renderApp([pageOf(['first result'], null)])
+
+    await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
+    await user.click(await screen.findByRole('button', { name: 'first result' }))
+
+    expect(lastTrackStore.read()).toEqual(track('first result'))
   })
 
   it('shows the selected track in the image container', async () => {
@@ -205,7 +240,7 @@ describe('App', () => {
     await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
     await user.click(await screen.findByRole('button', { name: 'first result' }))
 
-    const image = screen.getByRole('region', { name: /now showing/i })
+    const image = screen.getByRole('region', { name: /now playing/i })
     expect(within(image).getByRole('img', { name: /first result by artist/i })).toBeInTheDocument()
   })
 })

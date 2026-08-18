@@ -12,6 +12,7 @@ interface SearchContainerProps {
   readonly onViewChange: (view: ViewMode) => void
   readonly onPrev: () => void
   readonly onNext: () => void
+  readonly recent: ReactNode
   readonly children: ReactNode
 }
 
@@ -25,14 +26,11 @@ export function SearchContainer({
   onViewChange,
   onPrev,
   onNext,
+  recent,
   children,
 }: SearchContainerProps) {
   return (
-    <section className={styles.container} aria-labelledby="search-heading">
-      <h2 id="search-heading" className={styles.heading}>
-        Search
-      </h2>
-
+    <section className={styles.container} aria-label="Search">
       <form
         className={styles.form}
         role="search"
@@ -57,6 +55,8 @@ export function SearchContainer({
           Go
         </button>
       </form>
+
+      {recent}
 
       <div className={styles.results}>{children}</div>
 

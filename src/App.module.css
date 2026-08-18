@@ -1,12 +1,18 @@
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  grid-template-columns: minmax(0, 344px) minmax(0, 1fr);
   gap: 20px;
   align-items: start;
   padding: 28px 20px 40px;
   max-width: 1126px;
   margin: 0 auto;
   box-sizing: border-box;
+}
+
+/* Nothing playing yet: one column, no empty half. */
+.solo {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 720px;
 }
 
 @media (max-width: 900px) {
@@ -17,8 +23,10 @@
   }
 }
 
-.side {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+/* Sticky only where the whole panel fits, otherwise it clips its own player. */
+@media (min-width: 901px) and (min-height: 720px) {
+  .now {
+    position: sticky;
+    top: 28px;
+  }
 }

@@ -34,25 +34,12 @@
   justify-content: center;
 }
 
-.placeholder {
-  display: grid;
-  place-items: center;
+.pad {
   width: 100%;
-  aspect-ratio: 1;
   max-width: 300px;
-  border: 1px dashed var(--border);
+  aspect-ratio: 1;
   border-radius: 10px;
-  padding: 24px;
-  box-sizing: border-box;
-}
-
-@media (max-width: 900px) {
-  .placeholder {
-    aspect-ratio: auto;
-    max-width: none;
-    min-height: 96px;
-    padding: 20px;
-  }
+  background: var(--social-bg);
 }
 
 .imageButton {
@@ -82,25 +69,33 @@
 
 .play {
   position: absolute;
-  left: 50%;
-  bottom: 14px;
-  transform: translateX(-50%);
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 9px 15px 9px 11px;
-  border-radius: 999px;
-  font-size: var(--micro);
-  letter-spacing: var(--micro-tracking);
-  text-transform: uppercase;
-  color: var(--panel);
-  background: rgba(23, 20, 29, 0.72);
-  backdrop-filter: blur(6px);
-  transition: opacity 160ms ease-out;
+  inset: 0;
+  margin: auto;
+  width: 66px;
+  height: 66px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #17141d;
+  background: #ffffff;
+  box-shadow:
+    0 0 0 1px rgba(23, 20, 29, 0.06),
+    0 12px 26px -12px rgba(23, 20, 29, 0.75);
+  transition:
+    transform 160ms ease-out,
+    box-shadow 160ms ease-out;
 }
 
-.imageButton:hover .play {
-  background: var(--text-h);
+.play svg {
+  transform: translateX(1.5px);
+}
+
+.imageButton:hover .play,
+.imageButton:focus-visible .play {
+  transform: scale(1.07);
+  box-shadow:
+    0 0 0 1px rgba(23, 20, 29, 0.06),
+    0 16px 30px -12px rgba(23, 20, 29, 0.8);
 }
 
 .image {
@@ -128,12 +123,16 @@
   justify-content: center;
   gap: 10px;
   color: var(--text-h);
-  font-size: 16px;
+  font-family: var(--display);
+  font-size: 23px;
+  line-height: 112%;
+  letter-spacing: -0.2px;
   text-align: center;
 }
 
 .artist {
   font-size: var(--micro);
+  font-weight: var(--micro-weight);
   letter-spacing: var(--micro-tracking);
   text-transform: uppercase;
   color: var(--text);
@@ -163,6 +162,34 @@
   animation-delay: 300ms;
 }
 
+@media (max-width: 900px) {
+  .container {
+    padding: 18px;
+  }
+
+  .pad {
+    max-width: 220px;
+  }
+
+  .image {
+    width: 220px;
+  }
+
+  .caption {
+    font-size: 20px;
+  }
+
+  .play {
+    width: 52px;
+    height: 52px;
+  }
+
+  .play svg {
+    width: 21px;
+    height: 21px;
+  }
+}
+
 @keyframes bounce {
   0%,
   100% {
@@ -171,13 +198,6 @@
 
   50% {
     transform: scaleY(1);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .equaliser span {
-    animation: none;
-    transform: scaleY(0.6);
   }
 }
 
@@ -194,11 +214,19 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .equaliser span {
+    animation: none;
+    transform: scaleY(0.6);
+  }
+
   .image {
     animation: none;
   }
 
-  .play {
+  .play,
+  .imageButton:hover .play,
+  .imageButton:focus-visible .play {
     transition: none;
+    transform: none;
   }
 }

@@ -30,6 +30,7 @@ interface AppProps {
   readonly provider: SoundProvider
   readonly historyStore: Store<readonly string[]>
   readonly viewStore: Store<ViewMode>
+  readonly lastTrackStore: Store<Track>
   readonly debounceMs?: number
 }
 
@@ -37,13 +38,15 @@ function App({
   provider,
   historyStore,
   viewStore,
+  lastTrackStore,
   debounceMs = DEBOUNCE_MS,
 }: AppProps) {
   const [query, setQuery] = useState('')
   const [view, setView] = useState<ViewMode>(() => viewStore.read() ?? 'list')
-  const [selected, setSelected] = useState<Track | null>(null)
+  const [selected, setSelected] = useState<Track | null>(() => lastTrackStore.read())
   const [flight, setFlight] = useState<Flight | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
+  const chosenHere = useRef(false)
   const imageSlotRef = useRef<HTMLDivElement>(null)
   const imageSectionRef = useRef<HTMLElement>(null)
 
@@ -55,14 +58,15 @@ function App({
     if (tracks.length > 0) record(query)
   }, [tracks, query, record])
 
+  // A restored cover must not steal focus on load, only one the user just picked.
   useEffect(() => {
-    if (selected === null) return
+    if (selected === null || !chosenHere.current) return
+    imageSectionRef.current?.focus({ preventScroll: true })
     imageSectionRef.current?.scrollIntoView({ block: 'nearest' })
   }, [selected])
 
   const showTrack = useCallback((track: Track) => {
     setSelected(track)
-    imageSectionRef.current?.focus({ preventScroll: true })
   }, [])
 
   const landFlight = useCallback(() => {
@@ -73,7 +77,9 @@ function App({
   }, [showTrack])
 
   const selectTrack = (track: Track, origin: HTMLElement) => {
+    chosenHere.current = true
     setIsPlaying(false)
+    lastTrackStore.write(track)
     imageSectionRef.current?.scrollIntoView({ block: 'nearest' })
     if (prefersReducedMotion()) {
       showTrack(track)
@@ -82,9 +88,23 @@ function App({
     setFlight({ track, from: origin.getBoundingClientRect() })
   }
 
+  const showNowPlaying = selected !== null || flight !== null
+
   return (
-    <main className={styles.layout}>
+    <main className={showNowPlaying ? styles.layout : `${styles.layout} ${styles.solo}`}>
       <h1 className="visually-hidden">Sound search</h1>
+
+      {showNowPlaying && (
+        <div className={styles.now}>
+          <ImageContainer
+            track={selected}
+            sectionRef={imageSectionRef}
+            slotRef={imageSlotRef}
+            isPlaying={isPlaying}
+            onImageClick={() => setIsPlaying(true)}
+          />
+        </div>
+      )}
 
       <SearchContainer
         query={query}
@@ -99,6 +119,15 @@ function App({
         }}
         onPrev={goToPrevPage}
         onNext={goToNextPage}
+        recent={
+          <RecentSearches
+            terms={terms}
+            onSelect={(term) => {
+              setQuery(term)
+              if (term === query) restart()
+            }}
+          />
+        }
       >
         <Results
           status={status}
@@ -109,23 +138,6 @@ function App({
           onRetry={retry}
         />
       </SearchContainer>
-
-      <div className={styles.side}>
-        <ImageContainer
-          track={selected}
-          sectionRef={imageSectionRef}
-          slotRef={imageSlotRef}
-          isPlaying={isPlaying}
-          onImageClick={() => setIsPlaying(true)}
-        />
-        <RecentSearches
-          terms={terms}
-          onSelect={(term) => {
-            setQuery(term)
-            if (term === query) restart()
-          }}
-        />
-      </div>
 
       {flight !== null && (
         <FlyingResult

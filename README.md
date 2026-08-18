@@ -42,7 +42,8 @@ history rules are tested as plain functions with no renderer involved.
 `components/` never reaches for data; everything arrives as props.
 
 `main.tsx` is where the app is assembled: it constructs the Mixcloud adapter and
-two localStorage-backed stores and passes them into `App`. Nothing below that
+three localStorage-backed stores — recent searches, list-or-tile, and the last
+cover shown — and passes them into `App`. Nothing below that
 line names a vendor — `grep -ri mixcloud src/ --exclude-dir=api` comes back
 empty.
 
