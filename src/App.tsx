@@ -15,7 +15,7 @@ function App() {
   const [view, setView] = useState<ViewMode>('list')
   const [selected, setSelected] = useState<Track | null>(null)
 
-  const tracks = useSearch(soundProvider, query)
+  const tracks = useSearch(soundProvider, query, 300)
 
   return (
     <main className={styles.layout}>
@@ -25,10 +25,10 @@ function App() {
         hasPrev={false}
         hasNext={false}
         onQueryChange={setQuery}
-        onSubmit={() => {}}
+        onSubmit={() => { }}
         onViewChange={setView}
-        onPrev={() => {}}
-        onNext={() => {}}
+        onPrev={() => { }}
+        onNext={() => { }}
       >
         <ul className={styles.results}>
           {tracks.map((track) => (
@@ -46,7 +46,7 @@ function App() {
       </SearchContainer>
 
       <div className={styles.side}>
-        <ImageContainer track={selected} onImageClick={() => {}} />
+        <ImageContainer track={selected} onImageClick={() => { }} />
         <RecentSearches terms={PLACEHOLDER_TERMS} onSelect={setQuery} />
       </div>
     </main>

@@ -5,6 +5,7 @@ import type { Track } from '../domain/track'
 export function useSearch(
   provider: SoundProvider,
   query: string,
+  debounceMs: number,
 ): readonly Track[] {
   const [tracks, setTracks] = useState<readonly Track[]>([])
 
@@ -13,15 +14,29 @@ export function useSearch(
       setTracks([])
       return
     }
-
-    // Slice 6 adds the 300ms debounce, slice 7 the AbortController and
-    // generation guard. Until then this fires per keystroke and the last
-    // response to land wins.
-    provider
-      .search(query, null, new AbortController().signal)
-      .then((page) => setTracks(page.items))
-      .catch(() => setTracks([]))
-  }, [provider, query])
+    const controller = new AbortController()
+    let current = true
+    const timer = setTimeout(() => {
+      provider
+        .search(query, null, controller.signal)
+        .then((page) => {
+          if (current) {
+            setTracks(page.items)
+          }
+        })
+        .catch((error: unknown) => {
+          if (!current) return
+          if (!(error instanceof Error) || error.name !== 'AbortError') {
+            setTracks([])
+          }
+        })
+    }, debounceMs)
+    return () => {
+      clearTimeout(timer)
+      controller.abort()
+      current = false
+    }
+  }, [provider, query, debounceMs])
 
   return tracks
 }
