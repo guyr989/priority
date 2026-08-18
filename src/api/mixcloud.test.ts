@@ -39,7 +39,8 @@ describe('mixcloud provider', () => {
                 title: 'A set',
                 artist: 'An artist',
                 imageUrl: 'https://example.test/large.jpg',
-                embedUrl: expect.stringContaining('feed=%2Fartist%2Fset%2F') as string,
+                embedUrl:
+                    'https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&light=1&autoplay=1&feed=%2Fartist%2Fset%2F',
             },
         ])
         expect(page.nextCursor).toBe('https://api.mixcloud.com/search/?offset=6')

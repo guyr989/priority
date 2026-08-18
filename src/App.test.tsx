@@ -8,7 +8,13 @@ import type { Track } from './domain/track'
 import type { Store } from './storage/store'
 
 function track(title: string): Track {
-  return { id: title, title, artist: 'artist', imageUrl: '/image.jpg', embedUrl: '' }
+  return {
+    id: title,
+    title,
+    artist: 'artist',
+    imageUrl: '/image.jpg',
+    embedUrl: `https://player.test/?feed=${title}`,
+  }
 }
 
 function pageOf(titles: readonly string[], nextCursor: string | null): Page<Track> {
@@ -74,6 +80,25 @@ describe('App', () => {
 
     expect(screen.getByRole('searchbox', { name: /search tracks/i })).toHaveValue('pixies')
     expect(await screen.findByRole('button', { name: 'first result' })).toBeInTheDocument()
+  })
+
+  it('embeds the player when the artwork is clicked', async () => {
+    const { user } = renderApp([pageOf(['first result', 'second result'], null)])
+
+    await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
+    await user.click(await screen.findByRole('button', { name: 'first result' }))
+
+    expect(screen.queryByTitle('first result player')).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('img', { name: /first result by artist/i }))
+
+    const player = screen.getByTitle('first result player')
+    expect(player).toHaveAttribute('src', 'https://player.test/?feed=first result')
+    expect(player).toHaveAttribute('allow', 'autoplay')
+
+    await user.click(screen.getByRole('button', { name: 'second result' }))
+
+    expect(screen.queryByTitle('first result player')).not.toBeInTheDocument()
   })
 
   it('shows the selected track in the image container', async () => {

@@ -34,6 +34,7 @@ function App({ provider, historyStore }: AppProps) {
   const [view, setView] = useState<ViewMode>('list')
   const [selected, setSelected] = useState<Track | null>(null)
   const [flight, setFlight] = useState<Flight | null>(null)
+  const [isPlaying, setIsPlaying] = useState(false)
   const imageSlotRef = useRef<HTMLDivElement>(null)
 
   const { tracks, hasNext, hasPrev, goToNextPage, goToPrevPage, restart } = useSearch(
@@ -55,6 +56,7 @@ function App({ provider, historyStore }: AppProps) {
   }, [])
 
   const selectTrack = (track: Track, origin: HTMLElement) => {
+    setIsPlaying(false)
     if (prefersReducedMotion()) {
       setSelected(track)
       return
@@ -94,7 +96,8 @@ function App({ provider, historyStore }: AppProps) {
         <ImageContainer
           track={selected}
           slotRef={imageSlotRef}
-          onImageClick={() => { }}
+          isPlaying={isPlaying}
+          onImageClick={() => setIsPlaying(true)}
         />
         <RecentSearches
           terms={terms}

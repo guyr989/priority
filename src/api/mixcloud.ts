@@ -5,6 +5,7 @@ import type { Track } from "../domain/track";
 const SEARCH_URL = "https://api.mixcloud.com/search/";
 const API_ORIGIN = new URL(SEARCH_URL).origin;
 const EMBED_URL = "https://player-widget.mixcloud.com/widget/iframe/";
+const EMBED_OPTIONS = "hide_cover=1&light=1&autoplay=1";
 const PAGE_SIZE = 6;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -31,7 +32,7 @@ function toTrack(raw: unknown): Track | null {
         title: name,
         artist: (user && readString(user, "name")) ?? "Unknown artist",
         imageUrl: (pictures && (readString(pictures, "large") ?? readString(pictures, "medium"))) ?? "",
-        embedUrl: `${EMBED_URL}?feed=${encodeURIComponent(key)}`,
+        embedUrl: `${EMBED_URL}?${EMBED_OPTIONS}&feed=${encodeURIComponent(key)}`,
     };
 }
 

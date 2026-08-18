@@ -5,10 +5,16 @@ import styles from './ImageContainer.module.css'
 interface ImageContainerProps {
   readonly track: Track | null
   readonly slotRef?: RefObject<HTMLDivElement | null>
+  readonly isPlaying: boolean
   readonly onImageClick: () => void
 }
 
-export function ImageContainer({ track, slotRef, onImageClick }: ImageContainerProps) {
+export function ImageContainer({
+  track,
+  slotRef,
+  isPlaying,
+  onImageClick,
+}: ImageContainerProps) {
   return (
     <section
       id="image-container"
@@ -41,6 +47,16 @@ export function ImageContainer({ track, slotRef, onImageClick }: ImageContainerP
           </button>
         )}
       </div>
+
+      {track !== null && isPlaying && (
+        <iframe
+          className={styles.player}
+          title={`${track.title} player`}
+          src={track.embedUrl}
+          allow="autoplay"
+          loading="lazy"
+        />
+      )}
     </section>
   )
 }
