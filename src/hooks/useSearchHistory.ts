@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { addSearch } from '../domain/history'
+import { addSearch, HISTORY_LIMIT } from '../domain/history'
 import type { Store } from '../storage/store'
 
 export interface SearchHistory {
@@ -8,7 +8,9 @@ export interface SearchHistory {
 }
 
 export function useSearchHistory(store: Store<readonly string[]>): SearchHistory {
-  const [terms, setTerms] = useState<readonly string[]>(() => store.read() ?? [])
+  const [terms, setTerms] = useState<readonly string[]>(
+    () => store.read()?.slice(0, HISTORY_LIMIT) ?? [],
+  )
 
   useEffect(() => {
     store.write(terms)

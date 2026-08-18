@@ -28,6 +28,14 @@ describe('useSearchHistory', () => {
     expect(result.current.terms).toEqual([])
   })
 
+  it('keeps only the newest five when the store holds more', () => {
+    const { result } = renderHook(() =>
+      useSearchHistory(createMemoryStore(['a', 'b', 'c', 'd', 'e', 'f', 'g'])),
+    )
+
+    expect(result.current.terms).toEqual(['a', 'b', 'c', 'd', 'e'])
+  })
+
   it('records a search at the top', () => {
     const { result } = renderHook(() => useSearchHistory(createMemoryStore(['jazz'])))
 

@@ -3,6 +3,7 @@ import type { SoundProvider } from "../domain/soundProvider";
 import type { Track } from "../domain/track";
 
 const SEARCH_URL = "https://api.mixcloud.com/search/";
+const API_ORIGIN = new URL(SEARCH_URL).origin;
 const EMBED_URL = "https://player-widget.mixcloud.com/widget/iframe/";
 const PAGE_SIZE = 6;
 
@@ -52,7 +53,7 @@ function toPage(body: unknown): Page<Track> {
 function buildUrl(query: string, cursor: string | null): string {
     if (cursor !== null) {
         const target = new URL(cursor, SEARCH_URL);
-        if (target.origin !== new URL(SEARCH_URL).origin) {
+        if (target.origin !== API_ORIGIN) {
             throw new Error("Refusing to follow a cursor to another host");
         }
         return target.toString();
