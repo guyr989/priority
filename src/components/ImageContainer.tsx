@@ -1,12 +1,14 @@
+import type { RefObject } from 'react'
 import type { Track } from '../domain/track'
 import styles from './ImageContainer.module.css'
 
 interface ImageContainerProps {
   readonly track: Track | null
+  readonly slotRef?: RefObject<HTMLDivElement | null>
   readonly onImageClick: () => void
 }
 
-export function ImageContainer({ track, onImageClick }: ImageContainerProps) {
+export function ImageContainer({ track, slotRef, onImageClick }: ImageContainerProps) {
   return (
     <section
       id="image-container"
@@ -18,24 +20,27 @@ export function ImageContainer({ track, onImageClick }: ImageContainerProps) {
         Now showing
       </h2>
 
-      {track === null ? (
-        <p className={styles.placeholder}>
-          Select a result to see its artwork here.
-        </p>
-      ) : (
-        <button
-          type="button"
-          className={styles.imageButton}
-          onClick={onImageClick}
-        >
-          <img
-            className={styles.image}
-            src={track.imageUrl}
-            alt={`${track.title} by ${track.artist}`}
-          />
-          <span className={styles.caption}>{track.title}</span>
-        </button>
-      )}
+      <div className={styles.slot} ref={slotRef}>
+        {track === null ? (
+          <p className={styles.placeholder}>
+            Select a result to see its artwork here.
+          </p>
+        ) : (
+          <button
+            type="button"
+            className={styles.imageButton}
+            onClick={onImageClick}
+          >
+            <img
+              key={track.id}
+              className={styles.image}
+              src={track.imageUrl}
+              alt={`${track.title} by ${track.artist}`}
+            />
+            <span className={styles.caption}>{track.title}</span>
+          </button>
+        )}
+      </div>
     </section>
   )
 }
