@@ -1,3 +1,22 @@
+/* Self-hosted, latin subset only. Archivo is variable across the weights we set. */
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url('./assets/fonts/archivo-latin-var.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./assets/fonts/instrument-serif-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 :root {
   --text: #56505f;
   --text-h: #17141d;
@@ -9,13 +28,14 @@
   --accent-border: rgba(124, 58, 237, 0.45);
   --social-bg: #f3f1f7;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --serif: 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+  --sans: 'Archivo', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --display: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
   --micro: 12px;
-  --micro-tracking: 0.09em;
+  --micro-tracking: 0.1em;
+  --micro-weight: 600;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
+  font: 17px/150% var(--sans);
+  letter-spacing: normal;
   color-scheme: light dark;
   color: var(--text);
   background: var(--bg);
@@ -49,21 +69,23 @@ body {
 
 h1,
 h2 {
-  font-family: var(--serif);
+  font-family: var(--display);
   font-weight: 400;
   color: var(--text-h);
+  font-synthesis: none;
 }
 
 h1 {
-  font-size: 28px;
-  letter-spacing: -0.5px;
+  font-size: 34px;
+  line-height: 108%;
+  letter-spacing: -0.4px;
   margin: 0;
 }
 
 h2 {
-  font-size: 21px;
-  line-height: 118%;
-  letter-spacing: -0.2px;
+  font-size: 27px;
+  line-height: 110%;
+  letter-spacing: -0.3px;
   margin: 0;
 }
 
