@@ -1,11 +1,16 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { soundProvider } from './api/mixcloud'
 import { ImageContainer } from './components/ImageContainer'
 import { RecentSearches } from './components/RecentSearches'
 import { SearchContainer, type ViewMode } from './components/SearchContainer'
 import { useSearch } from './hooks/useSearch'
+import { useSearchHistory } from './hooks/useSearchHistory'
+import { isHistory } from './domain/history'
+import { createLocalStore } from './storage/localStore'
 import type { Track } from './domain/track'
 import styles from './App.module.css'
+
+const historyStore = createLocalStore('priority.recent-searches', isHistory)
 
 function App() {
   const [query, setQuery] = useState('')
@@ -17,6 +22,11 @@ function App() {
     query,
     300,
   )
+  const { terms, record } = useSearchHistory(historyStore)
+
+  useEffect(() => {
+    if (tracks.length > 0) record(query)
+  }, [tracks, query, record])
 
   return (
     <main className={styles.layout}>
@@ -48,7 +58,7 @@ function App() {
 
       <div className={styles.side}>
         <ImageContainer track={selected} onImageClick={() => { }} />
-        <RecentSearches terms={[]} onSelect={setQuery} />
+        <RecentSearches terms={terms} onSelect={setQuery} />
       </div>
     </main>
   )

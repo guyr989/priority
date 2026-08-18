@@ -39,10 +39,7 @@ export function useSearch(
   const cursor = pagination.cursor
 
   useEffect(() => {
-    if (query === '') {
-      setTracks([])
-      return
-    }
+    if (query === '') return
 
     const controller = new AbortController()
     let current = true
