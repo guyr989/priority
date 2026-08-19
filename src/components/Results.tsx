@@ -65,23 +65,23 @@ function ResultsBody({
     )
   }
 
-  if (status === 'loading') {
-    return (
-      <p className={`${styles.message} ${styles.loading}`}>Digging</p>
-    )
-  }
-
-  if (status === 'idle') {
-    return <p className={styles.message}>Type a name and start digging.</p>
-  }
+  // Paging keeps the page you are on until the next one lands, so the list
+  // never blanks and never changes height under the pointer.
+  const busy = status === 'loading'
 
   if (tracks.length === 0) {
+    if (busy) return <p className={`${styles.message} ${styles.loading}`}>Digging</p>
+    if (status === 'idle') return <p className={styles.message}>Type a name and start digging.</p>
+
     return <p className={styles.message}>Nothing under that name. Try a shorter one.</p>
   }
 
   if (view === 'tile') {
     return (
-      <ul className={styles.tiles}>
+      <ul
+        className={busy ? `${styles.tiles} ${styles.busy}` : styles.tiles}
+        aria-busy={busy}
+      >
         {tracks.map((track) => (
           <li key={track.id}>
             <button
@@ -105,7 +105,10 @@ function ResultsBody({
   }
 
   return (
-    <ul className={styles.list}>
+    <ul
+      className={busy ? `${styles.list} ${styles.busy}` : styles.list}
+      aria-busy={busy}
+    >
       {tracks.map((track) => (
         <li key={track.id}>
           <button

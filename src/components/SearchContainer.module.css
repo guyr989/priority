@@ -42,7 +42,8 @@
 }
 
 .results {
-  min-height: 180px;
+  /* A full page of rows, so no state in here changes the panel's height. */
+  min-height: 337px;
 }
 
 @media (max-width: 900px) {

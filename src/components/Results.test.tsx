@@ -25,6 +25,39 @@ describe('Results', () => {
     expect(screen.queryByRole('list')).not.toBeInTheDocument()
   })
 
+  it('holds the page it has while the next one loads', () => {
+    render(
+      <Results
+        status="loading"
+        view="list"
+        showingId={null}
+        tracks={[track('one'), track('two')]}
+        onSelect={noop}
+        onRetry={noop}
+      />,
+    )
+
+    expect(screen.getByRole('button', { name: 'one' })).toBeInTheDocument()
+    expect(screen.getByRole('list')).toHaveAttribute('aria-busy', 'true')
+    expect(screen.queryByText('Digging')).not.toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('Searching')
+  })
+
+  it('drops the busy mark once the page has landed', () => {
+    render(
+      <Results
+        status="ready"
+        view="list"
+        showingId={null}
+        tracks={[track('one')]}
+        onSelect={noop}
+        onRetry={noop}
+      />,
+    )
+
+    expect(screen.getByRole('list')).toHaveAttribute('aria-busy', 'false')
+  })
+
   it('explains an empty result instead of showing a blank list', () => {
     render(<Results status="ready" view="list" showingId={null} tracks={[]} onSelect={noop} onRetry={noop} />)
 

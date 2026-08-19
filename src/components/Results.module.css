@@ -92,6 +92,11 @@
   overflow: hidden;
 }
 
+.busy {
+  opacity: 0.5;
+  transition: opacity 140ms ease-out;
+}
+
 .message {
   display: flex;
   flex-direction: column;
@@ -151,6 +156,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .busy {
+    transition: none;
+  }
+
   .loading::before {
     animation: none;
     opacity: 0.6;
