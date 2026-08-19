@@ -1,26 +1,33 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useLayoutEffect, useState } from 'react'
 import { findAppearance } from '../domain/appearance'
-import type { Appearance } from '../domain/appearance'
+import type { Appearance, AppearanceId } from '../domain/appearance'
 import type { Store } from '../storage/store'
 
 export interface AppearanceChoice {
   readonly look: Appearance
-  readonly choose: (id: string) => void
+  readonly choose: (id: AppearanceId) => void
 }
 
 /**
- * The chosen look is a single attribute on the document, so every palette and
- * layout token stays in CSS and no component has to know which look is on.
+ * One attribute on the document carries the look, so every palette and layout
+ * token stays in CSS and no component has to know which look is on. Call it
+ * before the first render too, or a stored dark look paints light first.
  */
-export function useAppearance(store: Store<string>): AppearanceChoice {
+export function applyAppearance(id: unknown): Appearance {
+  const look = findAppearance(id)
+  document.documentElement.dataset.appearance = look.id
+  return look
+}
+
+export function useAppearance(store: Store<AppearanceId>): AppearanceChoice {
   const [look, setLook] = useState<Appearance>(() => findAppearance(store.read()))
 
-  useEffect(() => {
-    document.documentElement.dataset.appearance = look.id
+  useLayoutEffect(() => {
+    applyAppearance(look.id)
   }, [look])
 
   const choose = useCallback(
-    (id: string) => {
+    (id: AppearanceId) => {
       const next = findAppearance(id)
       setLook(next)
       store.write(next.id)

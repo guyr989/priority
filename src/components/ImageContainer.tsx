@@ -108,9 +108,9 @@ export function ImageContainer({
         )}
 
         {track !== null && !playable && (
-          <figure className={styles.sleeve}>
+          <div className={styles.sleeve}>
             <Sleeve track={track} showDisc={false} embedded={false} isPlaying={false} />
-          </figure>
+          </div>
         )}
       </div>
 

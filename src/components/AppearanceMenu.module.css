@@ -127,7 +127,7 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .panel {
+  .panel:not([hidden]) {
     animation: panel-opens 140ms ease-out both;
   }
 }

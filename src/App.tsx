@@ -9,8 +9,8 @@ import { useAppearance } from './hooks/useAppearance'
 import { usePlayback } from './hooks/usePlayback'
 import { useSearch } from './hooks/useSearch'
 import { useSearchHistory } from './hooks/useSearchHistory'
-import { APPEARANCES } from './domain/appearance'
-import type { LayoutName } from './domain/appearance'
+import { APPEARANCES, findAppearance } from './domain/appearance'
+import type { AppearanceId, LayoutName } from './domain/appearance'
 import type { AttachPlayback } from './hooks/usePlayback'
 import type { SoundProvider } from './domain/soundProvider'
 import type { ViewMode } from './domain/view'
@@ -43,7 +43,7 @@ interface AppProps {
   readonly historyStore: Store<readonly string[]>
   readonly viewStore: Store<ViewMode>
   readonly lastTrackStore: Store<Track>
-  readonly appearanceStore: Store<string>
+  readonly appearanceStore: Store<AppearanceId>
   readonly attachPlayback: AttachPlayback
   readonly debounceMs?: number
 }
@@ -68,8 +68,14 @@ function App({
   const playerRef = useRef<HTMLIFrameElement>(null)
 
   const { look, choose } = useAppearance(appearanceStore)
-  const playing = embedded && look.showsPlayer
-  const isPlaying = usePlayback(playerRef, attachPlayback, playing, selected?.id ?? null)
+  const isPlaying = usePlayback(playerRef, attachPlayback, embedded, selected?.id ?? null)
+
+  // Leaving the player behind stops it. Coming back must not restart the set
+  // from zero, so the sleeve offers its play control again instead.
+  const chooseLook = (id: AppearanceId) => {
+    choose(id)
+    if (!findAppearance(id).showsPlayer) setEmbedded(false)
+  }
 
   const { tracks, status, hasNext, hasPrev, goToNextPage, goToPrevPage, restart, retry } =
     useSearch(provider, query, debounceMs)
@@ -116,7 +122,7 @@ function App({
       <header className={styles.band}>
         <div className={styles.bar}>
           <h1 className={styles.wordmark}>Sound search</h1>
-          <AppearanceMenu looks={APPEARANCES} current={look} onChoose={choose} />
+          <AppearanceMenu looks={APPEARANCES} current={look} onChoose={chooseLook} />
         </div>
       </header>
 
@@ -136,7 +142,7 @@ function App({
               slotRef={imageSlotRef}
               frameRef={playerRef}
               playable={look.showsPlayer}
-              embedded={playing}
+              embedded={embedded}
               isPlaying={isPlaying}
               onImageClick={() => setEmbedded(true)}
             />

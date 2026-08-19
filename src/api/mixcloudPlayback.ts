@@ -21,6 +21,14 @@ type WidgetFactory = (frame: HTMLIFrameElement) => Widget
 
 let pendingScript: Promise<void> | null = null
 
+/**
+ * The widget library registers a window message listener it never removes, so
+ * reuse one widget per frame instead of building one per attach.
+ * ponytail: a new track still mounts a new iframe and so costs one listener.
+ * Owning the postMessage handshake ourselves would be the fix if that ever bites.
+ */
+const widgets = new WeakMap<HTMLIFrameElement, Widget>()
+
 function loadWidgetApi(): Promise<void> {
     if (pendingScript !== null) return pendingScript
 
@@ -57,7 +65,8 @@ export async function attachPlayback(frame: HTMLIFrameElement): Promise<Playback
         const create = readWidgetFactory()
         if (create === null) return null
 
-        const widget = create(frame)
+        const widget = widgets.get(frame) ?? create(frame)
+        widgets.set(frame, widget)
         await widget.ready
 
         return {

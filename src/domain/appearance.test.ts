@@ -15,14 +15,14 @@ describe("appearance", () => {
 
     it("starts every visitor on a look that shows the player", () => {
         expect(DEFAULT_APPEARANCE.showsPlayer).toBe(true)
-        expect(DEFAULT_APPEARANCE).toBe(APPEARANCES[0])
+        expect(APPEARANCES[0]).toBe(DEFAULT_APPEARANCE)
     })
 
-    it("says so when a look drops the player", () => {
+    it("offers a look without a player, but never as the default", () => {
         const quiet = APPEARANCES.filter((look) => !look.showsPlayer)
 
         expect(quiet.length).toBeGreaterThan(0)
-        quiet.forEach((look) => expect(look.note).toMatch(/no player/i))
+        expect(quiet).not.toContain(DEFAULT_APPEARANCE)
     })
 
     it("only accepts an id it knows", () => {

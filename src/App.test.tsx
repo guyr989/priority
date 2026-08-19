@@ -5,6 +5,7 @@ import App from './App'
 import type { Page } from './domain/page'
 import type { SoundProvider } from './domain/soundProvider'
 import type { Track } from './domain/track'
+import type { AppearanceId } from './domain/appearance'
 import type { PlaybackSource } from './domain/playback'
 import type { Store } from './storage/store'
 import type { ViewMode } from './domain/view'
@@ -67,7 +68,7 @@ function renderApp(
   const store = createMemoryStore<readonly string[]>(history)
   const viewStore = createMemoryStore<ViewMode>(view)
   const lastTrackStore = createMemoryStore<Track>(lastTrack)
-  const appearanceStore = createMemoryStore<string>(null)
+  const appearanceStore = createMemoryStore<AppearanceId>(null)
   const player = createPlayer()
   render(
     <App
@@ -251,7 +252,7 @@ describe('App', () => {
 
     expect(document.documentElement.dataset.appearance).toBe('studio')
 
-    await user.click(screen.getByRole('button', { name: /appearance/i }))
+    await user.click(screen.getByRole('button', { name: 'Appearance' }))
     await user.click(screen.getByRole('radio', { name: /^after hours/i }))
 
     expect(document.documentElement.dataset.appearance).toBe('after-hours')
@@ -263,7 +264,11 @@ describe('App', () => {
 
     await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
     await user.click(await screen.findByRole('button', { name: 'first result' }))
-    await user.click(screen.getByRole('button', { name: /appearance/i }))
+    await user.click(screen.getByRole('img', { name: /first result by artist/i }))
+
+    expect(screen.getByTitle('first result player')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Appearance' }))
     await user.click(screen.getByRole('radio', { name: /^gallery/i }))
 
     const image = screen.getByRole('region', { name: /now playing/i })
