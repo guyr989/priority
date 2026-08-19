@@ -81,7 +81,7 @@ export function ImageContainer({
       tabIndex={-1}
     >
       <h2 id="image-heading" className={styles.heading}>
-        Now playing
+        Selected track
       </h2>
 
       <div className={styles.slot} ref={slotRef}>
@@ -118,7 +118,7 @@ export function ImageContainer({
         <iframe
           ref={frameRef}
           className={styles.player}
-          title={`${track.title} player`}
+          title={`Player for ${track.title}`}
           src={track.embedUrl}
           allow="autoplay; encrypted-media"
           sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"

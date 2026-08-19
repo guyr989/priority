@@ -1,12 +1,12 @@
 /*
- * Drawn from --text-h and --accent, both of which clear 4.5:1 on every look,
- * so the control stays past the 3:1 WCAG asks of a border and the label stays
- * as readable as body copy.
+ * Label and state live in one control, so there is one target and one thing to
+ * read. The pill is drawn from --text and --accent, both of which clear 4.5:1
+ * on every look, so it stays well past the 3:1 WCAG asks of a control.
  */
 .toggle {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   font: inherit;
   font-size: var(--micro);
   font-weight: var(--micro-weight);
@@ -32,24 +32,43 @@
   outline-offset: 2px;
 }
 
-.toggle[aria-expanded='true'] {
+.toggle[aria-checked='true'] {
   color: var(--accent);
-  background: var(--accent-bg);
   border-color: var(--accent-border);
+  background: var(--accent-bg);
 }
 
-/* Points down at a player that is there, right at one that is not. */
-.chevron {
+.track {
+  position: relative;
   flex: none;
-  rotate: -90deg;
+  width: 36px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--text);
 }
 
-.toggle[aria-expanded='true'] .chevron {
-  rotate: none;
+.knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--text);
+}
+
+.toggle[aria-checked='true'] .track {
+  border-color: var(--accent);
+}
+
+.toggle[aria-checked='true'] .knob {
+  background: var(--accent);
+  translate: 16px 0;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .chevron {
-    transition: rotate 160ms ease-out;
+  .knob {
+    transition: translate 140ms ease-out, background-color 140ms ease-out;
   }
 }

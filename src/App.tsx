@@ -79,6 +79,7 @@ function App({
   const [selected, setSelected] = useState<Track | null>(() => lastTrackStore.read())
   const [flight, setFlight] = useState<Flight | null>(null)
   const [embedded, setEmbedded] = useState(false)
+  const [resultsOpen, setResultsOpen] = useState(true)
   const chosenHere = useRef(false)
   const imageSlotRef = useRef<HTMLDivElement>(null)
   const imageSectionRef = useRef<HTMLElement>(null)
@@ -122,8 +123,12 @@ function App({
     })
   }, [showTrack])
 
+  // Picking a track folds the list away, so the cover it lands on is the next
+  // thing under the search rather than the far side of six results. Anything
+  // that changes the list unfolds it again.
   const selectTrack = (track: Track, origin: HTMLElement) => {
     chosenHere.current = true
+    setResultsOpen(false)
     setEmbedded(false)
     lastTrackStore.write(track)
     imageSectionRef.current?.scrollIntoView({ block: 'nearest' })
@@ -162,18 +167,34 @@ function App({
           view={view}
           hasPrev={hasPrev}
           hasNext={hasNext}
-          onQueryChange={setQuery}
-          onSubmit={restart}
+          collapsible={tracks.length > 0}
+          resultsOpen={resultsOpen}
+          onResultsOpenChange={setResultsOpen}
+          onQueryChange={(next) => {
+            setResultsOpen(true)
+            setQuery(next)
+          }}
+          onSubmit={() => {
+            setResultsOpen(true)
+            restart()
+          }}
           onViewChange={(next) => {
             setView(next)
             viewStore.write(next)
           }}
-          onPrev={goToPrevPage}
-          onNext={goToNextPage}
+          onPrev={() => {
+            setResultsOpen(true)
+            goToPrevPage()
+          }}
+          onNext={() => {
+            setResultsOpen(true)
+            goToNextPage()
+          }}
           recent={
             <RecentSearches
               terms={terms}
               onSelect={(term) => {
+                setResultsOpen(true)
                 setQuery(term)
                 if (term === query) restart()
               }}
@@ -186,7 +207,10 @@ function App({
             tracks={tracks}
             showingId={selected?.id ?? null}
             onSelect={selectTrack}
-            onRetry={retry}
+            onRetry={() => {
+              setResultsOpen(true)
+              retry()
+            }}
           />
         </SearchContainer>
 

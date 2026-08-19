@@ -148,22 +148,44 @@ describe('App', () => {
   it('embeds the player when the artwork is clicked', async () => {
     const { user } = renderApp([pageOf(['first result', 'second result'], null)])
 
-    await user.click(screen.getByRole('button', { name: /player$/i }))
+    await user.click(screen.getByRole('switch', { name: 'Player' }))
 
     await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
     await user.click(await screen.findByRole('button', { name: 'first result' }))
 
-    expect(screen.queryByTitle('first result player')).not.toBeInTheDocument()
+    expect(screen.queryByTitle('Player for first result')).not.toBeInTheDocument()
 
     await user.click(screen.getByRole('img', { name: /first result by artist/i }))
 
-    const player = screen.getByTitle('first result player')
+    const player = screen.getByTitle('Player for first result')
     expect(player).toHaveAttribute('src', 'https://player.test/?feed=first result')
     expect(player).toHaveAttribute('allow', 'autoplay; encrypted-media')
 
+    // Picking a track folds the list, so reaching a second one reopens it.
+    await user.click(screen.getByRole('button', { name: 'Results' }))
     await user.click(screen.getByRole('button', { name: 'second result' }))
 
-    expect(screen.queryByTitle('first result player')).not.toBeInTheDocument()
+    expect(screen.queryByTitle('Player for first result')).not.toBeInTheDocument()
+  })
+
+  it('folds the list once a track is picked, and unfolds it on a new search', async () => {
+    const { user } = renderApp([pageOf(['first result', 'second result'], null)])
+
+    await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
+    await user.click(await screen.findByRole('button', { name: 'first result' }))
+
+    expect(screen.getByRole('button', { name: 'Results' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    )
+    expect(screen.queryByRole('button', { name: 'second result' })).not.toBeInTheDocument()
+
+    await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'x')
+
+    expect(screen.getByRole('button', { name: 'Results' })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    )
   })
 
   it('remembers the layout the user picked', async () => {
@@ -172,9 +194,9 @@ describe('App', () => {
     await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
     await screen.findByRole('button', { name: 'first result' })
 
-    await user.click(screen.getByRole('button', { name: 'Tile' }))
+    await user.click(screen.getByRole('button', { name: 'Grid' }))
 
-    expect(screen.getByRole('button', { name: 'Tile' })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: 'Grid' })).toHaveAttribute(
       'aria-pressed',
       'true',
     )
@@ -184,7 +206,7 @@ describe('App', () => {
   it('opens in the layout stored from the last visit', async () => {
     renderApp([pageOf(['first result'], null)], [], 'tile')
 
-    expect(screen.getByRole('button', { name: 'Tile' })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: 'Grid' })).toHaveAttribute(
       'aria-pressed',
       'true',
     )
@@ -196,7 +218,7 @@ describe('App', () => {
     await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
     await user.click(await screen.findByRole('button', { name: 'first result' }))
 
-    expect(screen.getByRole('region', { name: /now playing/i })).toHaveFocus()
+    expect(screen.getByRole('region', { name: /selected track/i })).toHaveFocus()
   })
 
   it('announces what the search did', async () => {
@@ -217,7 +239,7 @@ describe('App', () => {
     await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
     await user.click(await screen.findByRole('button', { name: 'first result' }))
 
-    const image = screen.getByRole('region', { name: /now playing/i })
+    const image = screen.getByRole('region', { name: /selected track/i })
     expect(within(image).getByRole('img', { name: /first result by artist/i })).toBeInTheDocument()
     expect(image).toHaveFocus()
   })
@@ -225,12 +247,12 @@ describe('App', () => {
   it('captions the artwork with the title, the artist, and how to play it', async () => {
     const { user } = renderApp([pageOf(['first result'], null)])
 
-    await user.click(screen.getByRole('button', { name: /player$/i }))
+    await user.click(screen.getByRole('switch', { name: 'Player' }))
 
     await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
     await user.click(await screen.findByRole('button', { name: 'first result' }))
 
-    const image = screen.getByRole('region', { name: /now playing/i })
+    const image = screen.getByRole('region', { name: /selected track/i })
     expect(within(image).getByText('first result')).toBeInTheDocument()
     expect(within(image).getByText('artist')).toBeInTheDocument()
     expect(
@@ -242,13 +264,13 @@ describe('App', () => {
     expect(
       within(image).queryByRole('button', { name: /^play /i }),
     ).not.toBeInTheDocument()
-    expect(within(image).getByTitle('first result player')).toBeInTheDocument()
+    expect(within(image).getByTitle('Player for first result')).toBeInTheDocument()
   })
 
   it('keeps the embed when the listener pauses on the player itself', async () => {
     const { user, player } = renderApp([pageOf(['first result'], null)])
 
-    await user.click(screen.getByRole('button', { name: /player$/i }))
+    await user.click(screen.getByRole('switch', { name: 'Player' }))
 
     await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
     await user.click(await screen.findByRole('button', { name: 'first result' }))
@@ -257,7 +279,7 @@ describe('App', () => {
     await player.attached()
     player.say(false)
 
-    expect(screen.getByTitle('first result player')).toBeInTheDocument()
+    expect(screen.getByTitle('Player for first result')).toBeInTheDocument()
     expect(
       screen.queryByRole('button', { name: /^play /i }),
     ).not.toBeInTheDocument()
@@ -281,10 +303,10 @@ describe('App', () => {
     await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
     await user.click(await screen.findByRole('button', { name: 'first result' }))
 
-    const image = screen.getByRole('region', { name: /now playing/i })
+    const image = screen.getByRole('region', { name: /selected track/i })
     expect(within(image).getByRole('img', { name: /first result by artist/i })).toBeInTheDocument()
     expect(within(image).queryByRole('button')).not.toBeInTheDocument()
-    expect(screen.queryByTitle('first result player')).not.toBeInTheDocument()
+    expect(screen.queryByTitle('Player for first result')).not.toBeInTheDocument()
   })
 
   it('starts with no player until the visitor asks for one', async () => {
@@ -293,14 +315,11 @@ describe('App', () => {
     await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
     await user.click(await screen.findByRole('button', { name: 'first result' }))
 
-    const image = screen.getByRole('region', { name: /now playing/i })
-    expect(screen.getByRole('button', { name: 'Show player' })).toHaveAttribute(
-      'aria-expanded',
-      'false',
-    )
+    const image = screen.getByRole('region', { name: /selected track/i })
+    expect(screen.getByRole('switch', { name: 'Player' })).not.toBeChecked()
     expect(within(image).queryByRole('button')).not.toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: /player$/i }))
+    await user.click(screen.getByRole('switch', { name: 'Player' }))
 
     expect(
       within(image).getByRole('button', { name: 'Play first result by artist' }),
@@ -310,32 +329,29 @@ describe('App', () => {
   it('keeps the one answer for every look, and for the next visit', async () => {
     const { user, playerStore } = renderApp([pageOf(['first result'], null)])
 
-    await user.click(screen.getByRole('button', { name: /player$/i }))
+    await user.click(screen.getByRole('switch', { name: 'Player' }))
     expect(playerStore.read()).toBe(true)
 
     await user.click(screen.getByRole('button', { name: 'Appearance' }))
     await user.click(screen.getByRole('radio', { name: /^gallery/i }))
     await user.keyboard('{Escape}')
 
-    expect(screen.getByRole('button', { name: 'Hide player' })).toHaveAttribute(
-      'aria-expanded',
-      'true',
-    )
+    expect(screen.getByRole('switch', { name: 'Player' })).toBeChecked()
   })
 
   it('drops the player when the switch goes off, and remembers that', async () => {
     const { user, playerStore } = renderApp([pageOf(['first result'], null)])
 
-    await user.click(screen.getByRole('button', { name: /player$/i }))
+    await user.click(screen.getByRole('switch', { name: 'Player' }))
     await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
     await user.click(await screen.findByRole('button', { name: 'first result' }))
     await user.click(screen.getByRole('img', { name: /first result by artist/i }))
 
-    expect(screen.getByTitle('first result player')).toBeInTheDocument()
+    expect(screen.getByTitle('Player for first result')).toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: /player$/i }))
+    await user.click(screen.getByRole('switch', { name: 'Player' }))
 
-    expect(screen.queryByTitle('first result player')).not.toBeInTheDocument()
+    expect(screen.queryByTitle('Player for first result')).not.toBeInTheDocument()
     expect(playerStore.read()).toBe(false)
   })
 
@@ -343,19 +359,19 @@ describe('App', () => {
     renderApp([pageOf(['first result'], null)])
 
     expect(
-      screen.queryByRole('region', { name: /now playing/i }),
+      screen.queryByRole('region', { name: /selected track/i }),
     ).not.toBeInTheDocument()
   })
 
   it('opens on the cover it was left on and does not grab focus for it', () => {
     renderApp([pageOf(['first result'], null)], [], null, track('kept from last time'))
 
-    const image = screen.getByRole('region', { name: /now playing/i })
+    const image = screen.getByRole('region', { name: /selected track/i })
     expect(
       within(image).getByRole('img', { name: /kept from last time by artist/i }),
     ).toBeInTheDocument()
     expect(image).not.toHaveFocus()
-    expect(screen.queryByTitle('kept from last time player')).not.toBeInTheDocument()
+    expect(screen.queryByTitle('Player for kept from last time')).not.toBeInTheDocument()
   })
 
   it('remembers the cover it showed for the next visit', async () => {
@@ -373,7 +389,7 @@ describe('App', () => {
     await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
     await user.click(await screen.findByRole('button', { name: 'first result' }))
 
-    const image = screen.getByRole('region', { name: /now playing/i })
+    const image = screen.getByRole('region', { name: /selected track/i })
     expect(within(image).getByRole('img', { name: /first result by artist/i })).toBeInTheDocument()
   })
 })

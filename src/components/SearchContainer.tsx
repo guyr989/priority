@@ -13,6 +13,10 @@ interface SearchContainerProps {
   readonly onPrev: () => void
   readonly onNext: () => void
   readonly recent: ReactNode
+  /** The list can be folded away once it has something in it. */
+  readonly collapsible: boolean
+  readonly resultsOpen: boolean
+  readonly onResultsOpenChange: (open: boolean) => void
   readonly children: ReactNode
 }
 
@@ -27,8 +31,12 @@ export function SearchContainer({
   onPrev,
   onNext,
   recent,
+  collapsible,
+  resultsOpen,
+  onResultsOpenChange,
   children,
 }: SearchContainerProps) {
+  const folded = collapsible && !resultsOpen
   return (
     <section className={styles.container} aria-label="Search">
       <div className={styles.head}>
@@ -49,11 +57,11 @@ export function SearchContainer({
             type="search"
             value={query}
             autoComplete="off"
-            placeholder="Search for a track"
+            placeholder="Artist, show, or track"
             onChange={(event) => onQueryChange(event.target.value)}
           />
           <button className={styles.go} type="submit">
-            Go
+            Search
           </button>
         </form>
 
@@ -61,10 +69,40 @@ export function SearchContainer({
       </div>
 
       <div className={styles.toolbar}>
-        <span className={styles.toolbarLabel} id="results-label">
-          Results
-        </span>
-        <div className={styles.views} role="group" aria-label="Result layout">
+        {collapsible ? (
+          <button
+            type="button"
+            className={styles.toolbarToggle}
+            id="results-label"
+            aria-expanded={resultsOpen}
+            aria-controls="results-list"
+            onClick={() => onResultsOpenChange(!resultsOpen)}
+          >
+            <svg
+              className={styles.chevron}
+              viewBox="0 0 16 16"
+              width="13"
+              height="13"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M4 6.5 8 10.5 12 6.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            Results
+          </button>
+        ) : (
+          <span className={styles.toolbarLabel} id="results-label">
+            Results
+          </span>
+        )}
+        <div className={styles.views} role="group" aria-label="Result layout" hidden={folded}>
           <button
             type="button"
             className={styles.view}
@@ -85,9 +123,9 @@ export function SearchContainer({
           <button
             type="button"
             className={styles.view}
-            aria-label="Tile"
+            aria-label="Grid"
             aria-pressed={view === 'tile'}
-            title="Tile"
+            title="Grid"
             onClick={() => onViewChange('tile')}
           >
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
@@ -100,11 +138,16 @@ export function SearchContainer({
         </div>
       </div>
 
-      <div className={styles.results} aria-labelledby="results-label">
+      <div
+        id="results-list"
+        className={styles.results}
+        aria-labelledby="results-label"
+        hidden={folded}
+      >
         {children}
       </div>
 
-      <div className={styles.controls}>
+      <div className={styles.controls} hidden={folded}>
         <div className={styles.paging} role="group" aria-label="Result pages">
           <button type="button" onClick={onPrev} disabled={!hasPrev}>
             Previous

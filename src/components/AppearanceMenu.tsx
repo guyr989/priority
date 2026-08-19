@@ -6,7 +6,7 @@ import styles from './AppearanceMenu.module.css'
 const COPY: Record<AppearanceId, { readonly name: string; readonly note: string }> = {
   studio: {
     name: 'Studio',
-    note: 'Daylight panels, violet accent. Follows your system theme.',
+    note: 'Light panels, violet accent. Follows your system theme.',
   },
   'after-hours': {
     name: 'After hours',

@@ -7,36 +7,24 @@ interface PlayerToggleProps {
 }
 
 /**
- * A disclosure, not a transport control. It decides whether the page carries a
- * player at all; it never starts or stops what is already running. The label
- * says which of the two it is, because a switch alone cannot.
+ * One control: the word names the thing, the pill carries the state. It decides
+ * whether the page carries a player at all and never starts or stops what is
+ * already running, which is what the title spells out on hover.
  */
 export function PlayerToggle({ on, onChange }: PlayerToggleProps) {
   return (
     <button
       type="button"
+      role="switch"
       className={styles.toggle}
-      aria-expanded={on}
+      aria-checked={on}
+      title="Show or hide the player"
       onClick={() => onChange(!on)}
     >
-      <svg
-        className={styles.chevron}
-        viewBox="0 0 16 16"
-        width="14"
-        height="14"
-        aria-hidden="true"
-        focusable="false"
-      >
-        <path
-          d="M4 6.5 8 10.5 12 6.5"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-      {on ? 'Hide player' : 'Show player'}
+      Player
+      <span className={styles.track} aria-hidden="true">
+        <span className={styles.knob} />
+      </span>
     </button>
   )
 }

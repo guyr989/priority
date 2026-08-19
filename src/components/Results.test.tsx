@@ -61,7 +61,7 @@ describe('Results', () => {
   it('explains an empty result instead of showing a blank list', () => {
     render(<Results status="ready" view="list" showingId={null} tracks={[]} onSelect={noop} onRetry={noop} />)
 
-    expect(screen.getByText(/try a shorter one/i)).toBeInTheDocument()
+    expect(screen.getByText(/try fewer words/i)).toBeInTheDocument()
     expect(screen.getByRole('status')).toHaveTextContent(/nothing found/i)
     expect(screen.queryByRole('list')).not.toBeInTheDocument()
   })

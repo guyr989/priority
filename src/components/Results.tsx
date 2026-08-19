@@ -73,7 +73,7 @@ function ResultsBody({
     if (busy) return <p className={`${styles.message} ${styles.loading}`}>Digging</p>
     if (status === 'idle') return <p className={styles.message}>Type a name and start digging.</p>
 
-    return <p className={styles.message}>Nothing under that name. Try a shorter one.</p>
+    return <p className={styles.message}>Nothing under that name. Try fewer words.</p>
   }
 
   if (view === 'tile') {
