@@ -22,12 +22,37 @@ type WidgetFactory = (frame: HTMLIFrameElement) => Widget
 let pendingScript: Promise<void> | null = null
 
 /**
- * The widget library registers a window message listener it never removes, so
- * reuse one widget per frame instead of building one per attach.
- * ponytail: a new track still mounts a new iframe and so costs one listener.
- * Owning the postMessage handshake ourselves would be the fix if that ever bites.
+ * The library registers exactly one window 'message' listener per widget, in its
+ * constructor, synchronously, and never removes it — measured: three widgets add
+ * three listeners. Since the registration is synchronous we can catch it and
+ * hand back a release, so a finished player leaves nothing behind.
  */
-const widgets = new WeakMap<HTMLIFrameElement, Widget>()
+function build(create: WidgetFactory, frame: HTMLIFrameElement) {
+    const registered: EventListener[] = []
+    const original = window.addEventListener.bind(window)
+    const patched = (
+        type: string,
+        listener: EventListenerOrEventListenerObject,
+        options?: boolean | AddEventListenerOptions,
+    ): void => {
+        if (type === "message" && typeof listener === "function") registered.push(listener)
+        original(type, listener, options)
+    }
+
+    window.addEventListener = patched as typeof window.addEventListener
+
+    try {
+        return {
+            widget: create(frame),
+            release: () => {
+                registered.forEach((listener) => window.removeEventListener("message", listener))
+                registered.length = 0
+            },
+        }
+    } finally {
+        window.addEventListener = original
+    }
+}
 
 function loadWidgetApi(): Promise<void> {
     if (pendingScript !== null) return pendingScript
@@ -65,8 +90,7 @@ export async function attachPlayback(frame: HTMLIFrameElement): Promise<Playback
         const create = readWidgetFactory()
         if (create === null) return null
 
-        const widget = widgets.get(frame) ?? create(frame)
-        widgets.set(frame, widget)
+        const { widget, release } = build(create, frame)
         await widget.ready
 
         return {
@@ -84,6 +108,7 @@ export async function attachPlayback(frame: HTMLIFrameElement): Promise<Playback
                     widget.events.play.off(started)
                     widget.events.pause.off(stopped)
                     widget.events.ended.off(stopped)
+                    release()
                 }
             },
         }

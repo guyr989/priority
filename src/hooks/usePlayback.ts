@@ -38,10 +38,18 @@ export function usePlayback(
     let dropped = false
 
     void attach(frame).then((source) => {
-      if (source === null || dropped) return
+      if (source === null) return
 
+      // Subscribe even when we are already leaving: detaching is what releases
+      // the player, and a source nobody detaches is a source nobody cleans up.
+      const stop = source.subscribe((isPlaying) => setReport({ player, isPlaying }))
+      if (dropped) {
+        stop()
+        return
+      }
+
+      detach = stop
       setReport({ player, isPlaying: source.isPlaying })
-      detach = source.subscribe((isPlaying) => setReport({ player, isPlaying }))
     })
 
     return () => {
