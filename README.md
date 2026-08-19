@@ -89,6 +89,24 @@ or a full quota degrades to "nothing stored" instead of an exception.
 request URL verbatim, so the adapter rejects any cursor that leaves the API's own
 origin.
 
+**A look is one attribute, not a theme engine.** The appearance picker writes a
+single `data-appearance` value on the document. Every palette, radius and
+proportion for the four looks is a block of custom properties in `index.css`, and
+the three layouts are tokens on the grid, so no component knows which look is on
+and adding a fifth is CSS plus one entry in `domain/appearance.ts`. The picker
+stays open after a choice on purpose: the looks are meant to be compared, and the
+close it used to do could not fire when you re-picked the look you were already
+on. Gallery carries no player, which is why it is never the default and never
+what a first-time visitor sees — requirement 6 asks for the embed, so the look
+that drops it says so on its own line in the list.
+
+**Playing is what the player says, not what we clicked.** The search API reports
+play counts, never whether this listener is playing, so the state comes from the
+embed over its own postMessage API. `domain/playback.ts` states that as a plain
+subscribe, so nothing under the api layer knows a vendor or an iframe exists, and
+a provider that cannot report playback falls back to the click. Pressing pause on
+the player's own transport stops our equaliser; the embed stays where it is.
+
 **The flight is native.** The result that flies into the sleeve is animated with
 the browser's Web Animations API — no animation library. Browsers that cannot
 animate, and readers who have asked their system for reduced motion, get the
@@ -103,4 +121,12 @@ swap with no flight at all.
   no locally kept back-stack, so paging history cannot drift, but it also cannot
   outrun what the API supports.
 - The embedded player is the provider's own widget, so its look is theirs, not
-  mine.
+  mine. A show with licensing restrictions prints their notice in their colours
+  inside their iframe: cross-origin, so it cannot be restyled from here.
+- The widget's own script is the one third-party request the app makes, loaded
+  only when a player first appears. The typefaces are self-hosted for that
+  reason; playback state is not available any other way.
+- The widget library registers a window listener it never removes, so the adapter
+  catches the registration and releases it on detach. If a future version
+  registers asynchronously that release quietly stops working, which is the point
+  at which owning the postMessage handshake becomes the better trade.
