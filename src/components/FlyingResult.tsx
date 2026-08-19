@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import type { RefObject } from 'react'
 import styles from './FlyingResult.module.css'
 
@@ -15,6 +15,11 @@ interface FlyingResultProps {
 
 export function FlyingResult({ label, from, targetRef, onFinish }: FlyingResultProps) {
   const ghostRef = useRef<HTMLDivElement>(null)
+  const finish = useRef(onFinish)
+
+  useEffect(() => {
+    finish.current = onFinish
+  }, [onFinish])
 
   useLayoutEffect(() => {
     const ghost = ghostRef.current
@@ -28,7 +33,7 @@ export function FlyingResult({ label, from, targetRef, onFinish }: FlyingResultP
       typeof ghost.animate !== 'function' ||
       document.hidden
     ) {
-      onFinish()
+      finish.current()
       return
     }
 
@@ -54,16 +59,16 @@ export function FlyingResult({ label, from, targetRef, onFinish }: FlyingResultP
       { duration: FLIGHT_MS, easing: FLIGHT_EASING, fill: 'forwards' },
     )
 
-    flight.onfinish = () => onFinish()
+    flight.onfinish = () => finish.current()
 
     // Same reason, for a tab that goes away mid-flight: land it regardless.
-    const guard = window.setTimeout(onFinish, FLIGHT_MS + 200)
+    const guard = window.setTimeout(() => finish.current(), FLIGHT_MS + 200)
 
     return () => {
       window.clearTimeout(guard)
       flight.cancel()
     }
-  }, [from, targetRef, onFinish])
+  }, [from, targetRef])
 
   return (
     <div
