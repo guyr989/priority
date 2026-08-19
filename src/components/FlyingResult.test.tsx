@@ -48,6 +48,23 @@ describe('FlyingResult', () => {
     Reflect.deleteProperty(Element.prototype, 'animate')
   })
 
+  it('lands at once when the tab is hidden, where animations do not run', () => {
+    Object.defineProperty(Element.prototype, 'animate', {
+      value: () => ({ onfinish: null, cancel: vi.fn() }) as unknown as Animation,
+      configurable: true,
+      writable: true,
+    })
+    Object.defineProperty(document, 'hidden', { value: true, configurable: true })
+    const onFinish = vi.fn()
+
+    renderFlight(onFinish)
+
+    expect(onFinish).toHaveBeenCalledOnce()
+
+    Reflect.deleteProperty(Element.prototype, 'animate')
+    Object.defineProperty(document, 'hidden', { value: false, configurable: true })
+  })
+
   it('is hidden from assistive technology', () => {
     renderFlight(vi.fn())
 

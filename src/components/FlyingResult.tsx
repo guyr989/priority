@@ -2,8 +2,9 @@ import { useLayoutEffect, useRef } from 'react'
 import type { RefObject } from 'react'
 import styles from './FlyingResult.module.css'
 
-const FLIGHT_MS = 420
-const FLIGHT_EASING = 'cubic-bezier(0.2, 0.7, 0.2, 1)'
+const FLIGHT_MS = 520
+const FLIGHT_EASING = 'cubic-bezier(0.32, 0.04, 0.16, 1)'
+const SWELL = 1.06
 
 interface FlyingResultProps {
   readonly label: string
@@ -19,7 +20,14 @@ export function FlyingResult({ label, from, targetRef, onFinish }: FlyingResultP
     const ghost = ghostRef.current
     const target = targetRef.current
 
-    if (ghost === null || target === null || typeof ghost.animate !== 'function') {
+    // A hidden tab throttles animations, so the flight would never report back
+    // and the sleeve would stay empty with the ghost stuck on screen.
+    if (
+      ghost === null ||
+      target === null ||
+      typeof ghost.animate !== 'function' ||
+      document.hidden
+    ) {
       onFinish()
       return
     }
@@ -29,17 +37,30 @@ export function FlyingResult({ label, from, targetRef, onFinish }: FlyingResultP
     const dy = to.top + to.height / 2 - (from.top + from.height / 2)
     const scale = Math.min(to.width / from.width, 1)
 
+    // Thrown rather than slid: it swells and rises off its line, then drops
+    // into the sleeve, and only lets go of its colour at the end.
+    const lift = Math.min(Math.abs(dy) * 0.3 + 36, 130)
+
     const flight = ghost.animate(
       [
-        { transform: 'translate(0, 0) scale(1)', opacity: 1 },
-        { transform: `translate(${dx}px, ${dy}px) scale(${scale})`, opacity: 0 },
+        { transform: 'translate(0, 0) scale(1)', opacity: 1, offset: 0 },
+        {
+          transform: `translate(${dx * 0.5}px, ${dy * 0.4 - lift}px) scale(${SWELL})`,
+          opacity: 1,
+          offset: 0.55,
+        },
+        { transform: `translate(${dx}px, ${dy}px) scale(${scale})`, opacity: 0, offset: 1 },
       ],
       { duration: FLIGHT_MS, easing: FLIGHT_EASING, fill: 'forwards' },
     )
 
     flight.onfinish = () => onFinish()
 
+    // Same reason, for a tab that goes away mid-flight: land it regardless.
+    const guard = window.setTimeout(onFinish, FLIGHT_MS + 200)
+
     return () => {
+      window.clearTimeout(guard)
       flight.cancel()
     }
   }, [from, targetRef, onFinish])
