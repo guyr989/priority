@@ -114,6 +114,12 @@ swap with no flight at all.
 
 ## Known trade-offs
 
+- The player is off on a first visit. One switch in the top bar turns it on and
+  the answer is kept for the next visit. That is a deliberate choice, and it has
+  a cost worth stating plainly: requirement 6 asks that clicking the artwork
+  embeds the track and plays it, and someone opening the app for the first time
+  has to press Player before the artwork becomes a play control. The switch sits
+  in the top bar rather than behind a menu for exactly that reason.
 - A search is remembered once it returns results, so a term that found nothing
   never reaches the list. Deliberate, but it means the history records what
   worked rather than everything typed.

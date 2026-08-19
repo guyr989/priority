@@ -13,6 +13,12 @@
   box-sizing: border-box;
 }
 
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .wordmark {
   font-size: 27px;
   line-height: 100%;
@@ -53,9 +59,9 @@
   box-sizing: border-box;
 }
 
-/* Sleeve in its own column, the search beside it. */
+/* Search leads and takes the width; the sleeve keeps a column beside it. */
 .side {
-  grid-template-columns: minmax(0, 344px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 344px);
 }
 
 /* One column, sleeve first and large. */
@@ -73,13 +79,13 @@
 }
 
 /*
- * Sleeve, search and results across one row. The search panel splits itself
+ * Search, results and sleeve across one row. The search panel splits itself
  * from these two tokens, so the third column costs no extra markup.
  */
 .row {
-  grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 300px);
   --search-cols: minmax(0, 236px) minmax(0, 1fr);
-  --search-areas: 'head body' 'head foot';
+  --search-areas: 'head tools' 'head body' 'head foot';
   --search-gap: 22px;
 }
 
@@ -94,6 +100,15 @@
     padding: 11px 14px;
   }
 
+  /* The player control keeps its full wording, so the wordmark gives way. */
+  .wordmark {
+    font-size: 21px;
+  }
+
+  .controls {
+    gap: 2px;
+  }
+
   .layout {
     grid-template-columns: minmax(0, 1fr);
     gap: 14px;
@@ -103,7 +118,7 @@
   .row {
     grid-template-columns: minmax(0, 1fr);
     --search-cols: minmax(0, 1fr);
-    --search-areas: 'head' 'body' 'foot';
+    --search-areas: 'head' 'tools' 'body' 'foot';
   }
 
   .banner {

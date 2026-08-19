@@ -6,7 +6,7 @@
 .container {
   display: grid;
   grid-template-columns: var(--search-cols, minmax(0, 1fr));
-  grid-template-areas: var(--search-areas, 'head' 'body' 'foot');
+  grid-template-areas: var(--search-areas, 'head' 'tools' 'body' 'foot');
   align-content: start;
   gap: 16px var(--search-gap, 16px);
   padding: 22px;
@@ -53,6 +53,24 @@
   color: var(--text);
 }
 
+/* Sits with the list it reshapes, not with the paging under it. */
+.toolbar {
+  grid-area: tools;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: -6px;
+}
+
+.toolbarLabel {
+  font-size: var(--micro);
+  font-weight: var(--micro-weight);
+  letter-spacing: var(--micro-tracking);
+  text-transform: uppercase;
+  color: var(--text);
+}
+
 .results {
   grid-area: body;
   /* Tiles count columns off this box, not off the window, so the same six
@@ -74,7 +92,7 @@
 
   .container {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: 'head' 'body' 'foot';
+    grid-template-areas: 'head' 'tools' 'body' 'foot';
   }
 
   .results:has(ul) {
@@ -168,8 +186,14 @@
   gap: 6px;
 }
 
+/*
+ * Dimming to 45% took the label under 4.5:1. Disabled is carried by the flat
+ * ground and the cursor instead, so the word stays as readable as any other.
+ */
 .paging button:disabled {
-  opacity: 0.45;
+  color: var(--text);
+  background: var(--social-bg);
+  border-color: transparent;
   cursor: not-allowed;
 }
 

@@ -60,18 +60,10 @@ export function SearchContainer({
         {recent}
       </div>
 
-      <div className={styles.results}>{children}</div>
-
-      <div className={styles.controls}>
-        <div className={styles.paging} role="group" aria-label="Result pages">
-          <button type="button" onClick={onPrev} disabled={!hasPrev}>
-            Previous
-          </button>
-          <button type="button" onClick={onNext} disabled={!hasNext}>
-            Next
-          </button>
-        </div>
-
+      <div className={styles.toolbar}>
+        <span className={styles.toolbarLabel} id="results-label">
+          Results
+        </span>
         <div className={styles.views} role="group" aria-label="Result layout">
           <button
             type="button"
@@ -106,6 +98,22 @@ export function SearchContainer({
             </svg>
           </button>
         </div>
+      </div>
+
+      <div className={styles.results} aria-labelledby="results-label">
+        {children}
+      </div>
+
+      <div className={styles.controls}>
+        <div className={styles.paging} role="group" aria-label="Result pages">
+          <button type="button" onClick={onPrev} disabled={!hasPrev}>
+            Previous
+          </button>
+          <button type="button" onClick={onNext} disabled={!hasNext}>
+            Next
+          </button>
+        </div>
+
       </div>
     </section>
   )

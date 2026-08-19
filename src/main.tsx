@@ -3,7 +3,8 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import { attachPlayback, soundProvider } from './api'
-import { isAppearanceId, isPlayerPreference } from './domain/appearance'
+import { isAppearanceId } from './domain/appearance'
+import { isPlayerVisible } from './domain/playback'
 import { isHistory } from './domain/history'
 import { isTrack } from './domain/track'
 import { isViewMode } from './domain/view'
@@ -14,7 +15,7 @@ const historyStore = createLocalStore('priority.recent-searches', isHistory)
 const viewStore = createLocalStore('priority.view', isViewMode)
 const lastTrackStore = createLocalStore('priority.last-track', isTrack)
 const appearanceStore = createLocalStore('priority.appearance', isAppearanceId)
-const playerStore = createLocalStore('priority.player-visible', isPlayerPreference)
+const playerStore = createLocalStore('priority.player-visible', isPlayerVisible)
 
 applyAppearance(appearanceStore.read())
 

@@ -83,9 +83,6 @@
 }
 
 .legend {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
   padding: 10px 10px 8px;
   font-size: var(--micro);
   font-weight: var(--micro-weight);
@@ -94,30 +91,13 @@
   color: var(--text);
 }
 
-.aside {
-  text-transform: none;
-  letter-spacing: normal;
-  font-weight: 400;
-  font-size: var(--micro);
-  opacity: 0.8;
-}
-
 .look {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 11px;
-  border-radius: var(--radius-s);
-}
-
-/* The radio owns the row's label; the switch sits outside it so one click
-   never means two things. */
-.pick {
   display: grid;
   grid-template-columns: 26px minmax(0, 1fr);
   gap: 3px 11px;
   align-items: center;
+  padding: 10px 11px;
+  border-radius: var(--radius-s);
   cursor: pointer;
 }
 
@@ -147,53 +127,6 @@
   font-size: 13px;
   line-height: 135%;
   color: var(--text);
-}
-
-.switch {
-  flex: none;
-  position: relative;
-  width: 42px;
-  height: 24px;
-  padding: 0;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: var(--social-bg);
-  cursor: pointer;
-}
-
-.switch[aria-checked='true'] {
-  background: var(--accent-bg);
-  border-color: var(--accent-border);
-}
-
-.switch:hover {
-  border-color: var(--accent-border);
-}
-
-.switch:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.knob {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--text);
-}
-
-.switch[aria-checked='true'] .knob {
-  background: var(--accent);
-  translate: 18px 0;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .knob {
-    transition: translate 140ms ease-out, background-color 140ms ease-out;
-  }
 }
 
 @media (prefers-reduced-motion: no-preference) {

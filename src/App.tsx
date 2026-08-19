@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react'
 import { AppearanceMenu } from './components/AppearanceMenu'
 import { FlyingResult } from './components/FlyingResult'
 import { ImageContainer } from './components/ImageContainer'
+import { PlayerToggle } from './components/PlayerToggle'
 import { RecentSearches } from './components/RecentSearches'
 import { Results } from './components/Results'
 import { SearchContainer } from './components/SearchContainer'
@@ -10,8 +11,8 @@ import { useAppearance } from './hooks/useAppearance'
 import { usePlayback } from './hooks/usePlayback'
 import { useSearch } from './hooks/useSearch'
 import { useSearchHistory } from './hooks/useSearchHistory'
-import { APPEARANCES, findAppearance, playerShown } from './domain/appearance'
-import type { Appearance, AppearanceId, LayoutName, PlayerPreference } from './domain/appearance'
+import { APPEARANCES } from './domain/appearance'
+import type { Appearance, AppearanceId, LayoutName } from './domain/appearance'
 import type { AttachPlayback } from './hooks/usePlayback'
 import type { SoundProvider } from './domain/soundProvider'
 import type { ViewMode } from './domain/view'
@@ -58,7 +59,7 @@ interface AppProps {
   readonly viewStore: Store<ViewMode>
   readonly lastTrackStore: Store<Track>
   readonly appearanceStore: Store<AppearanceId>
-  readonly playerStore: Store<PlayerPreference>
+  readonly playerStore: Store<boolean>
   readonly attachPlayback: AttachPlayback
   readonly debounceMs?: number
 }
@@ -83,17 +84,16 @@ function App({
   const imageSectionRef = useRef<HTMLElement>(null)
   const playerRef = useRef<HTMLIFrameElement>(null)
 
-  const { look, showsPlayer, players, choose, setPlayerShown } = useAppearance(
-    appearanceStore,
-    playerStore,
-  )
+  const [playerOn, setPlayerOn] = useState(() => playerStore.read() ?? false)
+  const { look, choose } = useAppearance(appearanceStore)
   const isPlaying = usePlayback(playerRef, attachPlayback, embedded, selected?.id ?? null)
 
-  // Leaving the player behind stops it, whichever way it goes: a look that
-  // carries none, or a switch turned off. Coming back must not restart the set
-  // from zero, so the sleeve offers its play control again instead.
-  const leavePlayer = (stillShown: boolean) => {
-    if (!stillShown) setEmbedded(false)
+  // Turning the player off stops it. Turning it back on must not restart the
+  // set from zero, so the sleeve offers its play control again instead.
+  const togglePlayer = (on: boolean) => {
+    setPlayerOn(on)
+    playerStore.write(on)
+    if (!on) setEmbedded(false)
   }
 
   const { tracks, status, hasNext, hasPrev, goToNextPage, goToPrevPage, restart, retry } =
@@ -141,19 +141,10 @@ function App({
       <header className={styles.band}>
         <div className={styles.bar}>
           <h1 className={styles.wordmark}>Sound search</h1>
-          <AppearanceMenu
-            looks={APPEARANCES}
-            current={look}
-            players={players}
-            onChoose={(id) => {
-              choose(id)
-              leavePlayer(playerShown(findAppearance(id), players))
-            }}
-            onChoosePlayer={(id, shown) => {
-              setPlayerShown(id, shown)
-              leavePlayer(shown || id !== look.id)
-            }}
-          />
+          <div className={styles.controls}>
+            <PlayerToggle on={playerOn} onChange={togglePlayer} />
+            <AppearanceMenu looks={APPEARANCES} current={look} onChoose={choose} />
+          </div>
         </div>
       </header>
 
@@ -166,21 +157,6 @@ function App({
           .join(' ')}
         style={backdropStyle(look, selected)}
       >
-        {showNowPlaying && (
-          <div className={styles.now}>
-            <ImageContainer
-              track={selected}
-              sectionRef={imageSectionRef}
-              slotRef={imageSlotRef}
-              frameRef={playerRef}
-              playable={showsPlayer}
-              embedded={embedded}
-              isPlaying={isPlaying}
-              onImageClick={() => setEmbedded(true)}
-            />
-          </div>
-        )}
-
         <SearchContainer
           query={query}
           view={view}
@@ -213,6 +189,21 @@ function App({
             onRetry={retry}
           />
         </SearchContainer>
+
+        {showNowPlaying && (
+          <div className={styles.now}>
+            <ImageContainer
+              track={selected}
+              sectionRef={imageSectionRef}
+              slotRef={imageSlotRef}
+              frameRef={playerRef}
+              playable={playerOn}
+              embedded={embedded}
+              isPlaying={isPlaying}
+              onImageClick={() => setEmbedded(true)}
+            />
+          </div>
+        )}
 
         {flight !== null && (
           <FlyingResult

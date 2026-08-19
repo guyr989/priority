@@ -1,0 +1,55 @@
+/*
+ * Drawn from --text-h and --accent, both of which clear 4.5:1 on every look,
+ * so the control stays past the 3:1 WCAG asks of a border and the label stays
+ * as readable as body copy.
+ */
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: inherit;
+  font-size: var(--micro);
+  font-weight: var(--micro-weight);
+  letter-spacing: var(--micro-tracking);
+  text-transform: uppercase;
+  white-space: nowrap;
+  /* 44px of target whatever the label measures. */
+  min-height: 44px;
+  padding: 8px 14px;
+  border-radius: var(--radius-s);
+  color: var(--text-h);
+  background: transparent;
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.toggle:hover {
+  border-color: var(--accent-border);
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.toggle[aria-expanded='true'] {
+  color: var(--accent);
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+}
+
+/* Points down at a player that is there, right at one that is not. */
+.chevron {
+  flex: none;
+  rotate: -90deg;
+}
+
+.toggle[aria-expanded='true'] .chevron {
+  rotate: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .chevron {
+    transition: rotate 160ms ease-out;
+  }
+}

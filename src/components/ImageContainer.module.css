@@ -188,7 +188,12 @@
   }
 
   .caption {
-    font-size: min(var(--billing-size), 20px);
+    /* A long title set in the display serif wraps to four cramped lines on a
+       phone. The sans carries the same title in two. */
+    font-family: var(--sans);
+    font-weight: 600;
+    letter-spacing: -0.1px;
+    font-size: min(var(--billing-size), 19px);
   }
 
   .play {
