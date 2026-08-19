@@ -5,7 +5,7 @@ import App from './App'
 import type { Page } from './domain/page'
 import type { SoundProvider } from './domain/soundProvider'
 import type { Track } from './domain/track'
-import type { AppearanceId } from './domain/appearance'
+import type { LayoutId, PaletteId } from './domain/appearance'
 import type { PlaybackSource } from './domain/playback'
 import type { Store } from './storage/store'
 import type { ViewMode } from './domain/view'
@@ -68,7 +68,8 @@ function renderApp(
   const store = createMemoryStore<readonly string[]>(history)
   const viewStore = createMemoryStore<ViewMode>(view)
   const lastTrackStore = createMemoryStore<Track>(lastTrack)
-  const appearanceStore = createMemoryStore<AppearanceId>(null)
+  const paletteStore = createMemoryStore<PaletteId>(null)
+  const layoutStore = createMemoryStore<LayoutId>(null)
   const playerStore = createMemoryStore<boolean>(null)
   const player = createPlayer()
   render(
@@ -77,7 +78,8 @@ function renderApp(
       historyStore={store}
       viewStore={viewStore}
       lastTrackStore={lastTrackStore}
-      appearanceStore={appearanceStore}
+      paletteStore={paletteStore}
+      layoutStore={layoutStore}
       playerStore={playerStore}
       attachPlayback={player.attach}
       debounceMs={0}
@@ -88,16 +90,42 @@ function renderApp(
     store,
     viewStore,
     lastTrackStore,
-    appearanceStore,
+    paletteStore,
+    layoutStore,
     playerStore,
     player,
   }
 }
 
+/** The player switch lives behind the gear, so reaching it is two clicks. */
+async function openSettings(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole('button', { name: 'Settings' }))
+  await user.click(screen.getByRole('switch', { name: 'Player' }))
+  await user.keyboard('{Escape}')
+}
+
+function playerSwitch() {
+  return screen.getByRole('switch', { name: 'Player' })
+}
+
 afterEach(() => {
   Reflect.deleteProperty(window, 'matchMedia')
-  Reflect.deleteProperty(document.documentElement.dataset, 'appearance')
+  Reflect.deleteProperty(document.documentElement.dataset, 'palette')
 })
+
+/** Only the one-column layout offers to fold the list, so tests that exercise
+ *  the fold have to say they are on a phone. */
+function askForANarrowWindow() {
+  Object.defineProperty(window, 'matchMedia', {
+    value: (query: string) => ({
+      matches: query.includes('max-width'),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }),
+    configurable: true,
+    writable: true,
+  })
+}
 
 function askForReducedMotion() {
   Object.defineProperty(window, 'matchMedia', {
@@ -148,7 +176,7 @@ describe('App', () => {
   it('embeds the player when the artwork is clicked', async () => {
     const { user } = renderApp([pageOf(['first result', 'second result'], null)])
 
-    await user.click(screen.getByRole('switch', { name: 'Player' }))
+    await openSettings(user)
 
     await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
     await user.click(await screen.findByRole('button', { name: 'first result' }))
@@ -161,14 +189,13 @@ describe('App', () => {
     expect(player).toHaveAttribute('src', 'https://player.test/?feed=first result')
     expect(player).toHaveAttribute('allow', 'autoplay; encrypted-media')
 
-    // Picking a track folds the list, so reaching a second one reopens it.
-    await user.click(screen.getByRole('button', { name: 'Results' }))
     await user.click(screen.getByRole('button', { name: 'second result' }))
 
     expect(screen.queryByTitle('Player for first result')).not.toBeInTheDocument()
   })
 
   it('folds the list once a track is picked, and unfolds it on a new search', async () => {
+    askForANarrowWindow()
     const { user } = renderApp([pageOf(['first result', 'second result'], null)])
 
     await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
@@ -186,6 +213,16 @@ describe('App', () => {
       'aria-expanded',
       'true',
     )
+  })
+
+  it('leaves the list open on a window with room for it', async () => {
+    const { user } = renderApp([pageOf(['first result', 'second result'], null)])
+
+    await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
+    await user.click(await screen.findByRole('button', { name: 'first result' }))
+
+    expect(screen.queryByRole('button', { name: 'Results' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'second result' })).toBeVisible()
   })
 
   it('remembers the layout the user picked', async () => {
@@ -247,7 +284,7 @@ describe('App', () => {
   it('captions the artwork with the title, the artist, and how to play it', async () => {
     const { user } = renderApp([pageOf(['first result'], null)])
 
-    await user.click(screen.getByRole('switch', { name: 'Player' }))
+    await openSettings(user)
 
     await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
     await user.click(await screen.findByRole('button', { name: 'first result' }))
@@ -264,13 +301,17 @@ describe('App', () => {
     expect(
       within(image).queryByRole('button', { name: /^play /i }),
     ).not.toBeInTheDocument()
-    expect(within(image).getByTitle('Player for first result')).toBeInTheDocument()
+
+    // The transport lives in the bar at the foot of the window, not the sleeve.
+    const bar = screen.getByRole('complementary', { name: 'Player' })
+    expect(within(bar).getByTitle('Player for first result')).toBeInTheDocument()
+    expect(within(image).queryByTitle('Player for first result')).not.toBeInTheDocument()
   })
 
   it('keeps the embed when the listener pauses on the player itself', async () => {
     const { user, player } = renderApp([pageOf(['first result'], null)])
 
-    await user.click(screen.getByRole('switch', { name: 'Player' }))
+    await openSettings(user)
 
     await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
     await user.click(await screen.findByRole('button', { name: 'first result' }))
@@ -285,16 +326,28 @@ describe('App', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('changes the look and keeps it for the next visit', async () => {
-    const { user, appearanceStore } = renderApp([pageOf(['first result'], null)])
+  it('changes the colour and keeps it for the next visit', async () => {
+    const { user, paletteStore } = renderApp([pageOf(['first result'], null)])
 
-    expect(document.documentElement.dataset.appearance).toBe('studio')
+    expect(document.documentElement.dataset.palette).toBe('studio')
 
-    await user.click(screen.getByRole('button', { name: 'Appearance' }))
-    await user.click(screen.getByRole('radio', { name: /^after hours/i }))
+    await user.click(screen.getByRole('button', { name: 'Settings' }))
+    await user.click(screen.getByRole('radio', { name: /^desk/i }))
 
-    expect(document.documentElement.dataset.appearance).toBe('after-hours')
-    expect(appearanceStore.read()).toBe('after-hours')
+    expect(document.documentElement.dataset.palette).toBe('desk')
+    expect(paletteStore.read()).toBe('desk')
+  })
+
+  it('changes the layout without touching the colour', async () => {
+    const { user, paletteStore, layoutStore } = renderApp([pageOf(['first result'], null)])
+
+    await user.click(screen.getByRole('button', { name: 'Settings' }))
+    await user.click(screen.getByRole('radio', { name: /^desk/i }))
+    await user.click(screen.getByRole('radio', { name: /^stacked/i }))
+
+    expect(layoutStore.read()).toBe('stack')
+    expect(paletteStore.read()).toBe('desk')
+    expect(document.documentElement.dataset.palette).toBe('desk')
   })
 
   it('shows the sleeve as artwork while the player is switched off', async () => {
@@ -316,10 +369,13 @@ describe('App', () => {
     await user.click(await screen.findByRole('button', { name: 'first result' }))
 
     const image = screen.getByRole('region', { name: /selected track/i })
-    expect(screen.getByRole('switch', { name: 'Player' })).not.toBeChecked()
+
+    await user.click(screen.getByRole('button', { name: 'Settings' }))
+    expect(playerSwitch()).not.toBeChecked()
+    await user.keyboard('{Escape}')
     expect(within(image).queryByRole('button')).not.toBeInTheDocument()
 
-    await user.click(screen.getByRole('switch', { name: 'Player' }))
+    await openSettings(user)
 
     expect(
       within(image).getByRole('button', { name: 'Play first result by artist' }),
@@ -329,27 +385,26 @@ describe('App', () => {
   it('keeps the one answer for every look, and for the next visit', async () => {
     const { user, playerStore } = renderApp([pageOf(['first result'], null)])
 
-    await user.click(screen.getByRole('switch', { name: 'Player' }))
+    await openSettings(user)
     expect(playerStore.read()).toBe(true)
 
-    await user.click(screen.getByRole('button', { name: 'Appearance' }))
-    await user.click(screen.getByRole('radio', { name: /^gallery/i }))
-    await user.keyboard('{Escape}')
+    await user.click(screen.getByRole('button', { name: 'Settings' }))
+    await user.click(screen.getByRole('radio', { name: /^cinema/i }))
 
-    expect(screen.getByRole('switch', { name: 'Player' })).toBeChecked()
+    expect(playerSwitch()).toBeChecked()
   })
 
   it('drops the player when the switch goes off, and remembers that', async () => {
     const { user, playerStore } = renderApp([pageOf(['first result'], null)])
 
-    await user.click(screen.getByRole('switch', { name: 'Player' }))
+    await openSettings(user)
     await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
     await user.click(await screen.findByRole('button', { name: 'first result' }))
     await user.click(screen.getByRole('img', { name: /first result by artist/i }))
 
     expect(screen.getByTitle('Player for first result')).toBeInTheDocument()
 
-    await user.click(screen.getByRole('switch', { name: 'Player' }))
+    await openSettings(user)
 
     expect(screen.queryByTitle('Player for first result')).not.toBeInTheDocument()
     expect(playerStore.read()).toBe(false)

@@ -1,0 +1,263 @@
+.root {
+  position: relative;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: var(--radius-s);
+  color: var(--text-h);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.trigger:hover {
+  border-color: var(--accent-border);
+}
+
+.trigger[aria-expanded='true'] {
+  color: var(--accent);
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+
+.trigger:focus-visible,
+.radio:focus-visible + .chip,
+.radio:focus-visible + .plan {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.panel {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 8px);
+  right: 0;
+  width: min(344px, calc(100vw - 28px));
+  max-height: min(76vh, 640px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px;
+  border-radius: var(--radius);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  box-shadow: 0 24px 48px -28px rgba(23, 20, 29, 0.55);
+}
+
+/*
+ * The panel is where the page is repainted from, so it lets the page through
+ * rather than hiding the thing being changed. Only where the browser can blur
+ * what is behind it: without that, the settings would sit straight on the
+ * results. The mix is held at 86% because the worst case is this panel over a
+ * bright cover in Cinema, and the quietest text still has to clear 4.5:1.
+ */
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .panel {
+    background: color-mix(in srgb, var(--panel) 86%, transparent);
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+  }
+}
+
+.group,
+.set {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.group + .set,
+.set + .set {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
+
+.legend {
+  padding: 10px 11px 6px;
+  font-size: var(--micro);
+  font-weight: var(--micro-weight);
+  letter-spacing: var(--micro-tracking);
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+/* The word names it, the pill carries the state. */
+.switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font: inherit;
+  font-size: 16px;
+  min-height: 44px;
+  padding: 8px 11px;
+  border-radius: var(--radius-s);
+  color: var(--text-h);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.switch:hover {
+  background: var(--social-bg);
+}
+
+.switch:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.switchText {
+  color: var(--text);
+}
+
+.switch[aria-checked='true'] .switchText {
+  color: var(--accent);
+}
+
+.track {
+  position: relative;
+  flex: none;
+  width: 36px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--text);
+}
+
+.knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--text);
+}
+
+.switch[aria-checked='true'] .track {
+  border-color: var(--accent);
+}
+
+.switch[aria-checked='true'] .knob {
+  background: var(--accent);
+  translate: 16px 0;
+}
+
+.option {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  gap: 3px 11px;
+  align-items: center;
+  padding: 10px 11px;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+}
+
+.option:hover {
+  background: var(--social-bg);
+}
+
+.option[data-chosen='true'] {
+  background: var(--accent-bg);
+}
+
+.radio {
+  composes: visually-hidden from global;
+}
+
+.name {
+  font-size: 16px;
+  color: var(--text-h);
+}
+
+.option[data-chosen='true'] .name {
+  color: var(--accent);
+}
+
+.note {
+  grid-column: 2;
+  font-size: 13px;
+  line-height: 135%;
+  color: var(--text);
+}
+
+/* Three bands of the palette itself, so the picker shows rather than tells. */
+.chip {
+  display: inline-flex;
+  width: 26px;
+  height: 15px;
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.chip span {
+  flex: 1;
+}
+
+.chip span:nth-child(1) { background: var(--chip-a); }
+.chip span:nth-child(2) { background: var(--chip-b); }
+.chip span:nth-child(3) { background: var(--chip-c); }
+
+.chip[data-palette='studio'] { --chip-a: #f5f2fc; --chip-b: #6d28d9; --chip-c: #140f1c; }
+.chip[data-palette='desk'] { --chip-a: #050810; --chip-b: #ff4d54; --chip-c: #172032; }
+.chip[data-palette='cinema'] { --chip-a: #000000; --chip-b: #ffffff; --chip-c: #1c1c22; }
+.chip[data-palette='daylight'] { --chip-a: #ffffff; --chip-b: #b3001b; --chip-c: #d3dae4; }
+
+/* A two-box plan of where the sleeve sits relative to the search. */
+.plan {
+  display: grid;
+  width: 26px;
+  height: 15px;
+  gap: 2px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  padding: 2px;
+}
+
+.plan span {
+  background: var(--text);
+  border-radius: 1px;
+}
+
+.plan span:last-child {
+  background: var(--accent);
+}
+
+.plan[data-layout='side'] { grid-template-columns: 1fr 8px; }
+.plan[data-layout='stack'] { grid-template-rows: 1fr 1fr; }
+.plan[data-layout='banner'] { grid-template-rows: 5px 1fr; }
+.plan[data-layout='row'] { grid-template-columns: 1fr 1fr 6px; }
+.plan[data-layout='row'] span:first-child { grid-column: span 2; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .panel:not([hidden]) {
+    animation: panel-opens 140ms ease-out both;
+  }
+
+  .knob {
+    transition: translate 140ms ease-out, background-color 140ms ease-out;
+  }
+}
+
+@keyframes panel-opens {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

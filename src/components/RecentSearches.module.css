@@ -12,7 +12,9 @@
   line-height: 100%;
   letter-spacing: var(--micro-tracking);
   text-transform: uppercase;
-  color: var(--text);
+  /* A caption this small carries no weight of its own, so it takes the
+     heading ink rather than the body ink. */
+  color: var(--text-h);
 }
 
 .list {

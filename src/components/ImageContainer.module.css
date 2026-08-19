@@ -6,6 +6,9 @@
   align-items: center;
   justify-content: center;
   padding: 22px;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
   background: var(--panel);
   backdrop-filter: var(--panel-blur, none);
   -webkit-backdrop-filter: var(--panel-blur, none);
@@ -34,6 +37,7 @@
 
 .slot {
   width: var(--slot-width, 100%);
+  min-height: 0;
   display: flex;
   justify-content: center;
 }
@@ -72,6 +76,7 @@
 .cover {
   position: relative;
   display: block;
+  min-height: 0;
   line-height: 0;
 }
 
@@ -105,8 +110,10 @@
 
 .image {
   animation: image-arrives 320ms cubic-bezier(0.2, 0.8, 0.3, 1) both;
-  width: var(--cover);
+  /* Capped against the viewport so a tall cover never sets the page height. */
+  width: min(var(--cover), 38vh);
   max-width: 100%;
+  max-height: 100%;
   aspect-ratio: 1;
   object-fit: cover;
   border-radius: var(--radius);
@@ -175,16 +182,58 @@
 }
 
 @media (max-width: 900px) {
+  /*
+   * One column has to hold the search, the list and the sleeve inside one
+   * viewport. A square cover eats that column, so on a phone the sleeve lies
+   * down: thumbnail, then billing beside it, the way a phone player reads.
+   */
   .container {
-    padding: 18px;
+    gap: 10px;
+    padding: 12px 14px;
+    text-align: left;
+  }
+
+  .heading {
+    padding-bottom: 10px;
+  }
+
+  .slot {
+    width: 100%;
+  }
+
+  .sleeve {
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr);
+    grid-template-areas: 'art title' 'art artist';
+    align-content: center;
+    justify-items: start;
+    gap: 4px 14px;
+    width: 100%;
+    text-align: left;
+  }
+
+  .cover {
+    grid-area: art;
+  }
+
+  .caption {
+    grid-area: title;
+    justify-content: flex-start;
+    text-align: left;
+    align-self: end;
+  }
+
+  .artist {
+    grid-area: artist;
+    align-self: start;
   }
 
   .pad {
-    max-width: min(var(--cover), 220px);
+    max-width: 88px;
   }
 
   .image {
-    width: min(var(--cover), 220px);
+    width: 88px;
   }
 
   .caption {
@@ -193,7 +242,7 @@
     font-family: var(--sans);
     font-weight: 600;
     letter-spacing: -0.1px;
-    font-size: min(var(--billing-size), 19px);
+    font-size: min(var(--billing-size), 17px);
   }
 
   .play {

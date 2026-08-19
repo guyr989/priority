@@ -1,4 +1,5 @@
 .band {
+  flex: none;
   border-bottom: 1px solid var(--border);
 }
 
@@ -50,11 +51,15 @@
 }
 
 .layout {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
   display: grid;
   gap: 20px;
-  align-items: start;
-  padding: 18px 20px 40px;
+  align-items: stretch;
+  padding: 18px 20px 20px;
   max-width: 1126px;
+  width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
 }
@@ -67,12 +72,16 @@
 /* One column, sleeve first and large. */
 .stack {
   grid-template-columns: minmax(0, 1fr);
+  /* The floor is what the search needs before a single result fits: its own
+     field, chips, toolbar and page turns. Below that the sleeve gives way. */
+  grid-template-rows: minmax(440px, 1fr) minmax(0, auto);
   max-width: 780px;
 }
 
 /* Sleeve and player laid across the top, results underneath. */
 .banner {
   grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(440px, 1fr) minmax(0, auto);
   --now-flow: row;
   --slot-width: auto;
   --player-flex: 1 1 280px;
@@ -85,7 +94,8 @@
 .row {
   grid-template-columns: minmax(0, 1fr) minmax(0, 300px);
   --search-cols: minmax(0, 236px) minmax(0, 1fr);
-  --search-areas: 'head tools' 'head body' 'head foot';
+  --search-areas: 'head body';
+  --search-rows: minmax(0, 1fr);
   --search-gap: 22px;
 }
 
@@ -111,14 +121,17 @@
 
   .layout {
     grid-template-columns: minmax(0, 1fr);
+    /* The search keeps a floor of its own, so the sleeve is what gives way
+       when one column has to hold both. */
+    grid-template-rows: minmax(230px, 1fr) minmax(0, auto);
     gap: 14px;
-    padding: 12px 14px 28px;
+    padding: 12px 14px 14px;
   }
 
   .row {
     grid-template-columns: minmax(0, 1fr);
     --search-cols: minmax(0, 1fr);
-    --search-areas: 'head' 'tools' 'body' 'foot';
+    --search-areas: 'head' 'body';
   }
 
   .banner {
@@ -128,11 +141,8 @@
   }
 }
 
-/* Sticky only where the whole panel fits, otherwise it clips its own player. */
-@media (min-width: 901px) and (min-height: 720px) {
-  .row .now,
-  .side .now {
-    position: sticky;
-    top: 22px;
-  }
+/* Nothing scrolls the page any more, so nothing needs to stick to it. */
+.now {
+  min-height: 0;
+  display: flex;
 }

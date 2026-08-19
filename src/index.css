@@ -98,87 +98,12 @@
 }
 
 /*
- * One look per attribute. Palette and proportions live here; the layout token
- * lives with the layout in App.module.css, so a look never needs a component
- * to know its name.
+ * One palette per attribute. Colour lives here; the arrangement is a separate
+ * choice carried by a class in App.module.css, so any palette can wear any
+ * layout and neither has to know the other's name.
  */
 
-:root[data-appearance='after-hours'] {
-  color-scheme: dark;
-  --text: #93a897;
-  --text-h: #f4f8f2;
-  --bg: #060b08;
-  --panel: #0f1712;
-  --border: #22322a;
-  --accent: #ffbe3d;
-  --accent-bg: rgba(255, 190, 61, 0.15);
-  --accent-border: rgba(255, 190, 61, 0.6);
-  --social-bg: #17231b;
-  --cover: 320px;
-  --billing-size: 30px;
-  --billing-tracking: -0.6px;
-}
-
-:root[data-appearance='riso'] {
-  color-scheme: light;
-  --text: #514e44;
-  --text-h: #121216;
-  --bg: #efe9d8;
-  --panel: #fdfcf6;
-  --border: #d3ccb6;
-  --accent: #1233c9;
-  --accent-bg: rgba(255, 45, 122, 0.14);
-  --accent-border: #ff2d7a;
-  --social-bg: #e6dfc9;
-  --radius: 2px;
-  --radius-s: 2px;
-  --cover: 210px;
-  --billing-family: var(--sans);
-  --billing-size: 16px;
-  --billing-weight: 600;
-  --billing-case: uppercase;
-  --billing-tracking: 0.06em;
-}
-
-:root[data-appearance='gallery'] {
-  color-scheme: light;
-  --text: #5c5c5c;
-  --text-h: #000000;
-  --bg: #ffffff;
-  --panel: #ffffff;
-  --border: #d6d6d6;
-  --accent: #000000;
-  --accent-bg: rgba(0, 0, 0, 0.07);
-  --accent-border: #000000;
-  --social-bg: #f0f0f0;
-  --radius: 3px;
-  --radius-s: 3px;
-  --cover: 420px;
-  --billing-size: 21px;
-  --billing-tracking: 0.02em;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root[data-appearance='gallery'] {
-    color-scheme: dark;
-    --text: #9a9a9d;
-    --text-h: #ffffff;
-    --bg: #000000;
-    --panel: #0e0e10;
-    --border: #2e2e32;
-    --accent: #ffffff;
-    --accent-bg: rgba(255, 255, 255, 0.10);
-    --accent-border: #ffffff;
-    --social-bg: #1a1a1d;
-  }
-}
-
-/*
- * Desk and Daylight are one console in two lights: a tight radius, a small
- * uppercase billing like a channel strip, and a red that stands for the record
- * lamp rather than for danger.
- */
-:root[data-appearance='desk'] {
+:root[data-palette='desk'] {
   color-scheme: dark;
   --text: #8994a6;
   --text-h: #f4f7fb;
@@ -199,7 +124,7 @@
   --billing-tracking: 0.08em;
 }
 
-:root[data-appearance='daylight'] {
+:root[data-palette='daylight'] {
   color-scheme: light;
   --text: #545c66;
   --text-h: #0f141b;
@@ -221,11 +146,10 @@
 }
 
 /*
- * Cinema and Poster hand the page over to the cover. Everything else goes
- * quiet: no accent hue of its own, one narrow column, and panels that let the
- * artwork through.
+ * Cinema hands the page over to the cover. Everything else goes quiet: no
+ * accent hue of its own, and panels that let the artwork through.
  */
-:root[data-appearance='cinema'] {
+:root[data-palette='cinema'] {
   color-scheme: dark;
   --text: #aaa4b6;
   --text-h: #ffffff;
@@ -244,49 +168,38 @@
   --backdrop-saturate: 1.25;
 }
 
-:root[data-appearance='poster'] {
-  color-scheme: light;
-  --text: #565361;
-  --text-h: #0b0910;
-  --bg: #fbfbfe;
-  --panel: #ffffff;
-  --border: #dedce8;
-  --accent: #0b0910;
-  --accent-bg: rgba(11, 9, 16, 0.08);
-  --accent-border: #0b0910;
-  --social-bg: #eeecf5;
-  --radius: 6px;
-  --radius-s: 6px;
-  --cover: 300px;
-  --backdrop-opacity: 0.34;
-  --backdrop-blur: 46px;
-  --backdrop-saturate: 0.65;
-}
-
 /*
  * Only let the panels go translucent where the browser can blur what is behind
- * them. Without that, type would sit straight on the artwork.
- *
- * The alpha is set by the worst cover, not the average one: a sleeve that is
- * pure white behind Cinema, pure black behind Poster. At these values the type
- * still clears 4.5:1 in that case, so no cover can make the panel unreadable.
+ * them. Without that, type would sit straight on the artwork. The alpha is set
+ * by the worst cover, a pure white one, at which the type still clears 4.5:1.
  */
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-  :root[data-appearance='cinema'] {
+  :root[data-palette='cinema'] {
     --panel: rgba(14, 14, 19, 0.85);
     --social-bg: rgba(40, 40, 48, 0.85);
     --panel-blur: blur(22px) saturate(150%);
   }
+}
 
-  :root[data-appearance='poster'] {
-    --panel: rgba(255, 255, 255, 0.87);
-    --social-bg: rgba(235, 233, 240, 0.87);
-    --panel-blur: blur(22px) saturate(130%);
-  }
+html,
+body {
+  height: 100%;
 }
 
 body {
   margin: 0;
+}
+
+/*
+ * The app is exactly one viewport tall and never scrolls itself. The result
+ * list is the single region allowed to overflow, because six results plus a
+ * sleeve plus a player cannot be made to fit a phone at a readable size.
+ */
+#root {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 h1,

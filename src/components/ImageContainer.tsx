@@ -52,7 +52,6 @@ interface ImageContainerProps {
   readonly track: Track | null
   readonly sectionRef?: RefObject<HTMLElement | null>
   readonly slotRef?: RefObject<HTMLDivElement | null>
-  readonly frameRef?: RefObject<HTMLIFrameElement | null>
   /** Looks that carry no player show the sleeve as artwork, not as a control. */
   readonly playable: boolean
   /** The player is on the page. */
@@ -66,7 +65,6 @@ export function ImageContainer({
   track,
   sectionRef,
   slotRef,
-  frameRef,
   playable,
   embedded,
   isPlaying,
@@ -114,18 +112,6 @@ export function ImageContainer({
         )}
       </div>
 
-      {track !== null && playable && embedded && (
-        <iframe
-          ref={frameRef}
-          className={styles.player}
-          title={`Player for ${track.title}`}
-          src={track.embedUrl}
-          allow="autoplay; encrypted-media"
-          sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"
-          referrerPolicy="no-referrer"
-          loading="lazy"
-        />
-      )}
     </section>
   )
 }

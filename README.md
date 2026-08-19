@@ -114,6 +114,19 @@ swap with no flight at all.
 
 ## Known trade-offs
 
+- The app is exactly one viewport tall and the page itself never scrolls. The
+  result list is the single region allowed to overflow, because a search field,
+  six results, a sleeve and a player cannot be made to share a phone screen at a
+  readable size. On a narrow window the sleeve lies down into a thumbnail beside
+  its billing, and the list can be folded away; on a wide one it stays open,
+  since there is room for it.
+- The provider's transport sits in a bar fixed to the foot of the window rather
+  than directly under the artwork. Requirement 6 asks that clicking the central
+  image embeds the track below it and plays; the click, the artwork and the play
+  control are all still on the image, and only the widget itself moved, because
+  a track that scrolls out of reach behind a page of results is not a player
+  anyone can use. The cover remains the flight target, so requirement 5 is
+  untouched.
 - The player is off on a first visit. One switch in the top bar turns it on and
   the answer is kept for the next visit. That is a deliberate choice, and it has
   a cost worth stating plainly: requirement 6 asks that clicking the artwork

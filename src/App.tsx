@@ -1,18 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
-import { AppearanceMenu } from './components/AppearanceMenu'
+import { PlayerBar } from './components/PlayerBar'
 import { FlyingResult } from './components/FlyingResult'
 import { ImageContainer } from './components/ImageContainer'
-import { PlayerToggle } from './components/PlayerToggle'
+import { SettingsMenu } from './components/SettingsMenu'
 import { RecentSearches } from './components/RecentSearches'
 import { Results } from './components/Results'
 import { SearchContainer } from './components/SearchContainer'
 import { useAppearance } from './hooks/useAppearance'
+import { useNarrow } from './hooks/useNarrow'
 import { usePlayback } from './hooks/usePlayback'
 import { useSearch } from './hooks/useSearch'
 import { useSearchHistory } from './hooks/useSearchHistory'
-import { APPEARANCES } from './domain/appearance'
-import type { Appearance, AppearanceId, LayoutName } from './domain/appearance'
+import { LAYOUTS, PALETTES } from './domain/appearance'
+import type { LayoutId, Palette, PaletteId } from './domain/appearance'
 import type { AttachPlayback } from './hooks/usePlayback'
 import type { SoundProvider } from './domain/soundProvider'
 import type { ViewMode } from './domain/view'
@@ -27,15 +28,15 @@ const LAYOUT_CLASS = {
   stack: styles.stack,
   banner: styles.banner,
   row: styles.row,
-} satisfies Record<LayoutName, string | undefined>
+} satisfies Record<LayoutId, string | undefined>
 
 /**
  * The looks that paint the cover behind the page read it from one custom
  * property. Quoting a remote URL into CSS is the one place a stray character
  * could close the url() early, so the value is encoded before it goes in.
  */
-function backdropStyle(look: Appearance, track: Track | null): CSSProperties {
-  if (!look.coverBackdrop || track === null) return {}
+function backdropStyle(palette: Palette, track: Track | null): CSSProperties {
+  if (!palette.coverBackdrop || track === null) return {}
 
   const safe = encodeURI(track.imageUrl).replace(/"/g, '%22')
   return { '--sleeve': `url("${safe}")` } as CSSProperties
@@ -58,7 +59,8 @@ interface AppProps {
   readonly historyStore: Store<readonly string[]>
   readonly viewStore: Store<ViewMode>
   readonly lastTrackStore: Store<Track>
-  readonly appearanceStore: Store<AppearanceId>
+  readonly paletteStore: Store<PaletteId>
+  readonly layoutStore: Store<LayoutId>
   readonly playerStore: Store<boolean>
   readonly attachPlayback: AttachPlayback
   readonly debounceMs?: number
@@ -69,7 +71,8 @@ function App({
   historyStore,
   viewStore,
   lastTrackStore,
-  appearanceStore,
+  paletteStore,
+  layoutStore,
   playerStore,
   attachPlayback,
   debounceMs = DEBOUNCE_MS,
@@ -86,7 +89,11 @@ function App({
   const playerRef = useRef<HTMLIFrameElement>(null)
 
   const [playerOn, setPlayerOn] = useState(() => playerStore.read() ?? false)
-  const { look, choose } = useAppearance(appearanceStore)
+  const { palette, layout, choosePalette, chooseLayout } = useAppearance(
+    paletteStore,
+    layoutStore,
+  )
+  const narrow = useNarrow()
   const isPlaying = usePlayback(playerRef, attachPlayback, embedded, selected?.id ?? null)
 
   // Turning the player off stops it. Turning it back on must not restart the
@@ -146,28 +153,34 @@ function App({
       <header className={styles.band}>
         <div className={styles.bar}>
           <h1 className={styles.wordmark}>Sound search</h1>
-          <div className={styles.controls}>
-            <PlayerToggle on={playerOn} onChange={togglePlayer} />
-            <AppearanceMenu looks={APPEARANCES} current={look} onChoose={choose} />
-          </div>
+          <SettingsMenu
+            palettes={PALETTES}
+            palette={palette}
+            layouts={LAYOUTS}
+            layout={layout}
+            playerOn={playerOn}
+            onChoosePalette={choosePalette}
+            onChooseLayout={chooseLayout}
+            onChoosePlayer={togglePlayer}
+          />
         </div>
       </header>
 
       <main
         className={[
           styles.layout,
-          showNowPlaying ? LAYOUT_CLASS[look.layout] : styles.solo,
+          showNowPlaying ? LAYOUT_CLASS[layout] : styles.solo,
         ]
           .filter(Boolean)
           .join(' ')}
-        style={backdropStyle(look, selected)}
+        style={backdropStyle(palette, selected)}
       >
         <SearchContainer
           query={query}
           view={view}
           hasPrev={hasPrev}
           hasNext={hasNext}
-          collapsible={tracks.length > 0}
+          collapsible={narrow && tracks.length > 0}
           resultsOpen={resultsOpen}
           onResultsOpenChange={setResultsOpen}
           onQueryChange={(next) => {
@@ -220,7 +233,6 @@ function App({
               track={selected}
               sectionRef={imageSectionRef}
               slotRef={imageSlotRef}
-              frameRef={playerRef}
               playable={playerOn}
               embedded={embedded}
               isPlaying={isPlaying}
@@ -238,6 +250,14 @@ function App({
           />
         )}
       </main>
+
+      {selected !== null && playerOn && embedded && (
+        <PlayerBar
+          track={selected}
+          frameRef={playerRef}
+          onClose={() => setEmbedded(false)}
+        />
+      )}
     </>
   )
 }
