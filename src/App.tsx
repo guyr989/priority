@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { AppearanceMenu } from './components/AppearanceMenu'
 import { FlyingResult } from './components/FlyingResult'
 import { ImageContainer } from './components/ImageContainer'
@@ -9,8 +10,8 @@ import { useAppearance } from './hooks/useAppearance'
 import { usePlayback } from './hooks/usePlayback'
 import { useSearch } from './hooks/useSearch'
 import { useSearchHistory } from './hooks/useSearchHistory'
-import { APPEARANCES, findAppearance } from './domain/appearance'
-import type { AppearanceId, LayoutName } from './domain/appearance'
+import { APPEARANCES, findAppearance, playerShown } from './domain/appearance'
+import type { Appearance, AppearanceId, LayoutName, PlayerPreference } from './domain/appearance'
 import type { AttachPlayback } from './hooks/usePlayback'
 import type { SoundProvider } from './domain/soundProvider'
 import type { ViewMode } from './domain/view'
@@ -24,7 +25,20 @@ const LAYOUT_CLASS = {
   side: styles.side,
   stack: styles.stack,
   banner: styles.banner,
+  row: styles.row,
 } satisfies Record<LayoutName, string | undefined>
+
+/**
+ * The looks that paint the cover behind the page read it from one custom
+ * property. Quoting a remote URL into CSS is the one place a stray character
+ * could close the url() early, so the value is encoded before it goes in.
+ */
+function backdropStyle(look: Appearance, track: Track | null): CSSProperties {
+  if (!look.coverBackdrop || track === null) return {}
+
+  const safe = encodeURI(track.imageUrl).replace(/"/g, '%22')
+  return { '--sleeve': `url("${safe}")` } as CSSProperties
+}
 
 interface Flight {
   readonly track: Track
@@ -44,6 +58,7 @@ interface AppProps {
   readonly viewStore: Store<ViewMode>
   readonly lastTrackStore: Store<Track>
   readonly appearanceStore: Store<AppearanceId>
+  readonly playerStore: Store<PlayerPreference>
   readonly attachPlayback: AttachPlayback
   readonly debounceMs?: number
 }
@@ -54,6 +69,7 @@ function App({
   viewStore,
   lastTrackStore,
   appearanceStore,
+  playerStore,
   attachPlayback,
   debounceMs = DEBOUNCE_MS,
 }: AppProps) {
@@ -67,14 +83,17 @@ function App({
   const imageSectionRef = useRef<HTMLElement>(null)
   const playerRef = useRef<HTMLIFrameElement>(null)
 
-  const { look, choose } = useAppearance(appearanceStore)
+  const { look, showsPlayer, players, choose, setPlayerShown } = useAppearance(
+    appearanceStore,
+    playerStore,
+  )
   const isPlaying = usePlayback(playerRef, attachPlayback, embedded, selected?.id ?? null)
 
-  // Leaving the player behind stops it. Coming back must not restart the set
+  // Leaving the player behind stops it, whichever way it goes: a look that
+  // carries none, or a switch turned off. Coming back must not restart the set
   // from zero, so the sleeve offers its play control again instead.
-  const chooseLook = (id: AppearanceId) => {
-    choose(id)
-    if (!findAppearance(id).showsPlayer) setEmbedded(false)
+  const leavePlayer = (stillShown: boolean) => {
+    if (!stillShown) setEmbedded(false)
   }
 
   const { tracks, status, hasNext, hasPrev, goToNextPage, goToPrevPage, restart, retry } =
@@ -122,7 +141,19 @@ function App({
       <header className={styles.band}>
         <div className={styles.bar}>
           <h1 className={styles.wordmark}>Sound search</h1>
-          <AppearanceMenu looks={APPEARANCES} current={look} onChoose={chooseLook} />
+          <AppearanceMenu
+            looks={APPEARANCES}
+            current={look}
+            players={players}
+            onChoose={(id) => {
+              choose(id)
+              leavePlayer(playerShown(findAppearance(id), players))
+            }}
+            onChoosePlayer={(id, shown) => {
+              setPlayerShown(id, shown)
+              leavePlayer(shown || id !== look.id)
+            }}
+          />
         </div>
       </header>
 
@@ -133,6 +164,7 @@ function App({
         ]
           .filter(Boolean)
           .join(' ')}
+        style={backdropStyle(look, selected)}
       >
         {showNowPlaying && (
           <div className={styles.now}>
@@ -141,7 +173,7 @@ function App({
               sectionRef={imageSectionRef}
               slotRef={imageSlotRef}
               frameRef={playerRef}
-              playable={look.showsPlayer}
+              playable={showsPlayer}
               embedded={embedded}
               isPlaying={isPlaying}
               onImageClick={() => setEmbedded(true)}

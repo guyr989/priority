@@ -52,13 +52,20 @@
 .chip[data-appearance='after-hours'] { --chip-a: #0d1210; --chip-b: #ffb545; --chip-c: #1b241f; }
 .chip[data-appearance='riso'] { --chip-a: #f2efe6; --chip-b: #2b4bd8; --chip-c: #ff4a8d; }
 .chip[data-appearance='gallery'] { --chip-a: #fafafa; --chip-b: #8a8a8a; --chip-c: #111111; }
+.chip[data-appearance='desk'] { --chip-a: #0e1116; --chip-b: #ff5a5f; --chip-c: #1c212a; }
+.chip[data-appearance='daylight'] { --chip-a: #ffffff; --chip-b: #d0021b; --chip-c: #e6e2db; }
+.chip[data-appearance='cinema'] { --chip-a: #0a0a0c; --chip-b: #6b5f7a; --chip-c: #e9e6ef; }
+.chip[data-appearance='poster'] { --chip-a: #ffffff; --chip-b: #b9b3c4; --chip-c: #1a1720; }
 
 .panel {
   position: absolute;
   z-index: 5;
   top: calc(100% + 8px);
   right: 0;
-  width: min(320px, calc(100vw - 28px));
+  width: min(352px, calc(100vw - 28px));
+  max-height: min(76vh, 620px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 6px;
   border-radius: var(--radius);
   background: var(--panel);
@@ -76,6 +83,9 @@
 }
 
 .legend {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
   padding: 10px 10px 8px;
   font-size: var(--micro);
   font-weight: var(--micro-weight);
@@ -84,13 +94,30 @@
   color: var(--text);
 }
 
+.aside {
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 400;
+  font-size: var(--micro);
+  opacity: 0.8;
+}
+
 .look {
   display: grid;
-  grid-template-columns: 26px 1fr;
-  gap: 3px 11px;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
+  gap: 10px;
   padding: 10px 11px;
   border-radius: var(--radius-s);
+}
+
+/* The radio owns the row's label; the switch sits outside it so one click
+   never means two things. */
+.pick {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  gap: 3px 11px;
+  align-items: center;
   cursor: pointer;
 }
 
@@ -120,6 +147,53 @@
   font-size: 13px;
   line-height: 135%;
   color: var(--text);
+}
+
+.switch {
+  flex: none;
+  position: relative;
+  width: 42px;
+  height: 24px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--social-bg);
+  cursor: pointer;
+}
+
+.switch[aria-checked='true'] {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+}
+
+.switch:hover {
+  border-color: var(--accent-border);
+}
+
+.switch:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--text);
+}
+
+.switch[aria-checked='true'] .knob {
+  background: var(--accent);
+  translate: 18px 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .knob {
+    transition: translate 140ms ease-out, background-color 140ms ease-out;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {

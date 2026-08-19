@@ -5,7 +5,7 @@ import App from './App'
 import type { Page } from './domain/page'
 import type { SoundProvider } from './domain/soundProvider'
 import type { Track } from './domain/track'
-import type { AppearanceId } from './domain/appearance'
+import type { AppearanceId, PlayerPreference } from './domain/appearance'
 import type { PlaybackSource } from './domain/playback'
 import type { Store } from './storage/store'
 import type { ViewMode } from './domain/view'
@@ -69,6 +69,7 @@ function renderApp(
   const viewStore = createMemoryStore<ViewMode>(view)
   const lastTrackStore = createMemoryStore<Track>(lastTrack)
   const appearanceStore = createMemoryStore<AppearanceId>(null)
+  const playerStore = createMemoryStore<PlayerPreference>(null)
   const player = createPlayer()
   render(
     <App
@@ -77,11 +78,20 @@ function renderApp(
       viewStore={viewStore}
       lastTrackStore={lastTrackStore}
       appearanceStore={appearanceStore}
+      playerStore={playerStore}
       attachPlayback={player.attach}
       debounceMs={0}
     />,
   )
-  return { user: userEvent.setup(), store, viewStore, lastTrackStore, appearanceStore, player }
+  return {
+    user: userEvent.setup(),
+    store,
+    viewStore,
+    lastTrackStore,
+    appearanceStore,
+    playerStore,
+    player,
+  }
 }
 
 afterEach(() => {
@@ -275,6 +285,51 @@ describe('App', () => {
     expect(within(image).getByRole('img', { name: /first result by artist/i })).toBeInTheDocument()
     expect(within(image).queryByRole('button')).not.toBeInTheDocument()
     expect(screen.queryByTitle('first result player')).not.toBeInTheDocument()
+  })
+
+  it('drops the player when its look is switched off, and remembers that', async () => {
+    const { user, playerStore } = renderApp([pageOf(['first result'], null)])
+
+    await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
+    await user.click(await screen.findByRole('button', { name: 'first result' }))
+    await user.click(screen.getByRole('img', { name: /first result by artist/i }))
+
+    expect(screen.getByTitle('first result player')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Appearance' }))
+    await user.click(screen.getByRole('switch', { name: 'Player in Studio' }))
+
+    expect(screen.queryByTitle('first result player')).not.toBeInTheDocument()
+    expect(playerStore.read()).toEqual({ studio: false })
+    expect(document.documentElement.dataset.appearance).toBe('studio')
+  })
+
+  it('hands a player to the quiet look once the visitor asks for one', async () => {
+    const { user } = renderApp([pageOf(['first result'], null)])
+
+    await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
+    await user.click(await screen.findByRole('button', { name: 'first result' }))
+
+    await user.click(screen.getByRole('button', { name: 'Appearance' }))
+    await user.click(screen.getByRole('radio', { name: /^gallery/i }))
+    await user.click(screen.getByRole('switch', { name: 'Player in Gallery' }))
+
+    const image = screen.getByRole('region', { name: /now playing/i })
+    expect(
+      within(image).getByRole('button', { name: 'Play first result by artist' }),
+    ).toBeInTheDocument()
+  })
+
+  it('starts a first-time visitor on a look that carries a player', async () => {
+    const { user } = renderApp([pageOf(['first result'], null)])
+
+    await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
+    await user.click(await screen.findByRole('button', { name: 'first result' }))
+
+    expect(document.documentElement.dataset.appearance).toBe('studio')
+    expect(
+      screen.getByRole('button', { name: 'Play first result by artist' }),
+    ).toBeInTheDocument()
   })
 
   it('keeps no now playing panel until something has been picked', () => {

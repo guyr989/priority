@@ -1,12 +1,29 @@
+/*
+ * Head, results and controls are placed by name. A look that wants them side
+ * by side overrides two tokens from the layout above; nothing in here knows
+ * which look is on.
+ */
 .container {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: var(--search-cols, minmax(0, 1fr));
+  grid-template-areas: var(--search-areas, 'head' 'body' 'foot');
+  align-content: start;
+  gap: 16px var(--search-gap, 16px);
   padding: 22px;
   background: var(--panel);
+  backdrop-filter: var(--panel-blur, none);
+  -webkit-backdrop-filter: var(--panel-blur, none);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   text-align: left;
+}
+
+.head {
+  grid-area: head;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .form {
@@ -37,7 +54,16 @@
 }
 
 .results {
-  /* A full page of rows, so no state in here changes the panel's height. */
+  grid-area: body;
+  /* Tiles count columns off this box, not off the window, so the same six
+     results land three and three in a wide panel and two and two when the
+     panel is a column. */
+  container: results / inline-size;
+}
+
+/* A full page of rows, so paging never resizes the panel. A panel with no
+   list in it has nothing to hold, so it collapses instead of reserving. */
+.results:has(ul) {
   min-height: 337px;
 }
 
@@ -46,7 +72,12 @@
     padding: 18px;
   }
 
-  .results {
+  .container {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'head' 'body' 'foot';
+  }
+
+  .results:has(ul) {
     min-height: 0;
   }
 
@@ -56,11 +87,12 @@
     margin: 0 -18px -18px;
     padding: 12px 18px;
     background: var(--panel);
-    border-radius: 0 0 10px 10px;
+    border-radius: 0 0 var(--radius) var(--radius);
   }
 }
 
 .controls {
+  grid-area: foot;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;

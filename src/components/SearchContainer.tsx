@@ -31,32 +31,34 @@ export function SearchContainer({
 }: SearchContainerProps) {
   return (
     <section className={styles.container} aria-label="Search">
-      <form
-        className={styles.form}
-        role="search"
-        onSubmit={(event) => {
-          event.preventDefault()
-          onSubmit()
-        }}
-      >
-        <label className={styles.label} htmlFor="search-input">
-          Search tracks
-        </label>
-        <input
-          id="search-input"
-          className={styles.input}
-          type="search"
-          value={query}
-          autoComplete="off"
-          placeholder="Search for a track"
-          onChange={(event) => onQueryChange(event.target.value)}
-        />
-        <button className={styles.go} type="submit">
-          Go
-        </button>
-      </form>
+      <div className={styles.head}>
+        <form
+          className={styles.form}
+          role="search"
+          onSubmit={(event) => {
+            event.preventDefault()
+            onSubmit()
+          }}
+        >
+          <label className={styles.label} htmlFor="search-input">
+            Search tracks
+          </label>
+          <input
+            id="search-input"
+            className={styles.input}
+            type="search"
+            value={query}
+            autoComplete="off"
+            placeholder="Search for a track"
+            onChange={(event) => onQueryChange(event.target.value)}
+          />
+          <button className={styles.go} type="submit">
+            Go
+          </button>
+        </form>
 
-      {recent}
+        {recent}
+      </div>
 
       <div className={styles.results}>{children}</div>
 

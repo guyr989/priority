@@ -1,11 +1,21 @@
 import { useCallback, useLayoutEffect, useState } from 'react'
-import { findAppearance } from '../domain/appearance'
-import type { Appearance, AppearanceId } from '../domain/appearance'
+import {
+  findAppearance,
+  NO_PLAYER_PREFERENCE,
+  playerShown,
+  withPlayerShown,
+} from '../domain/appearance'
+import type { Appearance, AppearanceId, PlayerPreference } from '../domain/appearance'
 import type { Store } from '../storage/store'
 
 export interface AppearanceChoice {
   readonly look: Appearance
+  /** Whether the current look is carrying a player right now. */
+  readonly showsPlayer: boolean
+  /** Every look's answer, so the picker can draw eight switches. */
+  readonly players: PlayerPreference
   readonly choose: (id: AppearanceId) => void
+  readonly setPlayerShown: (id: AppearanceId, shown: boolean) => void
 }
 
 /**
@@ -19,8 +29,14 @@ export function applyAppearance(id: unknown): Appearance {
   return look
 }
 
-export function useAppearance(store: Store<AppearanceId>): AppearanceChoice {
+export function useAppearance(
+  store: Store<AppearanceId>,
+  playerStore: Store<PlayerPreference>,
+): AppearanceChoice {
   const [look, setLook] = useState<Appearance>(() => findAppearance(store.read()))
+  const [players, setPlayers] = useState<PlayerPreference>(
+    () => playerStore.read() ?? NO_PLAYER_PREFERENCE,
+  )
 
   useLayoutEffect(() => {
     applyAppearance(look.id)
@@ -35,5 +51,16 @@ export function useAppearance(store: Store<AppearanceId>): AppearanceChoice {
     [store],
   )
 
-  return { look, choose }
+  const setPlayerShown = useCallback(
+    (id: AppearanceId, shown: boolean) => {
+      setPlayers((current) => {
+        const next = withPlayerShown(current, id, shown)
+        playerStore.write(next)
+        return next
+      })
+    },
+    [playerStore],
+  )
+
+  return { look, showsPlayer: playerShown(look, players), players, choose, setPlayerShown }
 }
