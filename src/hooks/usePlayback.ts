@@ -16,10 +16,11 @@ interface Report {
 }
 
 /**
- * The embed autoplays, so `embedded` is the honest first answer. Once the
- * player answers for itself it wins, including when the listener presses pause
- * on the player's own transport. A new track retires the old report rather
- * than resetting state from an effect.
+ * Nothing is playing until the player says so. The embed asks for autoplay and
+ * often does not get it, so trusting `embedded` would animate a set nobody
+ * started; the source answers for itself the moment it attaches, and again when
+ * the listener works the player's own transport. A new track retires the old
+ * report rather than resetting state from an effect.
  */
 export function usePlayback(
   frameRef: RefObject<HTMLIFrameElement | null>,
@@ -58,5 +59,5 @@ export function usePlayback(
     }
   }, [attach, embedded, frameRef, player])
 
-  return report?.player === player ? report.isPlaying : embedded
+  return report?.player === player ? report.isPlaying : false
 }

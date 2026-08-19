@@ -33,14 +33,15 @@ function createPlayer(isPlaying: boolean) {
 }
 
 describe('usePlayback', () => {
-  it('answers with the embed until the player says otherwise', async () => {
+  it('stays still until the player reports it is playing', async () => {
     const player = createPlayer(true)
     const ref = frameRef()
     const { result } = renderHook(() => usePlayback(ref, player.attach, true, 'a'))
 
-    expect(result.current).toBe(true)
+    expect(result.current).toBe(false)
 
-    await player.attached()
+    await waitFor(() => expect(result.current).toBe(true))
+
     player.say(false)
 
     await waitFor(() => expect(result.current).toBe(false))
@@ -63,12 +64,14 @@ describe('usePlayback', () => {
     expect(attach).not.toHaveBeenCalled()
   })
 
-  it('keeps the embed state when the player cannot be reached', async () => {
+  it('stays still when the player cannot be reached', async () => {
     const attach = () => Promise.resolve(null)
     const ref = frameRef()
     const { result } = renderHook(() => usePlayback(ref, attach, true, 'a'))
 
-    await waitFor(() => expect(result.current).toBe(true))
+    await act(async () => {})
+
+    expect(result.current).toBe(false)
   })
 
   it('lets go of the player on the way out', async () => {
