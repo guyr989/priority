@@ -145,8 +145,10 @@ export function SettingsMenu({
           ))}
         </fieldset>
 
-        {/* One column has one arrangement, so on a phone the whole choice goes
-            rather than offering four controls that all look the same. */}
+        {/* The choice arranges the search column against the sleeve, so it
+            needs both a sleeve to arrange and more than the single column a
+            phone has. Without either, the whole fieldset goes rather than
+            offering controls that move nothing on the page. */}
         {layouts.length > 0 && (
         <fieldset className={styles.set}>
           <legend className={styles.legend}>{strings.settings.layout}</legend>

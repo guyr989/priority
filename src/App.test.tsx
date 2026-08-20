@@ -389,8 +389,25 @@ describe('App', () => {
     expect(paletteStore.read()).toBe('daylight')
   })
 
+  it('offers the layout only once there is a sleeve to arrange', async () => {
+    const { user } = renderApp([pageOf(['first result'], null)])
+
+    await user.click(screen.getByRole('button', { name: 'Settings' }))
+    expect(screen.queryByRole('group', { name: 'Layout' })).not.toBeInTheDocument()
+
+    // Reaching the search closes the panel, so it is opened again to look.
+    await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
+    await user.click(await screen.findByRole('button', { name: 'first result' }))
+    await user.click(screen.getByRole('button', { name: 'Settings' }))
+
+    expect(screen.getByRole('group', { name: 'Layout' })).toBeInTheDocument()
+  })
+
   it('changes the layout without touching the colour', async () => {
     const { user, paletteStore, layoutStore } = renderApp([pageOf(['first result'], null)])
+
+    await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
+    await user.click(await screen.findByRole('button', { name: 'first result' }))
 
     await user.click(screen.getByRole('button', { name: 'Settings' }))
     await user.click(screen.getByRole('radio', { name: /^daylight/i }))

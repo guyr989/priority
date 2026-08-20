@@ -196,7 +196,7 @@ function App({
           <SettingsMenu
             palettes={PALETTES}
             palette={palette}
-            layouts={narrow ? [] : LAYOUTS}
+            layouts={narrow || selected === null ? [] : LAYOUTS}
             layout={layout}
             playerOn={playerOn}
             onChoosePalette={choosePalette}
