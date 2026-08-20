@@ -131,6 +131,16 @@
 }
 
 /*
+ * A panel holding nothing but the form is all width and no reason for the cap:
+ * the field stopped at 28.75rem and the rest of the row was gap. Solo keeps
+ * its cap, because there the panel is already narrow and centred and the field
+ * running its full width is the whole page turning into one input.
+ */
+.layout.noBoard:not(.solo) {
+  --form-max: none;
+}
+
+/*
  * Row, with nothing to sit beside. The second track held 452px open for a
  * board that is not on the page, which left the field 91px — narrower than
  * its own button. The head takes the whole panel instead, so the field runs
@@ -141,7 +151,6 @@
   --search-areas: 'head';
   --search-rows: minmax(0, auto);
   --form-flow: row;
-  --form-max: none;
 }
 
 /*
