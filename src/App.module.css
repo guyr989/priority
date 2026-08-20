@@ -132,6 +132,11 @@
     grid-template-columns: minmax(0, 1fr);
     --search-cols: minmax(0, 1fr);
     --search-areas: 'head' 'body';
+    /* Stacking the areas costs a second row track. Without this the panel
+       keeps the single 1fr the row layout set for its side-by-side form, that
+       track collapses to 0 on a short window, and the head spills out of it
+       and under the board. */
+    --search-rows: auto minmax(0, 1fr);
   }
 
   .banner {

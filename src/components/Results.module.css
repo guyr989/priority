@@ -4,7 +4,7 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .result,
@@ -32,8 +32,13 @@
 
 .result {
   font-size: 16px;
-  padding: 11px 14px;
+  padding: 9px 14px;
   border-radius: var(--radius-s);
+  /* One line per row. A wrapped title costs 25px, and six of them are the
+     difference between a page of results that fits and one that scrolls. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .result::before {
@@ -65,7 +70,14 @@
   padding: 0;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  /* Equal rows filling exactly the height the board has, so six tiles are one
+     size and the wall never needs a scrollbar. The artwork absorbs the
+     difference instead of the layout. */
+  /* minmax(0, ...) and not plain 1fr: a bare 1fr keeps a content-sized floor,
+     which is what let the second row push past the box. */
+  grid-auto-rows: minmax(0, 1fr);
+  height: 100%;
+  gap: 10px;
 }
 
 /* Three across is the shape a full page of six is designed around. */
@@ -79,20 +91,33 @@
   font-size: 14px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 8px;
+  gap: 6px;
+  padding: 6px;
   border-radius: var(--radius-s);
+  /* The row sets the height; the tile fills it. Without this a one-line title
+     makes a shorter tile than the two-line one beside it. */
+  height: 100%;
+  min-height: 0;
+  /* Where the board is too short for the artwork's floor, the tile crops it
+     rather than letting it spill past its own edge. */
+  overflow: hidden;
 }
 
 .tileImage {
   width: 100%;
-  aspect-ratio: 1;
+  /* Takes whatever the tile has left after the title, and crops to it. The
+     cover is the one thing here that can give, so it is what gives. */
+  flex: 1;
+  /* A floor, so a board with almost no room gives a short cover rather than a
+     row of captions with no artwork at all. */
+  min-height: 64px;
   object-fit: cover;
   border-radius: var(--radius-s);
   background: var(--accent-bg);
 }
 
 .tileTitle {
+  flex: none;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
