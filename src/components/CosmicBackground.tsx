@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react'
-import type { RefObject } from 'react'
 import type { PaletteId } from '../domain/appearance'
 import styles from './CosmicBackground.module.css'
 
@@ -7,11 +6,14 @@ import styles from './CosmicBackground.module.css'
  * The ring is an ellipse, not a circle: it spans this much of each axis, so it
  * fills a wide desktop and a tall phone instead of hiding behind the panel.
  */
-const DISK_SPAN = 0.84
-/** Where the ball used to be. Nothing is drawn inside this share of the radius. */
-const RING_INNER = 0.44
-const DISK_STARS = 420
-const FIELD_STARS = 140
+const DISK_SPAN = 0.9
+/**
+ * Where the ball used to be. Nothing is drawn inside this share of the radius,
+ * and a hole much wider than this reads as a gap rather than as a centre.
+ */
+const RING_INNER = 0.12
+const DISK_STARS = 820
+const FIELD_STARS = 200
 /** One lap in a little over a minute. Slow enough to read as drift, not motion. */
 const TURNS_PER_SECOND = 0.013
 const MAX_DPR = 2
@@ -134,18 +136,13 @@ function makeFieldStar(): FieldStar {
 interface CosmicBackgroundProps {
   /** A palette can switch the sky off outright by setting --sky-strength to 0. */
   readonly paletteId: PaletteId
-  /**
-   * The ring centres on this box rather than on the window, so it stays a halo
-   * around the panel at any layout. Missing or unmounted: the window centre.
-   */
-  readonly centreOn?: RefObject<HTMLElement | null>
 }
 
 /**
  * Decoration only, so it is hidden from the accessibility tree and never takes
  * a pointer. Nothing here reaches the network: the whole sky is arithmetic.
  */
-export function CosmicBackground({ paletteId, centreOn }: CosmicBackgroundProps) {
+export function CosmicBackground({ paletteId }: CosmicBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -165,26 +162,6 @@ export function CosmicBackground({ paletteId, centreOn }: CosmicBackgroundProps)
 
     let width = 0
     let height = 0
-    let centreX = 0
-    let centreY = 0
-
-    /*
-     * One layout read per frame, of one element, and the paint that follows
-     * writes nothing to the DOM — so it never thrashes. Reading it every frame
-     * rather than observing the box keeps it right when the panel merely moves,
-     * which a ResizeObserver would not report.
-     */
-    function measure() {
-      const target = centreOn?.current ?? null
-      if (target === null) {
-        centreX = width / 2
-        centreY = height / 2
-        return
-      }
-      const box = target.getBoundingClientRect()
-      centreX = box.left + box.width / 2
-      centreY = box.top + box.height / 2
-    }
 
     function resize() {
       const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR)
@@ -193,7 +170,6 @@ export function CosmicBackground({ paletteId, centreOn }: CosmicBackgroundProps)
       canvas!.width = Math.round(width * dpr)
       canvas!.height = Math.round(height * dpr)
       context!.setTransform(dpr, 0, 0, dpr, 0, 0)
-      measure()
     }
 
     function paint(seconds: number) {
@@ -213,9 +189,15 @@ export function CosmicBackground({ paletteId, centreOn }: CosmicBackgroundProps)
         ctx.fillRect(star.x * width, star.y * height, star.size, star.size)
       }
 
-      /* One radius per axis, so the ring reaches DISK_SPAN of both edges. */
+      /*
+       * One radius per axis, so the ring reaches DISK_SPAN of both edges, and
+       * the middle of the window is the middle of it. Nothing on the page moves
+       * it: a panel that shifts when a board opens must not drag the sky along.
+       */
       const rx = (width * DISK_SPAN) / 2
       const ry = (height * DISK_SPAN) / 2
+      const centreX = width / 2
+      const centreY = height / 2
 
       for (const star of disk) {
         const reach =
@@ -245,7 +227,6 @@ export function CosmicBackground({ paletteId, centreOn }: CosmicBackgroundProps)
       elapsed += delta
       const turn = delta * TURNS_PER_SECOND * Math.PI * 2
       for (const star of disk) star.angle += turn
-      measure()
       paint(elapsed)
       frame = requestAnimationFrame(step)
     }
@@ -298,7 +279,7 @@ export function CosmicBackground({ paletteId, centreOn }: CosmicBackgroundProps)
       window.removeEventListener('resize', onResize)
       document.removeEventListener('visibilitychange', onVisibility)
     }
-  }, [paletteId, centreOn])
+  }, [paletteId])
 
   return <canvas ref={canvasRef} className={styles.sky} aria-hidden="true" />
 }

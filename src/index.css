@@ -78,6 +78,14 @@
   --space-4: 1rem;
   --space-5: 1.5rem;
 
+  /*
+   * One speed for everything that arrives on the page — the board opening, the
+   * cover landing — so the app has a single sense of how fast things appear
+   * rather than each component picking its own number.
+   */
+  --arrive-time: 620ms;
+  --arrive-ease: cubic-bezier(0.2, 0.8, 0.3, 1);
+
   --radius: 0.625rem;
   --radius-s: 0.5rem;
   --cover: 18.75rem;

@@ -8,10 +8,8 @@ interface SettingsMenuProps {
   readonly palette: Palette
   readonly layouts: readonly LayoutId[]
   readonly layout: LayoutId
-  readonly playerOn: boolean
   readonly onChoosePalette: (id: PaletteId) => void
   readonly onChooseLayout: (id: LayoutId) => void
-  readonly onChoosePlayer: (on: boolean) => void
   readonly onClearStored: () => void
 }
 
@@ -20,10 +18,8 @@ export function SettingsMenu({
   palette,
   layouts,
   layout,
-  playerOn,
   onChoosePalette,
   onChooseLayout,
-  onChoosePlayer,
   onClearStored,
 }: SettingsMenuProps) {
   const [open, setOpen] = useState(false)
@@ -96,27 +92,6 @@ export function SettingsMenu({
 
       {/* Always in the DOM so aria-controls points at something real. */}
       <div className={styles.panel} id="settings-panel" hidden={!open}>
-        <div className={styles.group}>
-          <span className={styles.legend} id="player-legend">
-            {strings.player.region}
-          </span>
-          <button
-            type="button"
-            role="switch"
-            className={styles.switch}
-            aria-checked={playerOn}
-            aria-labelledby="player-legend"
-            onClick={() => onChoosePlayer(!playerOn)}
-          >
-            <span className={styles.switchText}>
-              {playerOn ? strings.player.on : strings.player.off}
-            </span>
-            <span className={styles.track} aria-hidden="true">
-              <span className={styles.knob} />
-            </span>
-          </button>
-        </div>
-
         <fieldset className={styles.set}>
           <legend className={styles.legend}>{strings.settings.colour}</legend>
 

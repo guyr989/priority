@@ -164,7 +164,7 @@
 }
 
 .image {
-  animation: image-arrives 320ms cubic-bezier(0.2, 0.8, 0.3, 1) both;
+  animation: image-arrives var(--arrive-time) var(--arrive-ease) both;
   /* Capped against the viewport so a tall cover never sets the page height. */
   width: var(--cover-size, min(var(--cover), 38vh));
   max-width: 100%;

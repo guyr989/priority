@@ -72,8 +72,6 @@ export const strings = {
     region: 'Player',
     frameTitle: (title: string) => `Player for ${title}`,
     close: 'Close the player',
-    on: 'On the page',
-    off: 'Off',
   },
 
   settings: {

@@ -63,7 +63,6 @@ interface AppProps {
   readonly lastTrackStore: Store<Track>
   readonly paletteStore: Store<PaletteId>
   readonly layoutStore: Store<LayoutId>
-  readonly playerStore: Store<boolean>
   readonly attachPlayback: AttachPlayback
   /** Forgets everything kept on this device. The composition root decides what
       that means and what happens after it, so App only has to offer it. */
@@ -78,7 +77,6 @@ function App({
   lastTrackStore,
   paletteStore,
   layoutStore,
-  playerStore,
   attachPlayback,
   onClearStored,
   debounceMs = DEBOUNCE_MS,
@@ -111,24 +109,13 @@ function App({
   const imageSlotRef = useRef<HTMLDivElement>(null)
   const imageSectionRef = useRef<HTMLElement>(null)
   const playerRef = useRef<HTMLIFrameElement>(null)
-  /* Only the backdrop reads this: the ring centres on the panel, not the window. */
-  const panelRef = useRef<HTMLElement>(null)
 
-  const [playerOn, setPlayerOn] = useState(() => playerStore.read() ?? false)
   const { palette, layout, choosePalette, chooseLayout } = useAppearance(
     paletteStore,
     layoutStore,
   )
   const narrow = useNarrow()
   const isPlaying = usePlayback(playerRef, attachPlayback, embedded, selected?.id ?? null)
-
-  // Turning the player off stops it. Turning it back on must not restart the
-  // set from zero, so the sleeve offers its play control again instead.
-  const togglePlayer = (on: boolean) => {
-    setPlayerOn(on)
-    playerStore.write(on)
-    if (!on) setEmbedded(false)
-  }
 
   const { tracks, status, hasNext, hasPrev, goToNextPage, goToPrevPage, restart, retry } =
     useSearch(provider, query, debounceMs)
@@ -195,7 +182,7 @@ function App({
         whether it shows at all, is the palette's business rather than App's.
       */}
       <Suspense fallback={null}>
-        <CosmicBackground paletteId={palette.id} centreOn={panelRef} />
+        <CosmicBackground paletteId={palette.id} />
       </Suspense>
 
       {/*
@@ -225,10 +212,8 @@ function App({
             palette={palette}
             layouts={narrow || selected === null ? [] : LAYOUTS}
             layout={layout}
-            playerOn={playerOn}
             onChoosePalette={choosePalette}
             onChooseLayout={chooseLayout}
-            onChoosePlayer={togglePlayer}
             onClearStored={onClearStored}
           />
         </div>
@@ -249,7 +234,6 @@ function App({
         </p>
 
         <SearchContainer
-          panelRef={panelRef}
           query={field}
           view={view}
           hasPrev={hasPrev}
@@ -309,7 +293,7 @@ function App({
               track={selected}
               sectionRef={imageSectionRef}
               slotRef={imageSlotRef}
-              playable={playerOn}
+              playable
               embedded={embedded}
               isPlaying={isPlaying}
               lieDown={showResults && (narrow || LIE_DOWN_LAYOUTS.includes(layout))}
@@ -328,7 +312,7 @@ function App({
         )}
       </main>
 
-      {selected !== null && playerOn && embedded && (
+      {selected !== null && embedded && (
         <PlayerBar
           track={selected}
           frameRef={playerRef}

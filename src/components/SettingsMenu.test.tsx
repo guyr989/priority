@@ -4,10 +4,9 @@ import { describe, expect, it, vi } from 'vitest'
 import { DEFAULT_LAYOUT, DEFAULT_PALETTE, LAYOUTS, PALETTES } from '../domain/appearance'
 import { SettingsMenu } from './SettingsMenu'
 
-function renderMenu(playerOn = false) {
+function renderMenu() {
   const onChoosePalette = vi.fn()
   const onChooseLayout = vi.fn()
-  const onChoosePlayer = vi.fn()
   const onClearStored = vi.fn()
   render(
     <SettingsMenu
@@ -15,14 +14,12 @@ function renderMenu(playerOn = false) {
       palette={DEFAULT_PALETTE}
       layouts={LAYOUTS}
       layout={DEFAULT_LAYOUT}
-      playerOn={playerOn}
       onChoosePalette={onChoosePalette}
       onChooseLayout={onChooseLayout}
-      onChoosePlayer={onChoosePlayer}
       onClearStored={onClearStored}
     />,
   )
-  return { user: userEvent.setup(), onChoosePalette, onChooseLayout, onChoosePlayer, onClearStored }
+  return { user: userEvent.setup(), onChoosePalette, onChooseLayout, onClearStored }
 }
 
 describe('SettingsMenu', () => {
@@ -96,18 +93,6 @@ describe('SettingsMenu', () => {
 
     expect(onChooseLayout).toHaveBeenCalledWith('row')
     expect(onChoosePalette).not.toHaveBeenCalled()
-  })
-
-  it('carries the player answer on one switch', async () => {
-    const { user, onChoosePlayer } = renderMenu(true)
-
-    await user.click(screen.getByRole('button', { name: 'Settings' }))
-
-    expect(screen.getByRole('switch', { name: 'Player' })).toBeChecked()
-
-    await user.click(screen.getByRole('switch', { name: 'Player' }))
-
-    expect(onChoosePlayer).toHaveBeenCalledWith(false)
   })
 
   it('closes on Escape and hands focus back', async () => {
