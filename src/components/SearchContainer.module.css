@@ -337,7 +337,10 @@
   /* Five chips on a narrow panel wrap four and one, and a lone chip hanging
      off the left edge is the rag that made the empty page look unfinished. */
   justify-content: var(--head-items, flex-start);
-  gap: var(--space-2);
+  /* Wider between rows than between chips. At one shared 8px the chip that
+     wrapped sat closer to the row above it than a second line has any right
+     to, and the two rows read as one block that had come apart. */
+  gap: var(--space-3) var(--space-2);
 }
 
 /* The same pill as a history chip, without the cross: there is nothing to

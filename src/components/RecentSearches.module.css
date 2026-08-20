@@ -22,7 +22,10 @@
   padding: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  /* The same pair as the suggestions: wider between rows than between chips,
+     so a term that wraps starts a second line rather than crowding the one
+     above it. */
+  gap: var(--space-3) var(--space-2);
 }
 
 /*
