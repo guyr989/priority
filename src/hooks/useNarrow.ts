@@ -1,6 +1,6 @@
 import { useCallback, useSyncExternalStore } from 'react'
 
-const NARROW = '(max-width: 900px)'
+const NARROW = '(max-width: 56.25rem)'
 
 /**
  * True where the layout has folded to one column. Only the narrow layout runs

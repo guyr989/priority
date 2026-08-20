@@ -4,18 +4,18 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0.375rem;
 }
 
 .result,
 .tile {
   font: inherit;
   width: 100%;
-  min-height: 44px;
+  min-height: 2.75rem;
   text-align: left;
   color: var(--text-h);
   background: var(--social-bg);
-  border: 1px solid var(--border);
+  border: 0.0625rem solid var(--border);
   cursor: pointer;
 }
 
@@ -26,15 +26,15 @@
 
 .result:focus-visible,
 .tile:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline: 0.125rem solid var(--accent);
+  outline-offset: 0.125rem;
 }
 
 .result {
-  font-size: 16px;
-  padding: 9px 14px;
+  font-size: 1rem;
+  padding: 0.5625rem 0.875rem;
   border-radius: var(--radius-s);
-  /* One line per row. A wrapped title costs 25px, and six of them are the
+  /* One line per row. A wrapped title costs a second line, and six of those are the
      difference between a page of results that fits and one that scrolls. */
   white-space: nowrap;
   overflow: hidden;
@@ -44,9 +44,9 @@
 .result::before {
   content: '';
   display: inline-block;
-  width: 6px;
-  height: 6px;
-  margin-right: 10px;
+  width: 0.375rem;
+  height: 0.375rem;
+  margin-right: 0.625rem;
   border-radius: 50%;
   background: var(--border);
   vertical-align: middle;
@@ -77,22 +77,22 @@
      which is what let the second row push past the box. */
   grid-auto-rows: minmax(0, 1fr);
   height: 100%;
-  gap: 10px;
+  gap: 0.625rem;
 }
 
 /* Three across is the shape a full page of six is designed around. */
-@container results (min-width: 400px) {
+@container results (min-width: 25rem) {
   .tiles {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 .tile {
-  font-size: 14px;
+  font-size: 0.875rem;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 6px;
+  gap: 0.375rem;
+  padding: 0.375rem;
   border-radius: var(--radius-s);
   /* The row sets the height; the tile fills it. Without this a one-line title
      makes a shorter tile than the two-line one beside it. */
@@ -110,7 +110,7 @@
   flex: 1;
   /* A floor, so a board with almost no room gives a short cover rather than a
      row of captions with no artwork at all. */
-  min-height: 64px;
+  min-height: 4rem;
   object-fit: cover;
   border-radius: var(--radius-s);
   background: var(--accent-bg);
@@ -141,9 +141,9 @@
   box-sizing: border-box;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 24px 16px;
-  font-size: 16px;
+  gap: 0.75rem;
+  padding: 1.5rem 1rem;
+  font-size: 1rem;
   text-align: center;
 }
 
@@ -153,19 +153,19 @@
 
 .retry {
   font: inherit;
-  font-size: 16px;
-  min-height: 44px;
-  padding: 8px 16px;
+  font-size: 1rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
   border-radius: var(--radius-s);
   color: var(--text-h);
   background: var(--accent-bg);
-  border: 1px solid var(--accent-border);
+  border: 0.0625rem solid var(--accent-border);
   cursor: pointer;
 }
 
 .retry:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline: 0.125rem solid var(--accent);
+  outline-offset: 0.125rem;
 }
 
 /*

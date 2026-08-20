@@ -7,24 +7,24 @@
    * then clipped away. Only the row flow has any use for wrapping.
    */
   flex-wrap: var(--now-wrap, nowrap);
-  gap: var(--now-gap, 16px);
+  gap: var(--now-gap, 1rem);
   align-items: center;
   justify-content: center;
-  padding: var(--now-pad, 22px);
+  padding: var(--now-pad, 1.375rem);
   min-height: 0;
   flex: 1;
   overflow: hidden;
   background: var(--panel);
   backdrop-filter: var(--panel-blur, none);
   -webkit-backdrop-filter: var(--panel-blur, none);
-  border: 1px solid var(--border);
+  border: 0.0625rem solid var(--border);
   border-radius: var(--radius);
   text-align: var(--sleeve-text, center);
 }
 
 .container:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline: 0.125rem solid var(--accent);
+  outline-offset: 0.125rem;
 }
 
 .container:focus {
@@ -36,8 +36,8 @@
   width: 100%;
   align-self: flex-start;
   text-align: left;
-  padding-bottom: var(--now-heading-pad, 14px);
-  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--now-heading-pad, 0.875rem);
+  border-bottom: 0.0625rem solid var(--border);
 }
 
 .slot {
@@ -68,7 +68,7 @@
   grid-template-areas: var(--sleeve-areas, 'art' 'title' 'artist');
   align-content: center;
   justify-items: var(--sleeve-justify, center);
-  gap: var(--sleeve-gap, 12px);
+  gap: var(--sleeve-gap, 0.75rem);
   width: var(--sleeve-width, auto);
   /* A grid track of 1fr sizes to max-content when the grid itself is
      auto-width, so without this a long title sets the sleeve's width and the
@@ -86,20 +86,20 @@
  * arithmetic does not close at any width.
  */
 .lieDown {
-  --now-gap: 10px;
-  --now-pad: 12px 14px;
-  --now-heading-pad: 10px;
-  --sleeve-cols: 88px minmax(0, 1fr);
+  --now-gap: 0.625rem;
+  --now-pad: 0.75rem 0.875rem;
+  --now-heading-pad: 0.625rem;
+  --sleeve-cols: 5.5rem minmax(0, 1fr);
   --sleeve-areas: 'art title' 'art artist';
   --sleeve-justify: start;
-  --sleeve-gap: 4px 14px;
+  --sleeve-gap: 0.25rem 0.875rem;
   --sleeve-width: 100%;
   --sleeve-text: left;
   --sleeve-title-self: end;
   --sleeve-artist-self: start;
-  --cover-size: 88px;
-  --play-size: 52px;
-  --play-icon: 21px;
+  --cover-size: 5.5rem;
+  --play-size: 3.25rem;
+  --play-icon: 1.3125rem;
 }
 
 .lieDown .caption {
@@ -107,8 +107,8 @@
      column this narrow. The sans carries the same title in two. */
   font-family: var(--sans);
   font-weight: 600;
-  letter-spacing: -0.1px;
-  font-size: min(var(--billing-size), 17px);
+  letter-spacing: -0.00625rem;
+  font-size: min(var(--billing-size), 1.0625rem);
 }
 
 .imageButton {
@@ -121,8 +121,8 @@
 }
 
 .imageButton:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 4px;
+  outline: 0.125rem solid var(--accent);
+  outline-offset: 0.25rem;
 }
 
 .cover {
@@ -137,16 +137,16 @@
   position: absolute;
   inset: 0;
   margin: auto;
-  width: var(--play-size, 66px);
-  height: var(--play-size, 66px);
+  width: var(--play-size, 4.125rem);
+  height: var(--play-size, 4.125rem);
   display: grid;
   place-items: center;
   border-radius: 50%;
   color: #17141d;
   background: #ffffff;
   box-shadow:
-    0 0 0 1px rgba(23, 20, 29, 0.06),
-    0 12px 26px -12px rgba(23, 20, 29, 0.75);
+    0 0 0 0.0625rem rgba(23, 20, 29, 0.06),
+    0 0.75rem 1.625rem -0.75rem rgba(23, 20, 29, 0.75);
   transition:
     transform 160ms ease-out,
     box-shadow 160ms ease-out;
@@ -154,16 +154,16 @@
 
 
 .play svg {
-  width: var(--play-icon, 26px);
-  height: var(--play-icon, 26px);
+  width: var(--play-icon, 1.625rem);
+  height: var(--play-icon, 1.625rem);
 }
 
 .imageButton:hover .play,
 .imageButton:focus-visible .play {
   transform: scale(1.07);
   box-shadow:
-    0 0 0 1px rgba(23, 20, 29, 0.06),
-    0 16px 30px -12px rgba(23, 20, 29, 0.8);
+    0 0 0 0.0625rem rgba(23, 20, 29, 0.06),
+    0 1rem 1.875rem -0.75rem rgba(23, 20, 29, 0.8);
 }
 
 .image {
@@ -176,15 +176,15 @@
   object-fit: cover;
   border-radius: var(--radius);
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.14),
-    0 18px 36px -22px rgba(23, 20, 29, 0.9);
+    inset 0 0 0 0.0625rem rgba(255, 255, 255, 0.14),
+    0 1.125rem 2.25rem -1.375rem rgba(23, 20, 29, 0.9);
 }
 
 .player {
   flex: var(--player-flex, 0 0 auto);
   width: 100%;
-  height: 120px;
-  border: 1px solid var(--border);
+  height: 7.5rem;
+  border: 0.0625rem solid var(--border);
   border-radius: var(--radius-s);
 }
 
@@ -196,7 +196,7 @@
   justify-content: var(--sleeve-justify, center);
   /* Lets the title wrap instead of setting the column's width. */
   min-width: 0;
-  gap: 10px;
+  gap: 0.625rem;
   color: var(--text-h);
   font-family: var(--billing-family);
   font-size: var(--billing-size);
@@ -220,14 +220,14 @@
 .equaliser {
   display: inline-flex;
   align-items: flex-end;
-  gap: 2px;
-  height: 12px;
+  gap: 0.125rem;
+  height: 0.75rem;
 }
 
 .equaliser span {
-  width: 3px;
+  width: 0.1875rem;
   height: 100%;
-  border-radius: 1px;
+  border-radius: 0.0625rem;
   background: var(--accent);
   transform-origin: bottom;
   animation: bounce 900ms ease-in-out infinite;
