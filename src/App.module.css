@@ -105,6 +105,10 @@
   --search-areas: 'head body';
   --search-rows: minmax(0, 1fr);
   --search-gap: var(--space-5);
+  /* The head is a column here, not a bar. Side by side inside 236px the field
+     came out narrower than its own button and cut its placeholder to one word,
+     so the button goes under the field and both take the column's width. */
+  --form-flow: column;
 }
 
 /* Nothing playing yet: one column, no empty half. */
@@ -121,6 +125,23 @@
  */
 .layout.noBoard {
   grid-template-rows: minmax(0, auto) minmax(0, 1fr);
+  /* The view control goes with the board, so the corner the head was keeping
+     clear for it is the head's own again. */
+  --head-inset: 0;
+}
+
+/*
+ * Row, with nothing to sit beside. The second track held 452px open for a
+ * board that is not on the page, which left the field 91px — narrower than
+ * its own button. The head takes the whole panel instead, so the field runs
+ * to the end of the row and the button comes back to its side.
+ */
+.layout.row.noBoard {
+  --search-cols: minmax(0, 1fr);
+  --search-areas: 'head';
+  --search-rows: minmax(0, auto);
+  --form-flow: row;
+  --form-max: none;
 }
 
 /*

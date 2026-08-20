@@ -41,17 +41,23 @@
   /* Tight, because the chips refill the field directly above them. */
   gap: var(--space-2);
   /* Kept clear for the view control, which stands in this corner. Chips wrap
-     before they reach it, so the two never sit on top of each other. */
-  padding-right: calc(2.75rem + var(--space-2));
+     before they reach it, so the two never sit on top of each other. A layout
+     with no board has no control to keep it clear for. */
+  padding-right: var(--head-inset, calc(2.75rem + var(--space-2)));
 }
 
 .form {
   display: flex;
+  flex-direction: var(--form-flow, row);
   gap: var(--space-2);
-  align-items: center;
+  /* Both children carry the same min-height, so this changes nothing across a
+     row and gives the stacked form a field and a button of one width. */
+  align-items: stretch;
   /* A query is short. Letting the field run the width of the panel strands
-     the button at the far edge, away from the words being typed. */
-  max-width: 28.75rem;
+     the button at the far edge, away from the words being typed — except
+     where the panel is only this form, and the cap would leave the gap
+     instead. */
+  max-width: var(--form-max, 28.75rem);
 }
 
 .label {
