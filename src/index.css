@@ -47,6 +47,19 @@
   --accent-border: rgba(109, 40, 217, 0.55);
   --social-bg: #efeaf9;
 
+  /*
+   * The backdrop ring. Hues run near to far across the ring's width and are
+   * interpolated, so they must not wrap: write 385 rather than 25. Strength is
+   * a plain multiplier on every dot, and 0 takes the sky off the page. A light
+   * palette must say source-over — adding light to a pale page paints nothing.
+   */
+  --sky-hue-near: 258;
+  --sky-hue-far: 300;
+  --sky-saturation: 55;
+  --sky-lightness: 42;
+  --sky-strength: 0.5;
+  --sky-blend: source-over;
+
   --sans: 'Archivo', system-ui, 'Segoe UI', Roboto, sans-serif;
   --micro: 0.75rem;
   --micro-tracking: 0.1em;
@@ -105,6 +118,14 @@
     --accent-bg: rgba(201, 166, 255, 0.16);
     --accent-border: rgba(201, 166, 255, 0.55);
     --social-bg: #241d33;
+
+    /* Studio after dark can afford the additive sky the burst was built for. */
+    --sky-hue-near: 190;
+    --sky-hue-far: 270;
+    --sky-saturation: 90;
+    --sky-lightness: 72;
+    --sky-strength: 0.85;
+    --sky-blend: lighter;
   }
 }
 
@@ -132,6 +153,18 @@
   --billing-weight: 600;
   --billing-case: uppercase;
   --billing-tracking: 0.08em;
+
+  /*
+   * Daylight's own red, carried round to a warm brown at the outer edge, and
+   * taken right down: on a page this pale the ring only reads as ink. The
+   * lightness is what carries the contrast here, not the strength.
+   */
+  --sky-hue-near: 340;
+  --sky-hue-far: 385;
+  --sky-saturation: 58;
+  --sky-lightness: 22;
+  --sky-strength: 0.72;
+  --sky-blend: source-over;
 }
 
 /*
@@ -155,6 +188,14 @@
   --backdrop-opacity: 0.5;
   --backdrop-blur: 2.5rem;
   --backdrop-saturate: 1.25;
+
+  /* Black behind it, so the sky can run at full strength here and nowhere else. */
+  --sky-hue-near: 190;
+  --sky-hue-far: 270;
+  --sky-saturation: 90;
+  --sky-lightness: 72;
+  --sky-strength: 1;
+  --sky-blend: lighter;
 }
 
 /*

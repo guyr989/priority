@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { ReactNode } from 'react'
+import type { ReactNode, Ref } from 'react'
 import type { ViewMode } from '../domain/view'
 import styles from './SearchContainer.module.css'
 import { strings } from '../i18n/strings'
@@ -46,6 +46,11 @@ interface SearchContainerProps {
    * rather than sit folded: a new search or a recent term brings them back.
    */
   readonly showResults: boolean
+  /**
+   * Handed out so the backdrop can centre itself on this panel. The panel
+   * neither reads it nor cares who holds it.
+   */
+  readonly panelRef?: Ref<HTMLElement>
   readonly children: ReactNode
 }
 
@@ -62,12 +67,13 @@ export function SearchContainer({
   recent,
   showHint,
   showResults,
+  panelRef,
   children,
 }: SearchContainerProps) {
   const [starters] = useState(pickStarters)
 
   return (
-    <section className={styles.container} aria-label={strings.search.region}>
+    <section ref={panelRef} className={styles.container} aria-label={strings.search.region}>
       <div className={styles.head}>
         {/* Only the first visit gets a lead: once there is a board or a cover
             on the page, the page has already introduced itself. */}

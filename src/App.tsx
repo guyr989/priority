@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { PlayerBar } from './components/PlayerBar'
 import { FlyingResult } from './components/FlyingResult'
 import { ImageContainer } from './components/ImageContainer'
@@ -23,6 +23,12 @@ import styles from './App.module.css'
 import { strings } from './i18n/strings'
 
 const DEBOUNCE_MS = 300
+
+const CosmicBackground = lazy(() =>
+  import('./components/CosmicBackground').then((module) => ({
+    default: module.CosmicBackground,
+  })),
+)
 
 const LAYOUT_CLASS = {
   side: styles.side,
@@ -105,6 +111,8 @@ function App({
   const imageSlotRef = useRef<HTMLDivElement>(null)
   const imageSectionRef = useRef<HTMLElement>(null)
   const playerRef = useRef<HTMLIFrameElement>(null)
+  /* Only the backdrop reads this: the ring centres on the panel, not the window. */
+  const panelRef = useRef<HTMLElement>(null)
 
   const [playerOn, setPlayerOn] = useState(() => playerStore.read() ?? false)
   const { palette, layout, choosePalette, chooseLayout } = useAppearance(
@@ -181,6 +189,16 @@ function App({
   return (
     <>
       {/*
+        Decoration, and the last thing that should cost the first paint: its
+        own chunk, fetched after the app is interactive. Suspense falls back to
+        nothing, so no frame ever waits on it. Which colours it takes, and
+        whether it shows at all, is the palette's business rather than App's.
+      */}
+      <Suspense fallback={null}>
+        <CosmicBackground paletteId={palette.id} centreOn={panelRef} />
+      </Suspense>
+
+      {/*
         The look that dresses the page in the cover paints a real image rather
         than a CSS url(). Two reasons: an image element can be fetched without
         credentials, which is what stops the thumbnail host storing a cookie,
@@ -231,6 +249,7 @@ function App({
         </p>
 
         <SearchContainer
+          panelRef={panelRef}
           query={field}
           view={view}
           hasPrev={hasPrev}
