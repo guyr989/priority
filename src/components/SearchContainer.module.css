@@ -268,3 +268,14 @@
     right: calc(-1 * var(--turn-size) / 2);
   }
 }
+
+/*
+ * A first visit has nothing but the field. One line under it says what to do
+ * with it, so the panel reads as a starting point rather than a page that
+ * loaded half way.
+ */
+.hint {
+  margin: 0;
+  color: var(--text);
+  font-size: 15px;
+}

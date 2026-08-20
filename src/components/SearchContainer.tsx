@@ -15,6 +15,11 @@ interface SearchContainerProps {
   readonly onNext: () => void
   readonly recent: ReactNode
   /**
+   * A first visit, before any search has run. The panel is only a field on an
+   * otherwise empty page, so it says what the field is for.
+   */
+  readonly showHint: boolean
+  /**
    * Whether the board is on the page at all. Once a track is picked on a
    * window with one column the results have done their job, so they leave
    * rather than sit folded: a new search or a recent term brings them back.
@@ -34,6 +39,7 @@ export function SearchContainer({
   onPrev,
   onNext,
   recent,
+  showHint,
   showResults,
   children,
 }: SearchContainerProps) {
@@ -66,6 +72,8 @@ export function SearchContainer({
         </form>
 
         {recent}
+
+        {showHint && <p className={styles.hint}>{strings.results.idle}</p>}
       </div>
 
       {/* One box holds the list, the controls that reshape it and the page

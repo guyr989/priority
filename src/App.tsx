@@ -206,6 +206,7 @@ function App({
           hasPrev={hasPrev}
           hasNext={hasNext}
           showResults={showResults}
+          showHint={status === 'idle' && !showNowPlaying}
           onQueryChange={(next) => {
             setResultsOpen(true)
             setQuery(next)
