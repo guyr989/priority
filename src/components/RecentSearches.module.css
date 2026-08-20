@@ -1,7 +1,7 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 0.625rem;
+  gap: var(--space-3);
 }
 
 .heading {
@@ -23,7 +23,7 @@
   padding: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.375rem;
+  gap: var(--space-2);
 }
 
 /*
@@ -50,7 +50,7 @@
   font: inherit;
   font-size: 0.9375rem;
   min-height: 2.5rem;
-  padding: 0.5rem 0.375rem 0.5rem 0.875rem;
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
   border-radius: 999rem 0 0 999rem;
   color: var(--text-h);
   cursor: pointer;
@@ -88,22 +88,26 @@
 }
 
 /*
- * A phone reads the chips as a row of tags, not as buttons: small, tight, and
- * capped so one long term cannot push the rest onto a second line. They wrap
- * only when the row runs into the view control standing in the corner.
+ * A phone reads the chips as a row of tags rather than buttons: small type,
+ * tight padding. The cap is in characters and not pixels, because the whole
+ * point of a history chip is reading which search it is — the old 30px cap
+ * rendered "adele" as "a…". Long terms still take an ellipsis, and five chips
+ * wrap to a second line rather than every term starving to keep them on one.
+ * The padding holds both halves of the pill over 24px, which is the smallest
+ * target WCAG 2.2 accepts.
  */
 @media (max-width: 56.25rem) {
   .term {
     min-height: 0;
-    padding: 0.25rem 0.1875rem 0.3125rem 0.4375rem;
+    padding: var(--space-1) var(--space-2) var(--space-1) var(--space-3);
     font-size: 0.75rem;
-    max-width: 1.875rem;
+    max-width: 12ch;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   .forget {
-    width: 1.5rem;
+    width: var(--space-5);
   }
 }

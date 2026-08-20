@@ -4,7 +4,7 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
+  gap: var(--space-2);
 }
 
 .result,
@@ -32,7 +32,7 @@
 
 .result {
   font-size: 1rem;
-  padding: 0.5625rem 0.875rem;
+  padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-s);
   /* One line per row. A wrapped title costs a second line, and six of those are the
      difference between a page of results that fits and one that scrolls. */
@@ -46,7 +46,7 @@
   display: inline-block;
   width: 0.375rem;
   height: 0.375rem;
-  margin-right: 0.625rem;
+  margin-right: var(--space-3);
   border-radius: 50%;
   background: var(--border);
   vertical-align: middle;
@@ -77,7 +77,7 @@
      which is what let the second row push past the box. */
   grid-auto-rows: minmax(0, 1fr);
   height: 100%;
-  gap: 0.625rem;
+  gap: var(--space-3);
 }
 
 /* Three across is the shape a full page of six is designed around. */
@@ -91,8 +91,10 @@
   font-size: 0.875rem;
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
-  padding: 0.375rem;
+  /* A tile is one control, so its parts sit at the inside-a-control step
+     rather than the between-siblings one. */
+  gap: var(--space-1);
+  padding: var(--space-1);
   border-radius: var(--radius-s);
   /* The row sets the height; the tile fills it. Without this a one-line title
      makes a shorter tile than the two-line one beside it. */
@@ -108,9 +110,11 @@
   /* Takes whatever the tile has left after the title, and crops to it. The
      cover is the one thing here that can give, so it is what gives. */
   flex: 1;
-  /* A floor, so a board with almost no room gives a short cover rather than a
-     row of captions with no artwork at all. */
-  min-height: 4rem;
+  /* The cover yields all the way down. This was a hard 4rem floor, which
+     outranked the caption: on a short board the title was pushed past the
+     tile's own edge and clipped mid-word by the overflow rule below. The
+     artwork is the thing here that can give, so it is the thing that gives. */
+  min-height: 0;
   object-fit: cover;
   border-radius: var(--radius-s);
   background: var(--accent-bg);
@@ -120,7 +124,9 @@
   flex: none;
   display: -webkit-box;
   -webkit-line-clamp: 2;
-  line-height: 1;
+  /* Room for the descenders on the second line, which a line-height of 1 cuts
+     off at the clamp. */
+  line-height: 1.2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -141,8 +147,8 @@
   box-sizing: border-box;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  padding: 1.5rem 1rem;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-4);
   font-size: 1rem;
   text-align: center;
 }
@@ -155,7 +161,7 @@
   font: inherit;
   font-size: 1rem;
   min-height: 2.75rem;
-  padding: 0.5rem 1rem;
+  padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-s);
   color: var(--text-h);
   background: var(--accent-bg);

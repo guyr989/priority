@@ -7,17 +7,17 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: var(--space-4);
   max-width: 70.375rem;
   margin: 0 auto;
-  padding: 0.875rem 1.25rem;
+  padding: var(--space-3) var(--space-5);
   box-sizing: border-box;
 }
 
 .controls {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: var(--space-1);
 }
 
 .wordmark {
@@ -55,9 +55,9 @@
   min-height: 0;
   overflow: hidden;
   display: grid;
-  gap: 1.25rem;
+  gap: var(--space-4);
   align-items: stretch;
-  padding: 1.125rem 1.25rem 1.25rem;
+  padding: var(--space-4) var(--space-5) var(--space-5);
   max-width: 70.375rem;
   width: 100%;
   margin: 0 auto;
@@ -99,7 +99,7 @@
   --search-cols: minmax(0, 14.75rem) minmax(0, 1fr);
   --search-areas: 'head body';
   --search-rows: minmax(0, 1fr);
-  --search-gap: 1.375rem;
+  --search-gap: var(--space-5);
 }
 
 /* Nothing playing yet: one column, no empty half. */
@@ -130,7 +130,7 @@
 
 @media (max-width: 56.25rem) {
   .bar {
-    padding: 0.6875rem 0.875rem;
+    padding: var(--space-3) var(--space-4);
   }
 
   /* The player control keeps its full wording, so the wordmark gives way. */
@@ -139,7 +139,7 @@
   }
 
   .controls {
-    gap: 0.125rem;
+    gap: var(--space-1);
   }
 
   .layout {
@@ -147,8 +147,8 @@
     /* The search keeps a floor of its own, so the sleeve is what gives way
        when one column has to hold both. */
     grid-template-rows: minmax(14.375rem, 1fr) minmax(0, auto);
-    gap: 0.875rem;
-    padding: 0.75rem 0.875rem 0.875rem;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4) var(--space-4);
   }
 
   .row {

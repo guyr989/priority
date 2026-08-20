@@ -58,6 +58,19 @@
   --micro-tracking: 0.1em;
   --micro-weight: 600;
 
+  /*
+   * One spacing scale, five steps of four. Every gap and pad in the app is one
+   * of these, so "how far apart" is a choice between five answers rather than
+   * the seventeen different numbers this used to carry. Steps read as nesting:
+   * 1 inside a control, 2 between siblings, 3 between groups, 4 between panels,
+   * 5 the panel's own inset.
+   */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+
   --radius: 0.625rem;
   --radius-s: 0.5rem;
   --cover: 18.75rem;

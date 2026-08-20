@@ -9,10 +9,10 @@
 .inner {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-4);
   max-width: 70.375rem;
   margin: 0 auto;
-  padding: 0.625rem 1.25rem;
+  padding: var(--space-3) var(--space-5);
   box-sizing: border-box;
 }
 
@@ -21,7 +21,7 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.125rem;
+  gap: var(--space-1);
 }
 
 .title {
@@ -79,8 +79,8 @@
 
 @media (max-width: 56.25rem) {
   .inner {
-    gap: 0.625rem;
-    padding: 0.5rem 0.875rem;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-4);
   }
 
   /* The provider's own transport is the thing worth the width down here. */

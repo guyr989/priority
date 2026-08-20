@@ -7,10 +7,10 @@
    * then clipped away. Only the row flow has any use for wrapping.
    */
   flex-wrap: var(--now-wrap, nowrap);
-  gap: var(--now-gap, 1rem);
+  gap: var(--now-gap, var(--space-4));
   align-items: center;
   justify-content: center;
-  padding: var(--now-pad, 1.375rem);
+  padding: var(--now-pad, var(--space-5));
   min-height: 0;
   flex: 1;
   overflow: hidden;
@@ -36,7 +36,7 @@
   width: 100%;
   align-self: flex-start;
   text-align: left;
-  padding-bottom: var(--now-heading-pad, 0.875rem);
+  padding-bottom: var(--now-heading-pad, var(--space-4));
   border-bottom: 0.0625rem solid var(--border);
 }
 
@@ -68,7 +68,7 @@
   grid-template-areas: var(--sleeve-areas, 'art' 'title' 'artist');
   align-content: center;
   justify-items: var(--sleeve-justify, center);
-  gap: var(--sleeve-gap, 0.75rem);
+  gap: var(--sleeve-gap, var(--space-3));
   width: var(--sleeve-width, auto);
   /* A grid track of 1fr sizes to max-content when the grid itself is
      auto-width, so without this a long title sets the sleeve's width and the
@@ -86,13 +86,13 @@
  * arithmetic does not close at any width.
  */
 .lieDown {
-  --now-gap: 0.625rem;
-  --now-pad: 0.75rem 0.875rem;
-  --now-heading-pad: 0.625rem;
+  --now-gap: var(--space-3);
+  --now-pad: var(--space-3) var(--space-4);
+  --now-heading-pad: var(--space-3);
   --sleeve-cols: 5.5rem minmax(0, 1fr);
   --sleeve-areas: 'art title' 'art artist';
   --sleeve-justify: start;
-  --sleeve-gap: 0.25rem 0.875rem;
+  --sleeve-gap: var(--space-1) var(--space-4);
   --sleeve-width: 100%;
   --sleeve-text: left;
   --sleeve-title-self: end;
@@ -196,7 +196,7 @@
   justify-content: var(--sleeve-justify, center);
   /* Lets the title wrap instead of setting the column's width. */
   min-width: 0;
-  gap: 0.625rem;
+  gap: var(--space-3);
   color: var(--text-h);
   font-family: var(--billing-family);
   font-size: var(--billing-size);
