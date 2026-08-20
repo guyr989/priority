@@ -143,7 +143,7 @@ swap with no flight at all.
   mine. A show with licensing restrictions prints their notice in their colours
   inside their iframe: cross-origin, so it cannot be restyled from here.
 - The widget's own script is the one third-party request the app makes, loaded
-  only when a player first appears. The typefaces are self-hosted for that
+  only when a player first appears. The typeface is self-hosted for that
   reason; playback state is not available any other way.
 - The widget library registers a window listener it never removes, so the adapter
   catches the registration and releases it on detach. If a future version

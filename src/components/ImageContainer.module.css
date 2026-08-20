@@ -103,9 +103,6 @@
 }
 
 .lieDown .caption {
-  /* A long title set in the display serif wraps to four cramped lines in a
-     column this narrow. The sans carries the same title in two. */
-  font-family: var(--sans);
   font-weight: 600;
   letter-spacing: -0.00625rem;
   font-size: min(var(--billing-size), 1.0625rem);

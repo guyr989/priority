@@ -1,19 +1,14 @@
-/* Self-hosted, latin subset only. Archivo is variable across the weights we set. */
+/*
+ * One face for the whole app, self-hosted, latin subset only. Archivo is
+ * variable across the weights we set, so the headings take their distinction
+ * from weight and tracking rather than from a second family.
+ */
 @font-face {
   font-family: 'Archivo';
   font-style: normal;
   font-weight: 400 600;
   font-display: swap;
   src: url('./assets/fonts/archivo-latin-var.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-@font-face {
-  font-family: 'Instrument Serif';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('./assets/fonts/instrument-serif-latin.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -53,7 +48,6 @@
   --social-bg: #efeaf9;
 
   --sans: 'Archivo', system-ui, 'Segoe UI', Roboto, sans-serif;
-  --display: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
   --micro: 0.75rem;
   --micro-tracking: 0.1em;
   --micro-weight: 600;
@@ -75,7 +69,7 @@
   --radius-s: 0.5rem;
   --cover: 18.75rem;
 
-  --billing-family: var(--display);
+  --billing-family: var(--sans);
   --billing-size: 1.4375rem;
   --billing-weight: 400;
   --billing-case: none;
@@ -134,7 +128,6 @@
   --radius: 0.25rem;
   --radius-s: 0.25rem;
   --cover: 13.75rem;
-  --billing-family: var(--sans);
   --billing-size: 0.9375rem;
   --billing-weight: 600;
   --billing-case: uppercase;
@@ -155,7 +148,6 @@
   --radius: 0.25rem;
   --radius-s: 0.25rem;
   --cover: 13.75rem;
-  --billing-family: var(--sans);
   --billing-size: 0.9375rem;
   --billing-weight: 600;
   --billing-case: uppercase;
@@ -229,8 +221,12 @@ body {
 
 h1,
 h2 {
-  font-family: var(--display);
-  font-weight: 400;
+  /*
+   * With one family, a heading takes its distinction from weight and tracking
+   * instead of from a second face. 400 was right under a display serif and
+   * reads flat in the sans that replaced it.
+   */
+  font-weight: 600;
   color: var(--text-h);
   font-synthesis: none;
 }

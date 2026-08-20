@@ -6,7 +6,6 @@
 
 .heading {
   margin: 0;
-  font-family: var(--sans);
   font-size: var(--micro);
   font-weight: var(--micro-weight);
   line-height: 100%;
@@ -64,6 +63,7 @@
 
 /* Its own target, but visually the tail of the chip rather than a second one. */
 .forget {
+  font: inherit;
   flex: none;
   display: inline-flex;
   align-items: center;
