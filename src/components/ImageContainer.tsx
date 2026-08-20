@@ -14,10 +14,18 @@ function Sleeve({ track, showDisc, embedded, isPlaying }: SleeveProps) {
   return (
     <>
       <span className={styles.cover}>
+        {/*
+          The cover is the largest thing painted, so on a return visit with a
+          track restored from storage it is the page's LCP. Its URL only exists
+          once the app has run, so it cannot be preloaded from the document —
+          the priority hint is the one lever left.
+        */}
         <img
           key={track.id}
           className={styles.image}
           src={track.imageUrl}
+          fetchPriority="high"
+          decoding="async"
           referrerPolicy="no-referrer"
           alt={strings.sleeve.cover(track.title, track.artist)}
         />

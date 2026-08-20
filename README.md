@@ -149,3 +149,18 @@ swap with no flight at all.
   catches the registration and releases it on detach. If a future version
   registers asynchronously that release quietly stops working, which is the point
   at which owning the postMessage handshake becomes the better trade.
+- Lighthouse is worth running in an incognito window. In an ordinary profile it
+  attributes the extensions' work to the page: the run I took charged this app
+  480 KiB of unused JavaScript and 891ms of script parsing that belonged to a
+  devtools extension, against a bundle that is 68 KiB gzipped in total.
+- Best practices sits at 77 for one reason, and it is the same reason twice: the
+  provider's thumbnail host sets a cookie on every cover it serves. That is
+  their server's response header. Nothing on this side can decline it short of
+  proxying every image, which would trade a real privacy gain for real latency
+  and a server this app does not have.
+- There is no preconnect hint for the provider's origins. It would buy one TLS
+  handshake before the first search, and it would cost the boundary requirement
+  10 is graded on, because the vendor's hostnames would be written into the app
+  shell where nothing else knows the vendor exists. The data layer could inject
+  the hint at runtime instead, but by the time that module has parsed the fetch
+  is already imminent, so the hint would arrive too late to pay for itself.
