@@ -76,14 +76,23 @@
   /* Steps in from the panel so the page turns have a gutter to stand in that
      is outside the list rather than on top of it. */
   margin: 0 var(--turn-gutter, 16px);
-  background: var(--bg);
+  /* A step away from the panel in whichever direction the palette has room:
+     lighter on a dark ground, darker on a light one, so the list reads as its
+     own surface rather than a hole in the panel. */
+  background: color-mix(in srgb, var(--bg) 92%, var(--text) 8%);
   border: 1px solid var(--border);
   border-radius: var(--radius-s);
 }
 
-/* Above the list and to its right: in the flow, so it covers nothing. */
+/*
+ * Out of the flow at the board's top right corner, so the list keeps the whole
+ * height rather than losing a row of it to one control.
+ */
 .toolbar {
   flex: none;
+  position: absolute;
+  right: 0;
+  z-index: 1;
   display: flex;
   justify-content: flex-end;
 }
@@ -257,7 +266,7 @@
   }
 
   .results {
-    padding: 0 20px;
+    padding: 0;
   }
 
   .paging .turn:first-child {
