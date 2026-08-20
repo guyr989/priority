@@ -13,18 +13,6 @@ interface ResultsProps {
   readonly onRetry: () => void
 }
 
-/**
- * Lives in App, not here: the live region has to be on the page before it has
- * anything to say, or a screen reader mounts the node and the announcement in
- * the same tick and reads neither.
- */
-export function announcement(status: SearchStatus, count: number): string {
-  if (status === 'loading') return strings.announce.searching
-  if (status !== 'ready') return ''
-  if (count === 0) return strings.announce.nothingFound
-  return strings.announce.ready(count)
-}
-
 export function Results({
   status,
   view,

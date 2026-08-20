@@ -22,6 +22,29 @@ describe('useSearchHistory', () => {
     expect(result.current.terms).toEqual(['adele', 'pixies'])
   })
 
+  it('writes nothing to a store that holds nothing', () => {
+    let written = 0
+    const store: Store<readonly string[]> = {
+      read: () => null,
+      write: () => {
+        written += 1
+      },
+    }
+
+    renderHook(() => useSearchHistory(store))
+
+    expect(written).toBe(0)
+  })
+
+  it('writes an empty history once the store has something to empty', () => {
+    const store = createMemoryStore(['adele'])
+    const { result } = renderHook(() => useSearchHistory(store))
+
+    act(() => result.current.forget('adele'))
+
+    expect(store.read()).toEqual([])
+  })
+
   it('starts empty when the store is empty', () => {
     const { result } = renderHook(() => useSearchHistory(createMemoryStore(null)))
 

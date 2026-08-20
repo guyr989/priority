@@ -13,7 +13,15 @@ export function useSearchHistory(store: Store<readonly string[]>): SearchHistory
     () => store.read()?.slice(0, HISTORY_LIMIT) ?? [],
   )
 
+  /*
+   * An empty history writes nothing when nothing is stored. Without that
+   * guard, mounting on a device that has just been cleared put the key
+   * straight back as [], which behaves identically but reads as a clear that
+   * failed. Once a key exists, an empty list is written like any other: it is
+   * how forgetting the last term is kept.
+   */
   useEffect(() => {
+    if (terms.length === 0 && store.read() === null) return
     store.write(terms)
   }, [store, terms])
 

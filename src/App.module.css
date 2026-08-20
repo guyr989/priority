@@ -51,6 +51,10 @@
 }
 
 .layout {
+  /* What a lying-down sleeve needs: an 5.5rem thumbnail, its billing beside
+     it, the panel's heading and its own inset. Every row floor below leaves
+     this much rather than taking the whole window. */
+  --sleeve-floor: 11rem;
   flex: 1;
   min-height: 0;
   overflow: hidden;
@@ -73,15 +77,18 @@
 .stack {
   grid-template-columns: minmax(0, 1fr);
   /* The floor is what the search needs before a single result fits: its own
-     field, chips, toolbar and page turns. Below that the sleeve gives way. */
-  grid-template-rows: minmax(27.5rem, 1fr) minmax(0, auto);
+     field, chips, toolbar and page turns. Below that the sleeve gives way —
+     but only as far as --sleeve-floor. A flat 27.5rem took the whole of a
+     short window, left the second track at 0px, and the sleeve landed past
+     the shell and was clipped away entirely. */
+  grid-template-rows: minmax(min(27.5rem, 100% - var(--sleeve-floor)), 1fr) minmax(0, auto);
   max-width: 48.75rem;
 }
 
 /* Sleeve and player laid across the top, results underneath. */
 .banner {
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: minmax(27.5rem, 1fr) minmax(0, auto);
+  grid-template-rows: minmax(min(27.5rem, 100% - var(--sleeve-floor)), 1fr) minmax(0, auto);
   --now-flow: row;
   /* The only flow that lays two things side by side, so the only one that has
      anything to wrap. */
@@ -146,7 +153,7 @@
     grid-template-columns: minmax(0, 1fr);
     /* The search keeps a floor of its own, so the sleeve is what gives way
        when one column has to hold both. */
-    grid-template-rows: minmax(14.375rem, 1fr) minmax(0, auto);
+    grid-template-rows: minmax(min(14.375rem, 100% - var(--sleeve-floor)), 1fr) minmax(0, auto);
     gap: var(--space-3);
     padding: var(--space-3) var(--space-4) var(--space-4);
   }

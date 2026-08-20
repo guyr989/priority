@@ -2,7 +2,8 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import type { Track } from '../domain/track'
-import { Results, announcement } from './Results'
+import { Results } from './Results'
+import { announcement } from './announcement'
 
 function track(title: string): Track {
   return { id: title, title, artist: 'artist', imageUrl: '', embedUrl: '' }
