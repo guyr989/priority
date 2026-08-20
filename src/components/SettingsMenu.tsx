@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { LayoutId, Palette, PaletteId } from '../domain/appearance'
 import styles from './SettingsMenu.module.css'
 import { strings } from '../i18n/strings'
@@ -33,31 +33,38 @@ export function SettingsMenu({
   const rootRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
 
-  useEffect(() => {
-    if (!open) setArmed(false)
-  }, [open])
+  /*
+   * Closing the panel disarms the confirmation, so it is never already armed
+   * the next time the menu is opened. Both happen here rather than in an
+   * effect watching `open`: closing is one act, not a state to observe after
+   * the fact, and a setState inside an effect only cascades a second render.
+   */
+  const close = useCallback(() => {
+    setOpen(false)
+    setArmed(false)
+  }, [])
 
   useEffect(() => {
     if (!open) return
 
-    const close = (event: Event) => {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false)
+    const onPointerDown = (event: Event) => {
+      if (!rootRef.current?.contains(event.target as Node)) close()
     }
 
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return
-      setOpen(false)
+      close()
       buttonRef.current?.focus()
     }
 
-    document.addEventListener('pointerdown', close)
+    document.addEventListener('pointerdown', onPointerDown)
     document.addEventListener('keydown', onKey)
 
     return () => {
-      document.removeEventListener('pointerdown', close)
+      document.removeEventListener('pointerdown', onPointerDown)
       document.removeEventListener('keydown', onKey)
     }
-  }, [open])
+  }, [open, close])
 
   return (
     <div className={styles.root} ref={rootRef}>
@@ -68,7 +75,7 @@ export function SettingsMenu({
         aria-label={strings.settings.trigger}
         aria-expanded={open}
         aria-controls="settings-panel"
-        onClick={() => setOpen((was) => !was)}
+        onClick={() => (open ? close() : setOpen(true))}
       >
         <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" focusable="false">
           <path
