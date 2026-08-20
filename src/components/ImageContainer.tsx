@@ -3,6 +3,14 @@ import type { Track } from '../domain/track'
 import styles from './ImageContainer.module.css'
 import { strings } from '../i18n/strings'
 
+/**
+ * Stands in for a cover the provider cannot serve. A data URI so the swap
+ * costs no request, and semi-transparent so it takes the tone of the sleeve
+ * it lands in rather than glowing in the dark palette.
+ */
+const FALLBACK_COVER =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23808080' fill-opacity='.16'/%3E%3Cg fill='none' stroke='%23808080' stroke-opacity='.5' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M42 66V34l28-6v30'/%3E%3Ccircle cx='35' cy='66' r='7'/%3E%3Ccircle cx='63' cy='58' r='7'/%3E%3C/g%3E%3C/svg%3E"
+
 interface SleeveProps {
   readonly track: Track
   readonly showDisc: boolean
@@ -23,7 +31,12 @@ function Sleeve({ track, showDisc, embedded, isPlaying }: SleeveProps) {
         <img
           key={track.id}
           className={styles.image}
-          src={track.imageUrl}
+          src={track.imageUrl || FALLBACK_COVER}
+          /* The one cover with real alt text, so the one whose failure the
+             browser draws as a broken glyph beside it. */
+          onError={(event) => {
+            event.currentTarget.src = FALLBACK_COVER
+          }}
           crossOrigin="anonymous"
           fetchPriority="high"
           decoding="async"
