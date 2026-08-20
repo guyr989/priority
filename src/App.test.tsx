@@ -146,7 +146,7 @@ describe('App', () => {
 
     expect(await screen.findByRole('button', { name: 'first result' })).toBeInTheDocument()
 
-    const recent = screen.getByRole('region', { name: /recent searches/i })
+    const recent = screen.getByRole('region', { name: /history/i })
     await waitFor(() => {
       expect(within(recent).getByRole('button', { name: 'adele' })).toBeInTheDocument()
     })
@@ -166,7 +166,7 @@ describe('App', () => {
   it('starts a search when a recent term is clicked', async () => {
     const { user } = renderApp([pageOf(['first result'], null)], ['pixies'])
 
-    const recent = screen.getByRole('region', { name: /recent searches/i })
+    const recent = screen.getByRole('region', { name: /history/i })
     await user.click(within(recent).getByRole('button', { name: 'pixies' }))
 
     expect(screen.getByRole('searchbox', { name: /search tracks/i })).toHaveValue('pixies')
@@ -194,35 +194,66 @@ describe('App', () => {
     expect(screen.queryByTitle('Player for first result')).not.toBeInTheDocument()
   })
 
-  it('folds the list once a track is picked, and unfolds it on a new search', async () => {
+  it('takes the results off the page once a track is picked, and a new search brings them back', async () => {
     askForANarrowWindow()
     const { user } = renderApp([pageOf(['first result', 'second result'], null)])
 
     await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
     await user.click(await screen.findByRole('button', { name: 'first result' }))
 
-    expect(screen.getByRole('button', { name: 'Results' })).toHaveAttribute(
-      'aria-expanded',
-      'false',
-    )
+    // The whole board leaves, not just the list: no results, and no page turns
+    // left behind to act on a list that is not there.
     expect(screen.queryByRole('button', { name: 'second result' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('group', { name: 'Result pages' })).not.toBeInTheDocument()
 
     await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'x')
 
-    expect(screen.getByRole('button', { name: 'Results' })).toHaveAttribute(
-      'aria-expanded',
-      'true',
-    )
+    expect(await screen.findByRole('group', { name: 'Result pages' })).toBeInTheDocument()
   })
 
-  it('leaves the list open on a window with room for it', async () => {
+  it('brings the results back when a recent term is picked', async () => {
+    askForANarrowWindow()
     const { user } = renderApp([pageOf(['first result', 'second result'], null)])
 
     await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
     await user.click(await screen.findByRole('button', { name: 'first result' }))
 
-    expect(screen.queryByRole('button', { name: 'Results' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('group', { name: 'Result pages' })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'adele' }))
+
+    expect(await screen.findByRole('group', { name: 'Result pages' })).toBeInTheDocument()
+  })
+
+  it('keeps the board off the page until a search has something to say', async () => {
+    const { user } = renderApp([pageOf(['first result'], null)])
+
+    // Nothing typed: no board, and so no empty box to look at.
+    expect(screen.queryByRole('group', { name: 'Result pages' })).not.toBeInTheDocument()
+
+    await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
+
+    expect(await screen.findByRole('button', { name: 'first result' })).toBeInTheDocument()
+    expect(screen.getByRole('group', { name: 'Result pages' })).toBeInTheDocument()
+  })
+
+  it('still shows the board when a search found nothing', async () => {
+    const { user } = renderApp([pageOf([], null)])
+
+    await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
+
+    // Requirement 8: empty is a state with something to say, not a blank page.
+    expect(await screen.findByText(/nothing under that name/i)).toBeInTheDocument()
+  })
+
+  it('keeps the results on a window with room for them', async () => {
+    const { user } = renderApp([pageOf(['first result', 'second result'], null)])
+
+    await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
+    await user.click(await screen.findByRole('button', { name: 'first result' }))
+
     expect(screen.getByRole('button', { name: 'second result' })).toBeVisible()
+    expect(screen.getByRole('group', { name: 'Result pages' })).toBeInTheDocument()
   })
 
   it('remembers the layout the user picked', async () => {
@@ -231,9 +262,11 @@ describe('App', () => {
     await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
     await screen.findByRole('button', { name: 'first result' })
 
+    // One control: it offers Grid while the list is showing, and once it has
+    // been taken it offers the way back.
     await user.click(screen.getByRole('button', { name: 'Grid' }))
 
-    expect(screen.getByRole('button', { name: 'Grid' })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: 'List' })).toHaveAttribute(
       'aria-pressed',
       'true',
     )
@@ -241,9 +274,13 @@ describe('App', () => {
   })
 
   it('opens in the layout stored from the last visit', async () => {
-    renderApp([pageOf(['first result'], null)], [], 'tile')
+    const { user } = renderApp([pageOf(['first result'], null)], [], 'tile')
 
-    expect(screen.getByRole('button', { name: 'Grid' })).toHaveAttribute(
+    // The toggle rides with the board, and the board waits for a search.
+    await user.type(screen.getByRole('searchbox', { name: /search tracks/i }), 'adele')
+    await screen.findByRole('button', { name: 'first result' })
+
+    expect(screen.getByRole('button', { name: 'List' })).toHaveAttribute(
       'aria-pressed',
       'true',
     )
@@ -329,7 +366,7 @@ describe('App', () => {
   it('changes the colour and keeps it for the next visit', async () => {
     const { user, paletteStore } = renderApp([pageOf(['first result'], null)])
 
-    expect(document.documentElement.dataset.palette).toBe('studio')
+    expect(document.documentElement.dataset.palette).toBe('cinema')
 
     await user.click(screen.getByRole('button', { name: 'Settings' }))
     await user.click(screen.getByRole('radio', { name: /^desk/i }))

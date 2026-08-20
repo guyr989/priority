@@ -83,6 +83,9 @@
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(440px, 1fr) minmax(0, auto);
   --now-flow: row;
+  /* The only flow that lays two things side by side, so the only one that has
+     anything to wrap. */
+  --now-wrap: wrap;
   --slot-width: auto;
   --player-flex: 1 1 280px;
 }
@@ -103,6 +106,25 @@
 .solo {
   grid-template-columns: minmax(0, 1fr);
   max-width: 720px;
+}
+
+/*
+ * The results have left, so the search is only its field and its chips. It
+ * takes what it holds and no more, and the room the board gave up goes to the
+ * cover the visitor just picked. Doubled so it outranks the row tracks the
+ * narrow block and the one-column looks set.
+ */
+.layout.noBoard {
+  grid-template-rows: minmax(0, auto) minmax(0, 1fr);
+}
+
+/*
+ * A first visit: no board and no cover, so the only thing on the page is the
+ * field. Pinned to the top it reads as a page that failed to load the rest, so
+ * it stands in the middle of the window instead and looks deliberate.
+ */
+.layout.solo.noBoard {
+  align-content: center;
 }
 
 @media (max-width: 900px) {

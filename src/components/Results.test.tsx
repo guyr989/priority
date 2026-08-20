@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import type { Track } from '../domain/track'
-import { Results } from './Results'
+import { Results, announcement } from './Results'
 
 function track(title: string): Track {
   return { id: title, title, artist: 'artist', imageUrl: '', embedUrl: '' }
@@ -21,7 +21,6 @@ describe('Results', () => {
     render(<Results status="loading" view="list" showingId={null} tracks={[]} onSelect={noop} onRetry={noop} />)
 
     expect(screen.getByText('Digging')).toBeInTheDocument()
-    expect(screen.getByRole('status')).toHaveTextContent('Searching')
     expect(screen.queryByRole('list')).not.toBeInTheDocument()
   })
 
@@ -40,7 +39,6 @@ describe('Results', () => {
     expect(screen.getByRole('button', { name: 'one' })).toBeInTheDocument()
     expect(screen.getByRole('list')).toHaveAttribute('aria-busy', 'true')
     expect(screen.queryByText('Digging')).not.toBeInTheDocument()
-    expect(screen.getByRole('status')).toHaveTextContent('Searching')
   })
 
   it('drops the busy mark once the page has landed', () => {
@@ -62,7 +60,6 @@ describe('Results', () => {
     render(<Results status="ready" view="list" showingId={null} tracks={[]} onSelect={noop} onRetry={noop} />)
 
     expect(screen.getByText(/try fewer words/i)).toBeInTheDocument()
-    expect(screen.getByRole('status')).toHaveTextContent(/nothing found/i)
     expect(screen.queryByRole('list')).not.toBeInTheDocument()
   })
 
@@ -125,10 +122,33 @@ describe('Results', () => {
     )
 
     expect(screen.getAllByRole('listitem')).toHaveLength(2)
-    expect(screen.getByRole('status')).toHaveTextContent('2 results ready')
 
     await user.click(screen.getByRole('button', { name: 'two' }))
 
     expect(onSelect).toHaveBeenCalledWith(track('two'), expect.any(HTMLButtonElement))
+  })
+})
+
+/*
+ * The live region itself lives in App so that it is mounted before it has
+ * anything to say. What it says is still decided here, so that is what is
+ * tested here.
+ */
+describe('announcement', () => {
+  it('says nothing before a search has run', () => {
+    expect(announcement('idle', 0)).toBe('')
+  })
+
+  it('says it is searching while a page is in flight', () => {
+    expect(announcement('loading', 0)).toBe('Searching')
+  })
+
+  it('reports an empty result', () => {
+    expect(announcement('ready', 0)).toBe('Nothing found')
+  })
+
+  it('counts what landed, and agrees with itself on one', () => {
+    expect(announcement('ready', 1)).toBe('1 result ready')
+    expect(announcement('ready', 6)).toBe('6 results ready')
   })
 })

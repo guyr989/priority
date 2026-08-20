@@ -5,7 +5,7 @@ import { FlyingResult } from './components/FlyingResult'
 import { ImageContainer } from './components/ImageContainer'
 import { SettingsMenu } from './components/SettingsMenu'
 import { RecentSearches } from './components/RecentSearches'
-import { Results } from './components/Results'
+import { Results, announcement } from './components/Results'
 import { SearchContainer } from './components/SearchContainer'
 import { useAppearance } from './hooks/useAppearance'
 import { useNarrow } from './hooks/useNarrow'
@@ -20,6 +20,7 @@ import type { ViewMode } from './domain/view'
 import type { Store } from './storage/store'
 import type { Track } from './domain/track'
 import styles from './App.module.css'
+import { strings } from './i18n/strings'
 
 const DEBOUNCE_MS = 300
 
@@ -29,6 +30,13 @@ const LAYOUT_CLASS = {
   banner: styles.banner,
   row: styles.row,
 } satisfies Record<LayoutId, string | undefined>
+
+/**
+ * These two give the sleeve and six results the same single column, and at one
+ * viewport tall the arithmetic does not close: a standing cover leaves the
+ * list about 26px. They take the phone's lying-down sleeve at every width.
+ */
+const LIE_DOWN_LAYOUTS: readonly LayoutId[] = ['stack', 'banner']
 
 /**
  * The looks that paint the cover behind the page read it from one custom
@@ -106,7 +114,7 @@ function App({
 
   const { tracks, status, hasNext, hasPrev, goToNextPage, goToPrevPage, restart, retry } =
     useSearch(provider, query, debounceMs)
-  const { terms, record } = useSearchHistory(historyStore)
+  const { terms, record, forget } = useSearchHistory(historyStore)
 
   useEffect(() => {
     if (tracks.length > 0) record(query)
@@ -130,9 +138,10 @@ function App({
     })
   }, [showTrack])
 
-  // Picking a track folds the list away, so the cover it lands on is the next
-  // thing under the search rather than the far side of six results. Anything
-  // that changes the list unfolds it again.
+  // On one column, picking a track takes the results off the page: they have
+  // done their job, and the cover it lands on is the next thing under the
+  // search. A new search, a recent term, a page turn or a retry brings them
+  // back. A window with room for both never loses them.
   const selectTrack = (track: Track, origin: HTMLElement) => {
     chosenHere.current = true
     setResultsOpen(false)
@@ -148,11 +157,21 @@ function App({
 
   const showNowPlaying = selected !== null || flight !== null
 
+  // The board is on the page once there is something for it to say, and until
+  // one column has already given the visitor what they came for. Everything
+  // that follows is downstream: what the search may claim, and whether the
+  // sleeve can stand up.
+  //
+  // `status !== 'idle'` and not `tracks.length > 0`: a search that is running,
+  // that found nothing, or that failed all still owe the visitor a word, and
+  // requirement 8 says none of them may be a blank page.
+  const showResults = status !== 'idle' && (!narrow || tracks.length === 0 || resultsOpen)
+
   return (
     <>
       <header className={styles.band}>
         <div className={styles.bar}>
-          <h1 className={styles.wordmark}>Sound search</h1>
+          <h1 className={styles.wordmark}>{strings.appName}</h1>
           <SettingsMenu
             palettes={PALETTES}
             palette={palette}
@@ -170,19 +189,23 @@ function App({
         className={[
           styles.layout,
           showNowPlaying ? LAYOUT_CLASS[layout] : styles.solo,
+          showResults ? undefined : styles.noBoard,
         ]
           .filter(Boolean)
           .join(' ')}
         style={backdropStyle(palette, selected)}
       >
+        {/* Always mounted, so it is on the page before it has anything to say. */}
+        <p className="visually-hidden" role="status">
+          {announcement(status, tracks.length)}
+        </p>
+
         <SearchContainer
           query={query}
           view={view}
           hasPrev={hasPrev}
           hasNext={hasNext}
-          collapsible={narrow && tracks.length > 0}
-          resultsOpen={resultsOpen}
-          onResultsOpenChange={setResultsOpen}
+          showResults={showResults}
           onQueryChange={(next) => {
             setResultsOpen(true)
             setQuery(next)
@@ -206,6 +229,7 @@ function App({
           recent={
             <RecentSearches
               terms={terms}
+              onForget={forget}
               onSelect={(term) => {
                 setResultsOpen(true)
                 setQuery(term)
@@ -236,6 +260,7 @@ function App({
               playable={playerOn}
               embedded={embedded}
               isPlaying={isPlaying}
+              lieDown={showResults && (narrow || LIE_DOWN_LAYOUTS.includes(layout))}
               onImageClick={() => setEmbedded(true)}
             />
           </div>

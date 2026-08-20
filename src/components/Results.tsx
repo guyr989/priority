@@ -2,6 +2,7 @@ import type { SearchStatus } from '../hooks/useSearch'
 import type { Track } from '../domain/track'
 import type { ViewMode } from '../domain/view'
 import styles from './Results.module.css'
+import { strings } from '../i18n/strings'
 
 interface ResultsProps {
   readonly status: SearchStatus
@@ -12,11 +13,16 @@ interface ResultsProps {
   readonly onRetry: () => void
 }
 
-function announcement(status: SearchStatus, count: number): string {
-  if (status === 'loading') return 'Searching'
+/**
+ * Lives in App, not here: the live region has to be on the page before it has
+ * anything to say, or a screen reader mounts the node and the announcement in
+ * the same tick and reads neither.
+ */
+export function announcement(status: SearchStatus, count: number): string {
+  if (status === 'loading') return strings.announce.searching
   if (status !== 'ready') return ''
-  if (count === 0) return 'Nothing found'
-  return `${count} ${count === 1 ? 'result' : 'results'} ready`
+  if (count === 0) return strings.announce.nothingFound
+  return strings.announce.ready(count)
 }
 
 export function Results({
@@ -28,19 +34,14 @@ export function Results({
   onRetry,
 }: ResultsProps) {
   return (
-    <>
-      <p className="visually-hidden" role="status">
-        {announcement(status, tracks.length)}
-      </p>
-      <ResultsBody
-        status={status}
-        view={view}
-        tracks={tracks}
-        showingId={showingId}
-        onSelect={onSelect}
-        onRetry={onRetry}
-      />
-    </>
+    <ResultsBody
+      status={status}
+      view={view}
+      tracks={tracks}
+      showingId={showingId}
+      onSelect={onSelect}
+      onRetry={onRetry}
+    />
   )
 }
 
@@ -56,10 +57,10 @@ function ResultsBody({
     return (
       <div className={styles.message} role="alert">
         <p className={styles.error}>
-          That search did not land. Check your connection, then try again.
+          {strings.results.error}
         </p>
         <button type="button" className={styles.retry} onClick={onRetry}>
-          Try again
+          {strings.results.retry}
         </button>
       </div>
     )
@@ -70,10 +71,10 @@ function ResultsBody({
   const busy = status === 'loading'
 
   if (tracks.length === 0) {
-    if (busy) return <p className={`${styles.message} ${styles.loading}`}>Digging</p>
-    if (status === 'idle') return <p className={styles.message}>Type a name and start digging.</p>
+    if (busy) return <p className={`${styles.message} ${styles.loading}`}>{strings.results.loading}</p>
+    if (status === 'idle') return <p className={styles.message}>{strings.results.idle}</p>
 
-    return <p className={styles.message}>Nothing under that name. Try fewer words.</p>
+    return <p className={styles.message}>{strings.results.empty}</p>
   }
 
   if (view === 'tile') {

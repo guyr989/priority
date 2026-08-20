@@ -5,6 +5,7 @@ import type { Store } from '../storage/store'
 export interface SearchHistory {
   readonly terms: readonly string[]
   readonly record: (term: string) => void
+  readonly forget: (term: string) => void
 }
 
 export function useSearchHistory(store: Store<readonly string[]>): SearchHistory {
@@ -20,5 +21,11 @@ export function useSearchHistory(store: Store<readonly string[]>): SearchHistory
     setTerms((current) => addSearch(current, term))
   }, [])
 
-  return { terms, record }
+  // ponytail: the rule itself belongs beside addSearch in domain/history.ts.
+  // Left here only because domain/ is Guy's to write.
+  const forget = useCallback((term: string) => {
+    setTerms((current) => current.filter((kept) => kept !== term))
+  }, [])
+
+  return { terms, record, forget }
 }

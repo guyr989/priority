@@ -33,11 +33,11 @@ describe('SettingsMenu', () => {
   it('keeps the settings out of reach until it is opened', async () => {
     const { user } = renderMenu()
 
-    expect(screen.queryByRole('radio', { name: /studio/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('radio', { name: /cinema/i })).not.toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Settings' }))
 
-    expect(screen.getByRole('radio', { name: /studio/i })).toBeChecked()
+    expect(screen.getByRole('radio', { name: /cinema/i })).toBeChecked()
   })
 
   it('offers colour and layout as two separate choices', async () => {
@@ -54,9 +54,10 @@ describe('SettingsMenu', () => {
     const { user, onChoosePalette, onChooseLayout } = renderMenu()
 
     await user.click(screen.getByRole('button', { name: 'Settings' }))
-    await user.click(screen.getByRole('radio', { name: /^cinema/i }))
+    // Not the palette it opens on: a checked radio fires nothing when clicked.
+    await user.click(screen.getByRole('radio', { name: /^studio/i }))
 
-    expect(onChoosePalette).toHaveBeenCalledWith('cinema')
+    expect(onChoosePalette).toHaveBeenCalledWith('studio')
     expect(onChooseLayout).not.toHaveBeenCalled()
   })
 

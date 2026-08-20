@@ -1,6 +1,7 @@
 import type { RefObject } from 'react'
 import type { Track } from '../domain/track'
 import styles from './PlayerBar.module.css'
+import { strings } from '../i18n/strings'
 
 interface PlayerBarProps {
   readonly track: Track
@@ -15,7 +16,7 @@ interface PlayerBarProps {
  */
 export function PlayerBar({ track, frameRef, onClose }: PlayerBarProps) {
   return (
-    <aside id="player-bar" className={styles.bar} aria-label="Player">
+    <aside id="player-bar" className={styles.bar} aria-label={strings.player.region}>
       <div className={styles.inner}>
         <p className={styles.billing}>
           <span className={styles.title}>{track.title}</span>
@@ -25,7 +26,7 @@ export function PlayerBar({ track, frameRef, onClose }: PlayerBarProps) {
         <iframe
           ref={frameRef}
           className={styles.frame}
-          title={`Player for ${track.title}`}
+          title={strings.player.frameTitle(track.title)}
           src={track.embedUrl}
           allow="autoplay; encrypted-media"
           sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"
@@ -36,7 +37,7 @@ export function PlayerBar({ track, frameRef, onClose }: PlayerBarProps) {
         <button
           type="button"
           className={styles.close}
-          aria-label="Close the player"
+          aria-label={strings.player.close}
           onClick={onClose}
         >
           <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">

@@ -18,7 +18,7 @@ describe("palette", () => {
     })
 
     it("starts every visitor on the same known palette", () => {
-        expect(PALETTES[0]).toBe(DEFAULT_PALETTE)
+        expect(PALETTES).toContain(DEFAULT_PALETTE)
     })
 
     it("keeps the cover backdrop to the palette built around one", () => {

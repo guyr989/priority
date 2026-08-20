@@ -1,21 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { LayoutId, Palette, PaletteId } from '../domain/appearance'
 import styles from './SettingsMenu.module.css'
-
-/** Copy lives with the view; domain/ keeps the structure. */
-const PALETTE_COPY: Record<PaletteId, { readonly name: string; readonly note: string }> = {
-  studio: { name: 'Studio', note: 'Light panels, violet accent. Follows your system.' },
-  desk: { name: 'Desk', note: 'Low light, blue-black, a red record lamp.' },
-  cinema: { name: 'Cinema', note: 'The cover fills the room behind the page.' },
-  daylight: { name: 'Daylight', note: 'Cool paper under a bright window.' },
-}
-
-const LAYOUT_COPY: Record<LayoutId, { readonly name: string; readonly note: string }> = {
-  side: { name: 'Sidebar', note: 'Search leads, the sleeve keeps a column beside it.' },
-  stack: { name: 'Stacked', note: 'One narrow column, the sleeve below the search.' },
-  banner: { name: 'Banner', note: 'Full width, the sleeve laid across.' },
-  row: { name: 'Row', note: 'Search, results and sleeve in a single row.' },
-}
+import { strings } from '../i18n/strings'
 
 interface SettingsMenuProps {
   readonly palettes: readonly Palette[]
@@ -70,7 +56,7 @@ export function SettingsMenu({
         ref={buttonRef}
         type="button"
         className={styles.trigger}
-        aria-label="Settings"
+        aria-label={strings.settings.trigger}
         aria-expanded={open}
         aria-controls="settings-panel"
         onClick={() => setOpen((was) => !was)}
@@ -96,7 +82,7 @@ export function SettingsMenu({
       <div className={styles.panel} id="settings-panel" hidden={!open}>
         <div className={styles.group}>
           <span className={styles.legend} id="player-legend">
-            Player
+            {strings.player.region}
           </span>
           <button
             type="button"
@@ -107,7 +93,7 @@ export function SettingsMenu({
             onClick={() => onChoosePlayer(!playerOn)}
           >
             <span className={styles.switchText}>
-              {playerOn ? 'On the page' : 'Off'}
+              {playerOn ? strings.player.on : strings.player.off}
             </span>
             <span className={styles.track} aria-hidden="true">
               <span className={styles.knob} />
@@ -116,7 +102,7 @@ export function SettingsMenu({
         </div>
 
         <fieldset className={styles.set}>
-          <legend className={styles.legend}>Colour</legend>
+          <legend className={styles.legend}>{strings.settings.colour}</legend>
 
           {palettes.map((option) => (
             <label
@@ -137,14 +123,14 @@ export function SettingsMenu({
                 <span />
                 <span />
               </span>
-              <span className={styles.name}>{PALETTE_COPY[option.id].name}</span>
-              <span className={styles.note}>{PALETTE_COPY[option.id].note}</span>
+              <span className={styles.name}>{strings.palettes[option.id].name}</span>
+              <span className={styles.note}>{strings.palettes[option.id].note}</span>
             </label>
           ))}
         </fieldset>
 
         <fieldset className={styles.set}>
-          <legend className={styles.legend}>Layout</legend>
+          <legend className={styles.legend}>{strings.settings.layout}</legend>
 
           {layouts.map((option) => (
             <label
@@ -164,8 +150,8 @@ export function SettingsMenu({
                 <span />
                 <span />
               </span>
-              <span className={styles.name}>{LAYOUT_COPY[option].name}</span>
-              <span className={styles.note}>{LAYOUT_COPY[option].note}</span>
+              <span className={styles.name}>{strings.layouts[option].name}</span>
+              <span className={styles.note}>{strings.layouts[option].note}</span>
             </label>
           ))}
         </fieldset>

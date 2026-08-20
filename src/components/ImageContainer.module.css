@@ -1,11 +1,16 @@
 .container {
   display: flex;
   flex-direction: var(--now-flow, column);
-  flex-wrap: wrap;
-  gap: 16px;
+  /*
+   * Never wrap while this is a column: a column flex box that runs out of
+   * height wraps into a second column, which lands outside the panel and is
+   * then clipped away. Only the row flow has any use for wrapping.
+   */
+  flex-wrap: var(--now-wrap, nowrap);
+  gap: var(--now-gap, 16px);
   align-items: center;
   justify-content: center;
-  padding: 22px;
+  padding: var(--now-pad, 22px);
   min-height: 0;
   flex: 1;
   overflow: hidden;
@@ -14,7 +19,7 @@
   -webkit-backdrop-filter: var(--panel-blur, none);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  text-align: center;
+  text-align: var(--sleeve-text, center);
 }
 
 .container:focus-visible {
@@ -31,7 +36,7 @@
   width: 100%;
   align-self: flex-start;
   text-align: left;
-  padding-bottom: 14px;
+  padding-bottom: var(--now-heading-pad, 14px);
   border-bottom: 1px solid var(--border);
 }
 
@@ -44,19 +49,66 @@
 
 .pad {
   width: 100%;
-  max-width: var(--cover);
+  max-width: var(--cover-size, var(--cover));
   aspect-ratio: 1;
   border-radius: var(--radius);
   background: var(--social-bg);
 }
 
+/*
+ * One shape, two arrangements. Standing up the art sits above its billing;
+ * lying down it is a thumbnail with the billing beside it. The tokens are what
+ * differ, so the lie-down form is not a second copy of this rule and any
+ * layout that runs out of column can ask for it.
+ */
 .sleeve {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: center;
+  display: grid;
+  grid-template-columns: var(--sleeve-cols, minmax(0, 1fr));
+  grid-template-areas: var(--sleeve-areas, 'art' 'title' 'artist');
+  align-content: center;
+  justify-items: var(--sleeve-justify, center);
+  gap: var(--sleeve-gap, 12px);
+  width: var(--sleeve-width, auto);
+  /* A grid track of 1fr sizes to max-content when the grid itself is
+     auto-width, so without this a long title sets the sleeve's width and the
+     artwork is carried outside the panel that clips it. */
+  max-width: 100%;
   margin: 0;
+  text-align: var(--sleeve-text, center);
+}
+
+/*
+ * The lying-down arrangement, in one place. A column that has to hold the
+ * search, the list and the sleeve at once cannot afford a standing cover, so
+ * it asks for this instead: thumbnail, then billing beside it, the way a phone
+ * player reads. App decides who asks — the phone, and the two layouts whose
+ * arithmetic does not close at any width.
+ */
+.lieDown {
+  --now-gap: 10px;
+  --now-pad: 12px 14px;
+  --now-heading-pad: 10px;
+  --sleeve-cols: 88px minmax(0, 1fr);
+  --sleeve-areas: 'art title' 'art artist';
+  --sleeve-justify: start;
+  --sleeve-gap: 4px 14px;
+  --sleeve-width: 100%;
+  --sleeve-text: left;
+  --sleeve-title-self: end;
+  --sleeve-artist-self: start;
+  --cover-size: 88px;
+  --play-size: 52px;
+  --play-icon: 21px;
+}
+
+.lieDown .caption {
+  /* A long title set in the display serif wraps to four cramped lines in a
+     column this narrow. The sans carries the same title in two. */
+  font-family: var(--sans);
+  font-weight: 600;
+  letter-spacing: -0.1px;
+  font-size: min(var(--billing-size), 17px);
 }
 
 .imageButton {
@@ -74,6 +126,7 @@
 }
 
 .cover {
+  grid-area: art;
   position: relative;
   display: block;
   min-height: 0;
@@ -84,8 +137,8 @@
   position: absolute;
   inset: 0;
   margin: auto;
-  width: 66px;
-  height: 66px;
+  width: var(--play-size, 66px);
+  height: var(--play-size, 66px);
   display: grid;
   place-items: center;
   border-radius: 50%;
@@ -100,6 +153,11 @@
 }
 
 
+.play svg {
+  width: var(--play-icon, 26px);
+  height: var(--play-icon, 26px);
+}
+
 .imageButton:hover .play,
 .imageButton:focus-visible .play {
   transform: scale(1.07);
@@ -111,7 +169,7 @@
 .image {
   animation: image-arrives 320ms cubic-bezier(0.2, 0.8, 0.3, 1) both;
   /* Capped against the viewport so a tall cover never sets the page height. */
-  width: min(var(--cover), 38vh);
+  width: var(--cover-size, min(var(--cover), 38vh));
   max-width: 100%;
   max-height: 100%;
   aspect-ratio: 1;
@@ -131,21 +189,27 @@
 }
 
 .caption {
+  grid-area: title;
+  align-self: var(--sleeve-title-self, auto);
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: var(--sleeve-justify, center);
+  /* Lets the title wrap instead of setting the column's width. */
+  min-width: 0;
   gap: 10px;
   color: var(--text-h);
   font-family: var(--billing-family);
   font-size: var(--billing-size);
   font-weight: var(--billing-weight);
-  line-height: 116%;
+  line-height: 1;
   letter-spacing: var(--billing-tracking);
   text-transform: var(--billing-case);
-  text-align: center;
+  text-align: var(--sleeve-text, center);
 }
 
 .artist {
+  grid-area: artist;
+  align-self: var(--sleeve-artist-self, auto);
   font-size: var(--micro);
   font-weight: var(--micro-weight);
   letter-spacing: var(--micro-tracking);
@@ -179,81 +243,6 @@
 
 .equaliser span:nth-child(3) {
   animation-delay: 300ms;
-}
-
-@media (max-width: 900px) {
-  /*
-   * One column has to hold the search, the list and the sleeve inside one
-   * viewport. A square cover eats that column, so on a phone the sleeve lies
-   * down: thumbnail, then billing beside it, the way a phone player reads.
-   */
-  .container {
-    gap: 10px;
-    padding: 12px 14px;
-    text-align: left;
-  }
-
-  .heading {
-    padding-bottom: 10px;
-  }
-
-  .slot {
-    width: 100%;
-  }
-
-  .sleeve {
-    display: grid;
-    grid-template-columns: 88px minmax(0, 1fr);
-    grid-template-areas: 'art title' 'art artist';
-    align-content: center;
-    justify-items: start;
-    gap: 4px 14px;
-    width: 100%;
-    text-align: left;
-  }
-
-  .cover {
-    grid-area: art;
-  }
-
-  .caption {
-    grid-area: title;
-    justify-content: flex-start;
-    text-align: left;
-    align-self: end;
-  }
-
-  .artist {
-    grid-area: artist;
-    align-self: start;
-  }
-
-  .pad {
-    max-width: 88px;
-  }
-
-  .image {
-    width: 88px;
-  }
-
-  .caption {
-    /* A long title set in the display serif wraps to four cramped lines on a
-       phone. The sans carries the same title in two. */
-    font-family: var(--sans);
-    font-weight: 600;
-    letter-spacing: -0.1px;
-    font-size: min(var(--billing-size), 17px);
-  }
-
-  .play {
-    width: 52px;
-    height: 52px;
-  }
-
-  .play svg {
-    width: 21px;
-    height: 21px;
-  }
 }
 
 @keyframes bounce {

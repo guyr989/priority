@@ -13,18 +13,19 @@ export interface Palette {
     readonly coverBackdrop: boolean
 }
 
-export const DEFAULT_PALETTE: Palette = {
-    id: "studio",
-    scheme: "auto",
-    coverBackdrop: false,
-}
+const STUDIO: Palette = { id: "studio", scheme: "auto", coverBackdrop: false }
+const DESK: Palette = { id: "desk", scheme: "dark", coverBackdrop: false }
+const CINEMA: Palette = { id: "cinema", scheme: "dark", coverBackdrop: true }
+const DAYLIGHT: Palette = { id: "daylight", scheme: "light", coverBackdrop: false }
 
-export const PALETTES: readonly Palette[] = [
-    DEFAULT_PALETTE,
-    { id: "desk", scheme: "dark", coverBackdrop: false },
-    { id: "cinema", scheme: "dark", coverBackdrop: true },
-    { id: "daylight", scheme: "light", coverBackdrop: false },
-]
+export const PALETTES: readonly Palette[] = [STUDIO, DESK, CINEMA, DAYLIGHT]
+
+/**
+ * Cinema is what a first visit opens on. It is the same object the list
+ * holds, not a second copy of it, so the default cannot drift from the entry
+ * it names or quietly add a fifth palette.
+ */
+export const DEFAULT_PALETTE: Palette = CINEMA
 
 export const DEFAULT_LAYOUT: LayoutId = "side"
 

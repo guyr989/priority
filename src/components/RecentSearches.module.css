@@ -26,22 +26,60 @@
   gap: 6px;
 }
 
+/*
+ * The chip is one pill holding two controls: the term, and the cross that
+ * forgets it. The pill's shape is on the item so the two read as one object
+ * rather than two buttons that happen to touch.
+ */
+.item {
+  display: flex;
+  align-items: stretch;
+  border-radius: 999px;
+  background: var(--social-bg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.item:hover {
+  border-color: var(--accent-border);
+}
+
 .term {
+  border: none;
+  background: transparent;
   font: inherit;
   font-size: 15px;
   min-height: 40px;
-  padding: 8px 14px;
-  border-radius: 999px;
+  padding: 8px 6px 8px 14px;
+  border-radius: 999px 0 0 999px;
   color: var(--text-h);
-  background: var(--social-bg);
-  border: 1px solid var(--border);
   cursor: pointer;
 }
 
-.term:hover {
+.term:hover,
+.forget:hover {
   color: var(--accent);
-  border-color: var(--accent-border);
   background: var(--accent-bg);
+}
+
+/* Its own target, but visually the tail of the chip rather than a second one. */
+.forget {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  padding: 0;
+  border: none;
+  border-radius: 0 999px 999px 0;
+  color: var(--text);
+  background: transparent;
+  cursor: pointer;
+}
+
+.forget:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
 }
 
 .term:focus-visible {

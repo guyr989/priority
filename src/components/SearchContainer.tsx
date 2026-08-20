@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import type { ViewMode } from '../domain/view'
 import styles from './SearchContainer.module.css'
+import { strings } from '../i18n/strings'
 
 interface SearchContainerProps {
   readonly query: string
@@ -13,10 +14,12 @@ interface SearchContainerProps {
   readonly onPrev: () => void
   readonly onNext: () => void
   readonly recent: ReactNode
-  /** The list can be folded away once it has something in it. */
-  readonly collapsible: boolean
-  readonly resultsOpen: boolean
-  readonly onResultsOpenChange: (open: boolean) => void
+  /**
+   * Whether the board is on the page at all. Once a track is picked on a
+   * window with one column the results have done their job, so they leave
+   * rather than sit folded: a new search or a recent term brings them back.
+   */
+  readonly showResults: boolean
   readonly children: ReactNode
 }
 
@@ -31,15 +34,11 @@ export function SearchContainer({
   onPrev,
   onNext,
   recent,
-  collapsible,
-  resultsOpen,
-  onResultsOpenChange,
+  showResults,
   children,
 }: SearchContainerProps) {
-  const folded = collapsible && !resultsOpen
-
   return (
-    <section className={styles.container} aria-label="Search">
+    <section className={styles.container} aria-label={strings.search.region}>
       <div className={styles.head}>
         <form
           className={styles.form}
@@ -50,7 +49,7 @@ export function SearchContainer({
           }}
         >
           <label className={styles.label} htmlFor="search-input">
-            Search tracks
+            {strings.search.label}
           </label>
           <input
             id="search-input"
@@ -58,11 +57,11 @@ export function SearchContainer({
             type="search"
             value={query}
             autoComplete="off"
-            placeholder="Artist, show, or track"
+            placeholder={strings.search.placeholder}
             onChange={(event) => onQueryChange(event.target.value)}
           />
           <button className={styles.go} type="submit">
-            Search
+            {strings.search.submit}
           </button>
         </form>
 
@@ -71,101 +70,89 @@ export function SearchContainer({
 
       {/* One box holds the list, the controls that reshape it and the page
           turns that move it, so nothing that acts on the list sits outside. */}
-      <div className={styles.board}>
-        <div className={styles.toolbar}>
-          {collapsible ? (
+      {showResults && (
+        <div className={styles.board}>
+          {/* One control, and it names the view you are about to get rather
+              than the one you are already looking at. */}
+          <div className={styles.toolbar}>
             <button
               type="button"
-              className={styles.toolbarToggle}
-              id="results-label"
-              aria-expanded={resultsOpen}
-              aria-controls="results-list"
-              onClick={() => onResultsOpenChange(!resultsOpen)}
+              className={styles.view}
+              aria-label={view === 'list' ? strings.results.toGrid : strings.results.toList}
+              aria-pressed={view === 'tile'}
+              title={view === 'list' ? strings.results.toGrid : strings.results.toList}
+              onClick={() => onViewChange(view === 'list' ? 'tile' : 'list')}
             >
-              <svg
-                className={styles.chevron}
-                viewBox="0 0 16 16"
-                width="13"
-                height="13"
-                aria-hidden="true"
-                focusable="false"
-              >
+              {view === 'list' ? (
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+                  <path
+                    d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"
+                    fill="currentColor"
+                  />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+                  <path
+                    d="M4 6h16M4 12h16M4 18h16"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              )}
+            </button>
+          </div>
+
+          <div id="results-list" className={styles.results} aria-label={strings.results.region}>
+            {children}
+          </div>
+
+          {/* Laid over the board, not stacked under it, so the results keep
+              the whole box. The group itself takes no pointer events; only the
+              two buttons do, and the list is inset so no result sits under
+              one. */}
+          <div className={styles.paging} role="group" aria-label={strings.results.pages}>
+            <button
+              type="button"
+              className={styles.turn}
+              aria-label={strings.results.previous}
+              title={strings.results.previous}
+              onClick={onPrev}
+              disabled={!hasPrev}
+            >
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
                 <path
-                  d="M4 6.5 8 10.5 12 6.5"
+                  d="M15 5 8 12l7 7"
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth="2"
+                  strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
               </svg>
-              Results
             </button>
-          ) : (
-            <span className={styles.toolbarLabel} id="results-label">
-              Results
-            </span>
-          )}
-
-          <div
-            className={styles.views}
-            role="group"
-            aria-label="Result layout"
-            hidden={folded}
-          >
             <button
               type="button"
-              className={styles.view}
-              aria-label="List"
-              aria-pressed={view === 'list'}
-              title="List"
-              onClick={() => onViewChange('list')}
+              className={styles.turn}
+              aria-label={strings.results.next}
+              title={strings.results.next}
+              onClick={onNext}
+              disabled={!hasNext}
             >
               <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
                 <path
-                  d="M4 6h16M4 12h16M4 18h16"
+                  d="M9 5l7 7-7 7"
+                  fill="none"
                   stroke="currentColor"
-                  strokeWidth="2"
+                  strokeWidth="2.2"
                   strokeLinecap="round"
-                />
-              </svg>
-            </button>
-            <button
-              type="button"
-              className={styles.view}
-              aria-label="Grid"
-              aria-pressed={view === 'tile'}
-              title="Grid"
-              onClick={() => onViewChange('tile')}
-            >
-              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-                <path
-                  d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"
-                  fill="currentColor"
+                  strokeLinejoin="round"
                 />
               </svg>
             </button>
           </div>
         </div>
-
-        <div
-          id="results-list"
-          className={styles.results}
-          aria-labelledby="results-label"
-          hidden={folded}
-        >
-          {children}
-        </div>
-
-        <div className={styles.paging} role="group" aria-label="Result pages" hidden={folded}>
-          <button type="button" onClick={onPrev} disabled={!hasPrev}>
-            Previous
-          </button>
-          <button type="button" onClick={onNext} disabled={!hasNext}>
-            Next
-          </button>
-        </div>
-      </div>
+      )}
     </section>
   )
 }

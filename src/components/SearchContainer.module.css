@@ -59,71 +59,33 @@
   color: var(--text);
 }
 
-/* Everything that acts on the list lives in the same box as the list. */
+/*
+ * Everything that acts on the list lives in the same box as the list, and now
+ * over it rather than beside it: the controls are lifted out of the flow so
+ * the results get the whole box, and the list is inset by exactly the room
+ * they occupy so no row is ever underneath one.
+ */
 .board {
   grid-area: body;
+  position: relative;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 12px;
+  gap: 8px;
+  padding: 10px;
+  /* Steps in from the panel so the page turns have a gutter to stand in that
+     is outside the list rather than on top of it. */
+  margin: 0 var(--turn-gutter, 16px);
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-s);
 }
 
+/* Above the list and to its right: in the flow, so it covers nothing. */
 .toolbar {
   flex: none;
   display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.toolbarToggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font: inherit;
-  min-height: 40px;
-  margin: -8px -8px -8px -6px;
-  padding: 8px;
-  border: 1px solid transparent;
-  border-radius: var(--radius-s);
-  background: transparent;
-  color: var(--text-h);
-  cursor: pointer;
-}
-
-.toolbarToggle:hover {
-  border-color: var(--accent-border);
-}
-
-.toolbarToggle:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-/* Points down at an open list, right at a folded one. */
-.chevron {
-  flex: none;
-  rotate: -90deg;
-}
-
-.toolbarToggle[aria-expanded='true'] .chevron {
-  rotate: none;
-}
-
-.toolbarToggle,
-.toolbarLabel {
-  font-size: var(--micro);
-  font-weight: var(--micro-weight);
-  letter-spacing: var(--micro-tracking);
-  text-transform: uppercase;
-}
-
-/* The label is a caption; the toggle is a control, so it carries more weight. */
-.toolbarLabel {
-  color: var(--text);
+  justify-content: flex-end;
 }
 
 .results {
@@ -137,14 +99,60 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* Nothing is laid over the list any more, so it keeps its whole width. */
+  padding: 0;
 }
 
+/*
+ * The turns stand in the gutter the board's margin opens up, level with the
+ * middle of the list. Nothing of them is over the list, so nothing of the list
+ * is under them; the group takes no pointer events either way.
+ */
 .paging {
-  flex: none;
-  display: flex;
-  gap: 6px;
-  border-top: 1px solid var(--border);
-  padding-top: 12px;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Scoped so it outranks the shared .paging button rule further down. */
+.paging .turn {
+  pointer-events: auto;
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--turn-size, 34px);
+  min-height: var(--turn-size, 34px);
+  height: var(--turn-size, 34px);
+  padding: 0;
+  border-radius: 50%;
+  /*
+   * These stand on the panel, not in the board, so the panel's own hairline
+   * would leave them at about 1.1:1 against it and they would read as holes.
+   * The accent border carries the boundary instead, which is also honest:
+   * they are the primary way through the results.
+   */
+  color: var(--text-h);
+  box-shadow: 0 6px 18px -10px rgba(0, 0, 0, 0.8);
+}
+
+/* Outranks .paging button:not(:disabled), which sets the panel's own hairline. */
+.paging .turn:not(:disabled) {
+  color: var(--text-h);
+  background: var(--bg);
+  /* The solid accent, not the 60% one: on Desk the translucent border flattened
+     to 2.69:1 against the panel, under the 3:1 a control's boundary needs. */
+  border-color: var(--accent);
+}
+
+.paging .turn:first-child {
+  left: calc(-1 * (var(--turn-size, 34px) + 3px));
+}
+
+.paging .turn:last-child {
+  right: calc(-1 * (var(--turn-size, 34px) + 3px));
 }
 
 .go {
@@ -164,7 +172,7 @@
 }
 
 .paging button,
-.views button {
+.view {
   font: inherit;
   font-size: var(--micro);
   font-weight: var(--micro-weight);
@@ -180,25 +188,22 @@
 }
 
 .paging button:hover:not(:disabled),
-.views button:hover {
+.view:hover {
   color: var(--text-h);
   border-color: var(--accent-border);
-}
-
-.views {
-  display: flex;
-  gap: 6px;
 }
 
 .view {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
+  /* A finger target, not an icon's worth of box. */
+  width: 44px;
+  min-height: 44px;
   padding: 0;
 }
 
-.views button[aria-pressed='true'] {
+.view[aria-pressed='true'] {
   color: var(--accent);
   background: var(--accent-bg);
   border-color: var(--accent-border);
@@ -224,17 +229,42 @@
 .go:focus-visible,
 .input:focus-visible,
 .paging button:focus-visible,
-.views button:focus-visible {
+.view:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
 @media (max-width: 900px) {
   .container {
-    padding: 18px;
+    padding: 14px;
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: 'head' 'body';
+    /* One column, so the 24px that separated head from board across a wide
+       panel is now dead space between two things already stacked. */
+    gap: 12px;
   }
 
+  /*
+   * A phone's gutter cannot hold a whole turn without shrinking it under the
+   * 44px a thumb needs, so here the turns straddle the board's edge instead:
+   * half in the gutter, half over the list, and the list gives back exactly
+   * the half it is covered by. 20px of inset, not 48.
+   */
+  .board {
+    --turn-gutter: 13px;
+    --turn-size: 38px;
+    padding: 8px;
+  }
 
+  .results {
+    padding: 0 20px;
+  }
+
+  .paging .turn:first-child {
+    left: calc(-1 * var(--turn-size) / 2);
+  }
+
+  .paging .turn:last-child {
+    right: calc(-1 * var(--turn-size) / 2);
+  }
 }
