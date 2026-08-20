@@ -20,6 +20,8 @@ export const strings = {
     label: 'Search tracks',
     placeholder: 'Artist, show, or track',
     submit: 'Search',
+    /** Offered on a first visit, when there is no history to offer instead. */
+    starters: ['Boiler Room', 'NTS Radio', 'Rinse FM', 'Jazz', 'Techno', 'Disco', 'Afrobeat', 'Lo-fi'],
   },
 
   history: {

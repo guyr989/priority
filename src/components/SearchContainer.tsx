@@ -1,7 +1,28 @@
+import { useState } from 'react'
 import type { ReactNode } from 'react'
 import type { ViewMode } from '../domain/view'
 import styles from './SearchContainer.module.css'
 import { strings } from '../i18n/strings'
+
+/**
+ * How many of the starters a first visit is shown. Enough to suggest the shape
+ * of the library, few enough to stay one line beside the field.
+ */
+const STARTER_COUNT = 5
+
+/**
+ * A first visit has no history, so the chips under the field are drawn from a
+ * fixed list instead. The order is shuffled per visit so the page does not
+ * read as a single hard-coded row, and the draw is held in state so a render
+ * does not reshuffle it under the pointer.
+ */
+function pickStarters(): readonly string[] {
+  return [...strings.search.starters]
+    .map((term) => ({ term, order: Math.random() }))
+    .sort((a, b) => a.order - b.order)
+    .slice(0, STARTER_COUNT)
+    .map((entry) => entry.term)
+}
 
 interface SearchContainerProps {
   readonly query: string
@@ -43,6 +64,8 @@ export function SearchContainer({
   showResults,
   children,
 }: SearchContainerProps) {
+  const [starters] = useState(pickStarters)
+
   return (
     <section className={styles.container} aria-label={strings.search.region}>
       <div className={styles.head}>
@@ -73,7 +96,24 @@ export function SearchContainer({
 
         {recent}
 
-        {showHint && <p className={styles.hint}>{strings.results.idle}</p>}
+        {showHint && (
+          <div className={styles.starters}>
+            <p className={styles.hint}>{strings.results.idle}</p>
+            <ul className={styles.chips}>
+              {starters.map((term) => (
+                <li key={term}>
+                  <button
+                    type="button"
+                    className={styles.chip}
+                    onClick={() => onQueryChange(term)}
+                  >
+                    {term}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
       {/* One box holds the list, the controls that reshape it and the page
