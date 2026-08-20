@@ -131,6 +131,21 @@
   overflow: hidden;
 }
 
+/*
+ * A phone has to fit six rows in the height the board has left, and at the
+ * 44px target the six plus their gaps ask for 304px of a 255px box. The row
+ * drops to the caption size and the inside-a-control step, which brings it to
+ * 32px: still well over the 24px WCAG 2.2 asks of a target, and full width, so
+ * the only dimension that gives is the one with room to give.
+ */
+@media (max-width: 56.25rem) {
+  .result {
+    font-size: 0.875rem;
+    min-height: 2rem;
+    padding: var(--space-1) var(--space-3);
+  }
+}
+
 .busy {
   opacity: 0.5;
   transition: opacity 140ms ease-out;
