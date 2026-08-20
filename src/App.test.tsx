@@ -256,6 +256,17 @@ describe('App', () => {
     expect(screen.getByRole('group', { name: 'Result pages' })).toBeInTheDocument()
   })
 
+  it('empties the field when a track is picked, and keeps the results it came from', async () => {
+    const { user } = renderApp([pageOf(['first result', 'second result'], null)])
+
+    const field = screen.getByRole('searchbox', { name: /search tracks/i })
+    await user.type(field, 'adele')
+    await user.click(await screen.findByRole('button', { name: 'first result' }))
+
+    expect(field).toHaveValue('')
+    expect(screen.getByRole('button', { name: 'second result' })).toBeVisible()
+  })
+
   it('remembers the layout the user picked', async () => {
     const { user, viewStore } = renderApp([pageOf(['first result'], null)])
 

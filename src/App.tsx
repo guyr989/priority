@@ -85,6 +85,15 @@ function App({
   attachPlayback,
   debounceMs = DEBOUNCE_MS,
 }: AppProps) {
+  /*
+   * Two states, not one. The field is what the input shows; the query is what
+   * is being searched. They move together on every keystroke and part company
+   * at exactly one moment: picking a track empties the field so the next
+   * search can be typed straight away, while the results it was picked from
+   * stay on the page. Collapsing these back into one would mean an empty
+   * field is an empty search, and picking a track would throw the list away.
+   */
+  const [field, setField] = useState('')
   const [query, setQuery] = useState('')
   const [view, setView] = useState<ViewMode>(() => viewStore.read() ?? 'list')
   const [selected, setSelected] = useState<Track | null>(() => lastTrackStore.read())
@@ -144,6 +153,7 @@ function App({
   // back. A window with room for both never loses them.
   const selectTrack = (track: Track, origin: HTMLElement) => {
     chosenHere.current = true
+    setField('')
     setResultsOpen(false)
     setEmbedded(false)
     lastTrackStore.write(track)
@@ -201,7 +211,7 @@ function App({
         </p>
 
         <SearchContainer
-          query={query}
+          query={field}
           view={view}
           hasPrev={hasPrev}
           hasNext={hasNext}
@@ -209,6 +219,7 @@ function App({
           showHint={status === 'idle' && !showNowPlaying}
           onQueryChange={(next) => {
             setResultsOpen(true)
+            setField(next)
             setQuery(next)
           }}
           onSubmit={() => {
@@ -233,6 +244,7 @@ function App({
               onForget={forget}
               onSelect={(term) => {
                 setResultsOpen(true)
+                setField(term)
                 setQuery(term)
                 if (term === query) restart()
               }}
