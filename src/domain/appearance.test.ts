@@ -28,8 +28,8 @@ describe("palette", () => {
     })
 
     it("only accepts an id it knows", () => {
-        expect(isPaletteId("desk")).toBe(true)
-        expect(isPaletteId("riso")).toBe(false)
+        expect(isPaletteId("studio")).toBe(true)
+        expect(isPaletteId("desk")).toBe(false)
         expect(isPaletteId(7)).toBe(false)
         expect(isPaletteId(null)).toBe(false)
     })

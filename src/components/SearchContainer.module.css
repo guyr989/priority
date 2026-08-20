@@ -167,8 +167,8 @@
 .paging .turn:not(:disabled) {
   color: var(--text-h);
   background: var(--bg);
-  /* The solid accent, not the 60% one: on Desk the translucent border flattened
-     to 2.69:1 against the panel, under the 3:1 a control's boundary needs. */
+  /* The solid accent, not the 60% one: on a dark panel the translucent border
+     flattened to 2.69:1 against it, under the 3:1 a control's boundary needs. */
   border-color: var(--accent);
 }
 

@@ -79,7 +79,6 @@ export const strings = {
 
   palettes: {
     studio: { name: 'Studio', note: 'Light panels, violet accent. Follows your system.' },
-    desk: { name: 'Desk', note: 'Low light, blue-black, a red record lamp.' },
     cinema: { name: 'Cinema', note: 'The cover fills the room behind the page.' },
     daylight: { name: 'Daylight', note: 'Cool paper under a bright window.' },
   } satisfies Record<PaletteId, { name: string; note: string }>,

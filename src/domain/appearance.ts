@@ -1,5 +1,5 @@
 /** The colours. Independent of how the page is arranged. */
-export type PaletteId = "studio" | "desk" | "cinema" | "daylight"
+export type PaletteId = "studio" | "cinema" | "daylight"
 
 /** The arrangement. Independent of what colour it is painted. */
 export type LayoutId = "side" | "stack" | "banner" | "row"
@@ -14,11 +14,10 @@ export interface Palette {
 }
 
 const STUDIO: Palette = { id: "studio", scheme: "auto", coverBackdrop: false }
-const DESK: Palette = { id: "desk", scheme: "dark", coverBackdrop: false }
 const CINEMA: Palette = { id: "cinema", scheme: "dark", coverBackdrop: true }
 const DAYLIGHT: Palette = { id: "daylight", scheme: "light", coverBackdrop: false }
 
-export const PALETTES: readonly Palette[] = [STUDIO, DESK, CINEMA, DAYLIGHT]
+export const PALETTES: readonly Palette[] = [STUDIO, CINEMA, DAYLIGHT]
 
 /**
  * Cinema is what a first visit opens on. It is the same object the list

@@ -283,7 +283,6 @@
 .chip span:nth-child(3) { background: var(--chip-c); }
 
 .chip[data-palette='studio'] { --chip-a: #f5f2fc; --chip-b: #6d28d9; --chip-c: #140f1c; }
-.chip[data-palette='desk'] { --chip-a: #050810; --chip-b: #ff4d54; --chip-c: #172032; }
 .chip[data-palette='cinema'] { --chip-a: #000000; --chip-b: #ffffff; --chip-c: #1c1c22; }
 .chip[data-palette='daylight'] { --chip-a: #ffffff; --chip-b: #b3001b; --chip-c: #d3dae4; }
 

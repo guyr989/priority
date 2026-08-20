@@ -383,22 +383,22 @@ describe('App', () => {
     expect(document.documentElement.dataset.palette).toBe('cinema')
 
     await user.click(screen.getByRole('button', { name: 'Settings' }))
-    await user.click(screen.getByRole('radio', { name: /^desk/i }))
+    await user.click(screen.getByRole('radio', { name: /^daylight/i }))
 
-    expect(document.documentElement.dataset.palette).toBe('desk')
-    expect(paletteStore.read()).toBe('desk')
+    expect(document.documentElement.dataset.palette).toBe('daylight')
+    expect(paletteStore.read()).toBe('daylight')
   })
 
   it('changes the layout without touching the colour', async () => {
     const { user, paletteStore, layoutStore } = renderApp([pageOf(['first result'], null)])
 
     await user.click(screen.getByRole('button', { name: 'Settings' }))
-    await user.click(screen.getByRole('radio', { name: /^desk/i }))
+    await user.click(screen.getByRole('radio', { name: /^daylight/i }))
     await user.click(screen.getByRole('radio', { name: /^stacked/i }))
 
     expect(layoutStore.read()).toBe('stack')
-    expect(paletteStore.read()).toBe('desk')
-    expect(document.documentElement.dataset.palette).toBe('desk')
+    expect(paletteStore.read()).toBe('daylight')
+    expect(document.documentElement.dataset.palette).toBe('daylight')
   })
 
   it('shows the sleeve as artwork while the player is switched off', async () => {

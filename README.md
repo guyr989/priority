@@ -89,16 +89,17 @@ or a full quota degrades to "nothing stored" instead of an exception.
 request URL verbatim, so the adapter rejects any cursor that leaves the API's own
 origin.
 
-**A look is one attribute, not a theme engine.** The appearance picker writes a
-single `data-appearance` value on the document. Every palette, radius and
-proportion for the four looks is a block of custom properties in `index.css`, and
-the three layouts are tokens on the grid, so no component knows which look is on
-and adding a fifth is CSS plus one entry in `domain/appearance.ts`. The picker
-stays open after a choice on purpose: the looks are meant to be compared, and the
-close it used to do could not fire when you re-picked the look you were already
-on. Gallery carries no player, which is why it is never the default and never
-what a first-time visitor sees — requirement 6 asks for the embed, so the look
-that drops it says so on its own line in the list.
+**A look is one attribute, not a theme engine.** The colour picker writes a
+single `data-palette` value on the document. Every palette, radius and
+proportion is a block of custom properties in `index.css`, and the four layouts
+are tokens on the grid, so no component knows which look is on and adding
+another is CSS plus one entry in `domain/appearance.ts`. Colour and arrangement
+are deliberately two choices rather than one, so any of the three palettes can
+wear any of the four layouts. Retiring a palette needs no migration: an id left
+in storage that no longer exists fails its type guard and falls back to the
+default rather than breaking the page. The picker stays open after a choice on
+purpose — the looks are meant to be compared, and the close it used to do could
+not fire when you re-picked the look you were already on.
 
 **Playing is what the player says, not what we clicked.** The search API reports
 play counts, never whether this listener is playing, so the state comes from the

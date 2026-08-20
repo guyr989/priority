@@ -114,26 +114,6 @@
  * layout and neither has to know the other's name.
  */
 
-:root[data-palette='desk'] {
-  color-scheme: dark;
-  --text: #8994a6;
-  --text-h: #f4f7fb;
-  --bg: #050810;
-  --panel: #10151f;
-  --border: #202a3a;
-  --accent: #ff4d54;
-  --accent-bg: rgba(255, 77, 84, 0.15);
-  --accent-border: rgba(255, 77, 84, 0.6);
-  --social-bg: #172032;
-  --radius: 0.25rem;
-  --radius-s: 0.25rem;
-  --cover: 13.75rem;
-  --billing-size: 0.9375rem;
-  --billing-weight: 600;
-  --billing-case: uppercase;
-  --billing-tracking: 0.08em;
-}
-
 :root[data-palette='daylight'] {
   color-scheme: light;
   --text: #545c66;
