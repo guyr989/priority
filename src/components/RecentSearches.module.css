@@ -87,8 +87,23 @@
   outline-offset: 2px;
 }
 
+/*
+ * A phone reads the chips as a row of tags, not as buttons: small, tight, and
+ * capped so one long term cannot push the rest onto a second line. They wrap
+ * only when the row runs into the view control standing in the corner.
+ */
 @media (max-width: 900px) {
   .term {
-    min-height: 44px;
+    min-height: 0;
+    padding: 4px 3px 5px 7px;
+    font-size: 12px;
+    max-width: 30px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .forget {
+    width: 24px;
   }
 }
