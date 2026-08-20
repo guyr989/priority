@@ -38,6 +38,9 @@
   align-self: start;
   display: flex;
   flex-direction: column;
+  /* Left against a board, centred when the head is the whole page. */
+  align-items: var(--head-items, stretch);
+  text-align: var(--head-text, left);
   /* Tight, because the chips refill the field directly above them. */
   gap: var(--space-2);
   /* Kept clear for the view control, which stands in this corner. Chips wrap
@@ -48,6 +51,9 @@
 
 .form {
   display: flex;
+  /* Centring the head shrinks its children to their content, and the field is
+     the one thing here that should still take the width it is given. */
+  width: 100%;
   flex-direction: var(--form-flow, row);
   gap: var(--space-2);
   /* Both children carry the same min-height, so this changes nothing across a
@@ -318,6 +324,7 @@
 .starters {
   display: flex;
   flex-direction: column;
+  align-items: var(--head-items, stretch);
   gap: var(--space-3);
 }
 
@@ -327,6 +334,9 @@
   padding: 0;
   display: flex;
   flex-wrap: wrap;
+  /* Five chips on a narrow panel wrap four and one, and a lone chip hanging
+     off the left edge is the rag that made the empty page look unfinished. */
+  justify-content: var(--head-items, flex-start);
   gap: var(--space-2);
 }
 

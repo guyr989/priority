@@ -161,6 +161,18 @@
 .layout.solo.noBoard {
   grid-template-rows: minmax(0, auto);
   align-content: center;
+  /*
+   * The panel holds a field, a line and five chips, and 45rem is more than
+   * three short things can fill: the content stopped at 28.75rem and the rest
+   * of the panel ran on empty to the right, which read as a layout that had
+   * lost something rather than one with nothing to show yet. Narrowed to what
+   * it holds, and centred on its own axis so the field is the middle of the
+   * window in both directions.
+   */
+  max-width: 34rem;
+  --head-items: center;
+  --head-text: center;
+  --form-max: none;
 }
 
 @media (max-width: 56.25rem) {
