@@ -169,8 +169,17 @@
   }
 }
 
-/* Nothing scrolls the page any more, so nothing needs to stick to it. */
+/*
+ * Nothing scrolls the page any more, so nothing needs to stick to it. The
+ * column is as tall as the sleeve it holds and no taller, the same rule the
+ * search panel follows: stretched, it was a 1791px panel around 482px of
+ * artwork on a tall window, and the heading floated free of the cover it
+ * belongs to. Capped at the room available, so a standing cover still stops
+ * at the window's edge.
+ */
 .now {
   min-height: 0;
   display: flex;
+  align-self: start;
+  max-height: 100%;
 }
