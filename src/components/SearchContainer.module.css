@@ -27,6 +27,9 @@
   flex-direction: column;
   /* Tight, because the chips refill the field directly above them. */
   gap: 9px;
+  /* Kept clear for the view control, which stands in this corner. Chips wrap
+     before they reach it, so the two never sit on top of each other. */
+  padding-right: 52px;
 }
 
 .form {
@@ -79,22 +82,21 @@
   /* A step away from the panel in whichever direction the palette has room:
      lighter on a dark ground, darker on a light one, so the list reads as its
      own surface rather than a hole in the panel. */
-  background: color-mix(in srgb, var(--bg) 92%, var(--text) 8%);
+  background: color-mix(in srgb, var(--bg) 86%, var(--text) 14%);
   border: 1px solid var(--border);
   border-radius: var(--radius-s);
 }
 
 /*
- * Out of the flow at the board's top right corner, so the list keeps the whole
- * height rather than losing a row of it to one control.
+ * In the head's corner rather than above the list: it costs the results no
+ * height and covers neither a chip nor a tile. Level with the field on a wide
+ * panel, and with the chips on a narrow one where the field takes the row.
  */
 .toolbar {
-  flex: none;
-  position: absolute;
-  right: 0;
-  z-index: 1;
+  grid-area: head;
+  justify-self: end;
+  align-self: start;
   display: flex;
-  justify-content: flex-end;
 }
 
 .results {
@@ -267,6 +269,10 @@
 
   .results {
     padding: 0;
+  }
+
+  .toolbar {
+    align-self: end;
   }
 
   .paging .turn:first-child {

@@ -129,6 +129,9 @@ export function SettingsMenu({
           ))}
         </fieldset>
 
+        {/* One column has one arrangement, so on a phone the whole choice goes
+            rather than offering four controls that all look the same. */}
+        {layouts.length > 0 && (
         <fieldset className={styles.set}>
           <legend className={styles.legend}>{strings.settings.layout}</legend>
 
@@ -155,6 +158,7 @@ export function SettingsMenu({
             </label>
           ))}
         </fieldset>
+        )}
       </div>
     </div>
   )

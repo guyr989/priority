@@ -116,41 +116,43 @@ export function SearchContainer({
         )}
       </div>
 
+      {/* One control, and it names the view you are about to get rather
+          than the one you are already looking at. */}
+      {showResults && (
+        <div className={styles.toolbar}>
+        <button
+          type="button"
+          className={styles.view}
+          aria-label={view === 'list' ? strings.results.toGrid : strings.results.toList}
+          aria-pressed={view === 'tile'}
+          title={view === 'list' ? strings.results.toGrid : strings.results.toList}
+          onClick={() => onViewChange(view === 'list' ? 'tile' : 'list')}
+        >
+          {view === 'list' ? (
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+              <path
+                d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"
+                fill="currentColor"
+              />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+              <path
+                d="M4 6h16M4 12h16M4 18h16"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
+          )}
+        </button>
+        </div>
+      )}
+
       {/* One box holds the list, the controls that reshape it and the page
           turns that move it, so nothing that acts on the list sits outside. */}
       {showResults && (
         <div className={styles.board}>
-          {/* One control, and it names the view you are about to get rather
-              than the one you are already looking at. */}
-          <div className={styles.toolbar}>
-            <button
-              type="button"
-              className={styles.view}
-              aria-label={view === 'list' ? strings.results.toGrid : strings.results.toList}
-              aria-pressed={view === 'tile'}
-              title={view === 'list' ? strings.results.toGrid : strings.results.toList}
-              onClick={() => onViewChange(view === 'list' ? 'tile' : 'list')}
-            >
-              {view === 'list' ? (
-                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
-                  <path
-                    d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"
-                    fill="currentColor"
-                  />
-                </svg>
-              ) : (
-                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
-                  <path
-                    d="M4 6h16M4 12h16M4 18h16"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              )}
-            </button>
-          </div>
-
           <div id="results-list" className={styles.results} aria-label={strings.results.region}>
             {children}
           </div>
