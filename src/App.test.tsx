@@ -487,7 +487,7 @@ describe('App', () => {
   })
 
   it('opens on the cover it was left on and does not grab focus for it', () => {
-    renderApp([pageOf(['first result'], null)], [], null, track('kept from last time'))
+    renderApp([pageOf(['first result'], null)], ['adele'], null, track('kept from last time'))
 
     const image = screen.getByRole('region', { name: /selected track/i })
     expect(
@@ -495,6 +495,14 @@ describe('App', () => {
     ).toBeInTheDocument()
     expect(image).not.toHaveFocus()
     expect(screen.queryByTitle('Player for kept from last time')).not.toBeInTheDocument()
+  })
+
+  it('leaves the cover behind when the history it belonged to was cleared', () => {
+    renderApp([pageOf(['first result'], null)], [], null, track('kept from last time'))
+
+    expect(
+      screen.queryByRole('region', { name: /selected track/i }),
+    ).not.toBeInTheDocument()
   })
 
   it('remembers the cover it showed for the next visit', async () => {

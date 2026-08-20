@@ -88,7 +88,16 @@ function App({
   const [field, setField] = useState('')
   const [query, setQuery] = useState('')
   const [view, setView] = useState<ViewMode>(() => viewStore.read() ?? 'list')
-  const [selected, setSelected] = useState<Track | null>(() => lastTrackStore.read())
+  /*
+   * The cover comes back only alongside a history to come back with. Clearing
+   * the history and returning otherwise opened on one orphaned sleeve, a panel
+   * the size of the window and nothing on the page that explains either. An
+   * empty history is the state clearing leaves behind, so the visit that
+   * follows it starts where clearing left off.
+   */
+  const [selected, setSelected] = useState<Track | null>(() =>
+    (historyStore.read()?.length ?? 0) > 0 ? lastTrackStore.read() : null,
+  )
   const [flight, setFlight] = useState<Flight | null>(null)
   const [embedded, setEmbedded] = useState(false)
   const [resultsOpen, setResultsOpen] = useState(true)
