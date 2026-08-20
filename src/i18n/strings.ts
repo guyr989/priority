@@ -23,14 +23,14 @@ export const strings = {
     /** Offered on a first visit, when there is no history to offer instead. */
     starters: ['Boiler Room', 'NTS Radio', 'Rinse FM', 'Jazz', 'Techno', 'Disco', 'Afrobeat', 'Lo-fi'],
     /**
-     * The empty page, billed the way the library bills its own shows: the
-     * station line above, the name under it. Colons because that is how the
-     * sets themselves are titled — "Bonobo : Essential Mix : April 2014".
+     * The empty page, billed the way the library bills its own shows — the
+     * station line above, the name under it. The name is a question, because
+     * the only thing this page can do is take an answer from the field.
      */
     lead: {
-      rail: 'Sets : Shows : Mixes',
-      line: 'Find a set worth an hour.',
-      pick: 'Or start from one of these',
+      rail: 'Sets, shows and mixes',
+      line: 'What do you want to hear?',
+      pick: 'Start with one of these',
     },
   },
 
