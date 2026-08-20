@@ -10,6 +10,19 @@
   grid-template-rows: var(--search-rows, auto minmax(0, 1fr));
   min-height: 0;
   overflow: hidden;
+  /*
+   * The panel is as tall as what it holds, and no taller. It used to stretch
+   * to whatever the grid row gave it, which on a phone is most of the window:
+   * six rows sat at the top of a box sized by the viewport and the rest was a
+   * void. Capped at the room available, so a list too long for the window
+   * still stops at the window's edge and scrolls inside itself.
+   */
+  align-self: start;
+  max-height: 100%;
+  /* The cap is on the whole panel, not on the box inside its padding: without
+     this the 16px inset and the hairline add 34px back and the panel reaches
+     over the sleeve below it. */
+  box-sizing: border-box;
   gap: var(--space-5) var(--search-gap, var(--space-4));
   padding: var(--space-5);
   background: var(--panel);
@@ -104,9 +117,10 @@
      results land three and three in a wide panel and two and two when the
      panel is a column. */
   container: results / inline-size;
-  /* The one region in the app allowed to overflow. It takes whatever height
-     the shell has left, which is also why paging can no longer resize it. */
-  flex: 1;
+  /* The one region in the app allowed to overflow. It takes its content's
+     height and gives that height back when the panel is capped, which is what
+     lets the panel hug six rows and still scroll a longer list. */
+  flex: 0 1 auto;
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
