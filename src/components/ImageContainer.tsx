@@ -24,6 +24,7 @@ function Sleeve({ track, showDisc, embedded, isPlaying }: SleeveProps) {
           key={track.id}
           className={styles.image}
           src={track.imageUrl}
+          crossOrigin="anonymous"
           fetchPriority="high"
           decoding="async"
           referrerPolicy="no-referrer"

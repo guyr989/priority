@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { CSSProperties } from 'react'
 import { PlayerBar } from './components/PlayerBar'
 import { FlyingResult } from './components/FlyingResult'
 import { ImageContainer } from './components/ImageContainer'
@@ -14,7 +13,7 @@ import { usePlayback } from './hooks/usePlayback'
 import { useSearch } from './hooks/useSearch'
 import { useSearchHistory } from './hooks/useSearchHistory'
 import { LAYOUTS, PALETTES } from './domain/appearance'
-import type { LayoutId, Palette, PaletteId } from './domain/appearance'
+import type { LayoutId, PaletteId } from './domain/appearance'
 import type { AttachPlayback } from './hooks/usePlayback'
 import type { SoundProvider } from './domain/soundProvider'
 import type { ViewMode } from './domain/view'
@@ -38,18 +37,6 @@ const LAYOUT_CLASS = {
  * list about 26px. They take the phone's lying-down sleeve at every width.
  */
 const LIE_DOWN_LAYOUTS: readonly LayoutId[] = ['stack', 'banner']
-
-/**
- * The looks that paint the cover behind the page read it from one custom
- * property. Quoting a remote URL into CSS is the one place a stray character
- * could close the url() early, so the value is encoded before it goes in.
- */
-function backdropStyle(palette: Palette, track: Track | null): CSSProperties {
-  if (!palette.coverBackdrop || track === null) return {}
-
-  const safe = encodeURI(track.imageUrl).replace(/"/g, '%22')
-  return { '--sleeve': `url("${safe}")` } as CSSProperties
-}
 
 interface Flight {
   readonly track: Track
@@ -184,6 +171,25 @@ function App({
 
   return (
     <>
+      {/*
+        The look that dresses the page in the cover paints a real image rather
+        than a CSS url(). Two reasons: an image element can be fetched without
+        credentials, which is what stops the thumbnail host storing a cookie,
+        and a background-image cannot. And quoting a remote URL into CSS was
+        the one place a stray character could close the url() early, which is
+        a hazard that no longer exists.
+      */}
+      {palette.coverBackdrop && selected !== null && (
+        <img
+          className={styles.backdrop}
+          src={selected.imageUrl}
+          crossOrigin="anonymous"
+          referrerPolicy="no-referrer"
+          alt=""
+          aria-hidden="true"
+        />
+      )}
+
       <header className={styles.band}>
         <div className={styles.bar}>
           <h1 className={styles.wordmark}>{strings.appName}</h1>
@@ -209,7 +215,6 @@ function App({
         ]
           .filter(Boolean)
           .join(' ')}
-        style={backdropStyle(palette, selected)}
       >
         {/* Always mounted, so it is on the page before it has anything to say. */}
         <p className="visually-hidden" role="status">

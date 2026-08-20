@@ -154,11 +154,15 @@ swap with no flight at all.
   attributes the extensions' work to the page: the run I took charged this app
   480 KiB of unused JavaScript and 891ms of script parsing that belonged to a
   devtools extension, against a bundle that is 68 KiB gzipped in total.
-- Best practices sits at 77 for one reason, and it is the same reason twice: the
-  provider's thumbnail host sets a cookie on every cover it serves. That is
-  their server's response header. Nothing on this side can decline it short of
-  proxying every image, which would trade a real privacy gain for real latency
-  and a server this app does not have.
+- The provider's thumbnail host sets a cookie on the covers it serves, which
+  cost 23 points of best practices across two audits. Every cover is fetched
+  with `crossorigin="anonymous"` now: a cross-origin request whose credentials
+  mode is not `include` neither sends cookies nor stores the ones a response
+  tries to set, and the host answers with `access-control-allow-origin: *`, so
+  nothing about the images changes. The cover the Cinema look paints behind the
+  page had to stop being a CSS `url()` to get there, since only an element can
+  carry the attribute — which also retired the encoding that kept a stray
+  character from closing that `url()` early.
 - There is no preconnect hint for the provider's origins. It would buy one TLS
   handshake before the first search, and it would cost the boundary requirement
   10 is graded on, because the vendor's hostnames would be written into the app

@@ -82,6 +82,7 @@ function ResultsBody({
               <img
                 className={styles.tileImage}
                 src={track.imageUrl}
+                crossOrigin="anonymous"
                 referrerPolicy="no-referrer"
                 alt=""
               />
