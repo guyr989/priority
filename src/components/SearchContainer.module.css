@@ -66,6 +66,46 @@
   max-width: var(--form-max, 28.75rem);
 }
 
+/*
+ * A first visit carried none of the type the rest of the app is built from —
+ * no title, no station line — so it read as a search box that happened to be
+ * on a black page rather than as this app with nothing in it yet. The lead
+ * bills the library the way a result bills its show: the station line above,
+ * the name under it, in the same two roles the sleeve uses.
+ */
+.lead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-bottom: var(--space-2);
+}
+
+.rail {
+  margin: 0;
+  font-size: var(--micro);
+  font-weight: var(--micro-weight);
+  letter-spacing: var(--micro-tracking);
+  text-transform: uppercase;
+  /* The same ink the sleeve gives its station line, not the accent: in the
+     Cinema palette the accent is white, which put the rail level with the
+     headline and lost the one distinction the pair is built on. */
+  color: var(--text);
+}
+
+/*
+ * Set larger than the app's own wordmark, on purpose. On the one page with
+ * nothing to show, the invitation outranks the name of the thing making it.
+ */
+.line {
+  margin: 0;
+  font-size: clamp(1.5rem, 4.5vw, 2rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  color: var(--text-h);
+}
+
 .label {
   composes: visually-hidden from global;
 }

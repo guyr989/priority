@@ -69,6 +69,15 @@ export function SearchContainer({
   return (
     <section className={styles.container} aria-label={strings.search.region}>
       <div className={styles.head}>
+        {/* Only the first visit gets a lead: once there is a board or a cover
+            on the page, the page has already introduced itself. */}
+        {showHint && (
+          <div className={styles.lead}>
+            <p className={styles.rail}>{strings.search.lead.rail}</p>
+            <p className={styles.line}>{strings.search.lead.line}</p>
+          </div>
+        )}
+
         <form
           className={styles.form}
           role="search"
@@ -98,7 +107,7 @@ export function SearchContainer({
 
         {showHint && (
           <div className={styles.starters}>
-            <p className={styles.hint}>{strings.results.idle}</p>
+            <p className={styles.hint}>{strings.search.lead.pick}</p>
             <ul className={styles.chips}>
               {starters.map((term) => (
                 <li key={term}>
