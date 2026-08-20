@@ -12,6 +12,7 @@ interface SettingsMenuProps {
   readonly onChoosePalette: (id: PaletteId) => void
   readonly onChooseLayout: (id: LayoutId) => void
   readonly onChoosePlayer: (on: boolean) => void
+  readonly onClearStored: () => void
 }
 
 export function SettingsMenu({
@@ -23,10 +24,18 @@ export function SettingsMenu({
   onChoosePalette,
   onChooseLayout,
   onChoosePlayer,
+  onClearStored,
 }: SettingsMenuProps) {
   const [open, setOpen] = useState(false)
+  // Closing the panel disarms the confirmation, so it is never already armed
+  // the next time the menu is opened.
+  const [armed, setArmed] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    if (!open) setArmed(false)
+  }, [open])
 
   useEffect(() => {
     if (!open) return
@@ -159,6 +168,51 @@ export function SettingsMenu({
           ))}
         </fieldset>
         )}
+
+        {/*
+          Clearing cannot be undone and there is nothing to put back, so the
+          control asks once before it does it. The action keeps its name across
+          both steps: the button that arms it and the button that carries it
+          out both say Clear.
+        */}
+        <fieldset className={styles.set}>
+          <legend className={styles.legend}>{strings.settings.stored}</legend>
+
+          {armed ? (
+            <div className={styles.confirm}>
+              <p className={styles.ask}>{strings.settings.clearAsk}</p>
+              <div className={styles.answers}>
+                <button
+                  type="button"
+                  className={styles.destructive}
+                  autoFocus
+                  onClick={() => {
+                    setArmed(false)
+                    onClearStored()
+                  }}
+                >
+                  {strings.settings.clear}
+                </button>
+                <button
+                  type="button"
+                  className={styles.action}
+                  onClick={() => setArmed(false)}
+                >
+                  {strings.settings.clearKeep}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className={styles.action}
+              onClick={() => setArmed(true)}
+            >
+              <span>{strings.settings.clear}</span>
+              <span className={styles.ask}>{strings.settings.clearNote}</span>
+            </button>
+          )}
+        </fieldset>
       </div>
     </div>
   )

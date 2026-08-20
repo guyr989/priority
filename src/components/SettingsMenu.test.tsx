@@ -8,6 +8,7 @@ function renderMenu(playerOn = false) {
   const onChoosePalette = vi.fn()
   const onChooseLayout = vi.fn()
   const onChoosePlayer = vi.fn()
+  const onClearStored = vi.fn()
   render(
     <SettingsMenu
       palettes={PALETTES}
@@ -18,9 +19,10 @@ function renderMenu(playerOn = false) {
       onChoosePalette={onChoosePalette}
       onChooseLayout={onChooseLayout}
       onChoosePlayer={onChoosePlayer}
+      onClearStored={onClearStored}
     />,
   )
-  return { user: userEvent.setup(), onChoosePalette, onChooseLayout, onChoosePlayer }
+  return { user: userEvent.setup(), onChoosePalette, onChooseLayout, onChoosePlayer, onClearStored }
 }
 
 describe('SettingsMenu', () => {
@@ -38,6 +40,31 @@ describe('SettingsMenu', () => {
     await user.click(screen.getByRole('button', { name: 'Settings' }))
 
     expect(screen.getByRole('radio', { name: /cinema/i })).toBeChecked()
+  })
+
+  it('asks before it clears, and clears nothing until the answer', async () => {
+    const { user, onClearStored } = renderMenu()
+
+    await user.click(screen.getByRole('button', { name: 'Settings' }))
+    await user.click(screen.getByRole('button', { name: /clear saved data/i }))
+
+    expect(onClearStored).not.toHaveBeenCalled()
+    expect(screen.getByText(/cannot be undone/i)).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Clear saved data' }))
+
+    expect(onClearStored).toHaveBeenCalledTimes(1)
+  })
+
+  it('takes Keep as no, and asks again the next time', async () => {
+    const { user, onClearStored } = renderMenu()
+
+    await user.click(screen.getByRole('button', { name: 'Settings' }))
+    await user.click(screen.getByRole('button', { name: /clear saved data/i }))
+    await user.click(screen.getByRole('button', { name: 'Keep' }))
+
+    expect(onClearStored).not.toHaveBeenCalled()
+    expect(screen.queryByText(/cannot be undone/i)).not.toBeInTheDocument()
   })
 
   it('offers colour and layout as two separate choices', async () => {

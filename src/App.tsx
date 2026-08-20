@@ -71,6 +71,9 @@ interface AppProps {
   readonly layoutStore: Store<LayoutId>
   readonly playerStore: Store<boolean>
   readonly attachPlayback: AttachPlayback
+  /** Forgets everything kept on this device. The composition root decides what
+      that means and what happens after it, so App only has to offer it. */
+  readonly onClearStored: () => void
   readonly debounceMs?: number
 }
 
@@ -83,6 +86,7 @@ function App({
   layoutStore,
   playerStore,
   attachPlayback,
+  onClearStored,
   debounceMs = DEBOUNCE_MS,
 }: AppProps) {
   /*
@@ -191,6 +195,7 @@ function App({
             onChoosePalette={choosePalette}
             onChooseLayout={chooseLayout}
             onChoosePlayer={togglePlayer}
+            onClearStored={onClearStored}
           />
         </div>
       </header>

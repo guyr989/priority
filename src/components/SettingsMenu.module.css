@@ -154,6 +154,78 @@
   translate: 1rem 0;
 }
 
+/*
+ * A plain control in the menu: the switch's box without a state to carry. Two
+ * lines, so what it does sits under what it is called.
+ */
+.action {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  font: inherit;
+  font-size: 1rem;
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-s);
+  color: var(--text-h);
+  background: transparent;
+  border: 0.0625rem solid transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.action:hover {
+  background: var(--social-bg);
+}
+
+.action:focus-visible,
+.destructive:focus-visible {
+  outline: 0.125rem solid var(--accent);
+  outline-offset: -0.125rem;
+}
+
+/* The note under a control, and the question the confirmation asks. */
+.ask {
+  font-size: 0.8125rem;
+  line-height: 135%;
+  color: var(--text);
+}
+
+.confirm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3) var(--space-3);
+}
+
+.answers {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/*
+ * The one control that destroys something. It takes the same treatment as
+ * Retry rather than a danger colour of its own: none of the eight palettes
+ * carries a red that is not already the accent, and the step that guards this
+ * is the question above it, not a hue.
+ */
+.destructive {
+  font: inherit;
+  font-size: 1rem;
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-s);
+  color: var(--text-h);
+  background: var(--accent-bg);
+  border: 0.0625rem solid var(--accent-border);
+  cursor: pointer;
+}
+
+.destructive:hover {
+  border-color: var(--accent);
+}
+
 .option {
   display: grid;
   grid-template-columns: 1.625rem minmax(0, 1fr);

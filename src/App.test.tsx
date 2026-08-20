@@ -72,6 +72,7 @@ function renderApp(
   const layoutStore = createMemoryStore<LayoutId>(null)
   const playerStore = createMemoryStore<boolean>(null)
   const player = createPlayer()
+  const onClearStored = vi.fn()
   render(
     <App
       provider={createProvider(pages)}
@@ -82,6 +83,7 @@ function renderApp(
       layoutStore={layoutStore}
       playerStore={playerStore}
       attachPlayback={player.attach}
+      onClearStored={onClearStored}
       debounceMs={0}
     />,
   )
@@ -94,6 +96,7 @@ function renderApp(
     layoutStore,
     playerStore,
     player,
+    onClearStored,
   }
 }
 

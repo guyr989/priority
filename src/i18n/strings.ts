@@ -70,6 +70,11 @@ export const strings = {
     trigger: 'Settings',
     colour: 'Colour',
     layout: 'Layout',
+    stored: 'Saved on this device',
+    clear: 'Clear saved data',
+    clearNote: 'Recent searches, colour, layout, and the last cover you opened.',
+    clearAsk: 'Clear it? This cannot be undone.',
+    clearKeep: 'Keep',
   },
 
   palettes: {

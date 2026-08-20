@@ -1,12 +1,34 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { isHistory } from '../domain/history'
-import { createLocalStore } from './localStore'
+import { clearLocalStores, createLocalStore } from './localStore'
 
 const KEY = 'priority.test'
 
 afterEach(() => {
     window.localStorage.clear()
     vi.restoreAllMocks()
+})
+
+describe('clearing', () => {
+    it('forgets every key it is given and leaves the rest alone', () => {
+        window.localStorage.setItem('priority.a', '1')
+        window.localStorage.setItem('priority.b', '2')
+        window.localStorage.setItem('someone.else', '3')
+
+        clearLocalStores(['priority.a', 'priority.b'])
+
+        expect(window.localStorage.getItem('priority.a')).toBeNull()
+        expect(window.localStorage.getItem('priority.b')).toBeNull()
+        expect(window.localStorage.getItem('someone.else')).toBe('3')
+    })
+
+    it('says nothing when the device refuses', () => {
+        vi.spyOn(window.localStorage.__proto__, 'removeItem').mockImplementation(() => {
+            throw new Error('denied')
+        })
+
+        expect(() => clearLocalStores(['priority.a'])).not.toThrow()
+    })
 })
 
 describe('local store', () => {

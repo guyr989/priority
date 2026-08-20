@@ -9,14 +9,27 @@ import { isHistory } from './domain/history'
 import { isTrack } from './domain/track'
 import { isViewMode } from './domain/view'
 import { applyPalette } from './hooks/useAppearance'
-import { createLocalStore } from './storage/localStore'
+import { clearLocalStores, createLocalStore } from './storage/localStore'
 
-const historyStore = createLocalStore('priority.recent-searches', isHistory)
-const viewStore = createLocalStore('priority.view', isViewMode)
-const lastTrackStore = createLocalStore('priority.last-track', isTrack)
-const paletteStore = createLocalStore('priority.palette', isPaletteId)
-const layoutStore = createLocalStore('priority.layout', isLayoutId)
-const playerStore = createLocalStore('priority.player-visible', isPlayerVisible)
+/**
+ * Every key this app writes, named once. Clearing reads the same list the
+ * stores are built from, so the two cannot drift apart.
+ */
+const KEY = {
+  history: 'priority.recent-searches',
+  view: 'priority.view',
+  lastTrack: 'priority.last-track',
+  palette: 'priority.palette',
+  layout: 'priority.layout',
+  player: 'priority.player-visible',
+} as const
+
+const historyStore = createLocalStore(KEY.history, isHistory)
+const viewStore = createLocalStore(KEY.view, isViewMode)
+const lastTrackStore = createLocalStore(KEY.lastTrack, isTrack)
+const paletteStore = createLocalStore(KEY.palette, isPaletteId)
+const layoutStore = createLocalStore(KEY.layout, isLayoutId)
+const playerStore = createLocalStore(KEY.player, isPlayerVisible)
 
 applyPalette(paletteStore.read())
 
@@ -31,6 +44,13 @@ createRoot(document.getElementById('root')!).render(
       layoutStore={layoutStore}
       playerStore={playerStore}
       attachPlayback={attachPlayback}
+      /* Reloading is the honest way to show a cleared device: it rebuilds
+         every piece of state from the storage that is now empty, rather than
+         asking six setters to agree on what empty looks like. */
+      onClearStored={() => {
+        clearLocalStores(Object.values(KEY))
+        window.location.reload()
+      }}
     />
   </StrictMode>,
 )
