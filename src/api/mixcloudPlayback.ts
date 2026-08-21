@@ -9,6 +9,7 @@ interface WidgetEvent {
 
 interface Widget {
     ready: Promise<unknown>
+    play(): Promise<unknown>
     getIsPaused(): Promise<boolean>
     events: {
         play: WidgetEvent
@@ -54,6 +55,22 @@ function build(create: WidgetFactory, frame: HTMLIFrameElement) {
     }
 }
 
+/**
+ * The embed's own autoplay flag is a request the browser may refuse, and it
+ * races the frame's load either way — which is what left a listener pressing
+ * play a second time inside the iframe. Asking the widget itself, once it has
+ * said it is ready, is the deterministic path. Calling it on a player already
+ * running is a no-op, so the flag can stay as the fallback for a widget API
+ * that never loads.
+ */
+async function start(widget: Widget): Promise<void> {
+    try {
+        await widget.play()
+    } catch {
+        // A player that will not start on request still reports its own state.
+    }
+}
+
 function loadWidgetApi(): Promise<void> {
     if (pendingScript !== null) return pendingScript
 
@@ -92,6 +109,7 @@ export async function attachPlayback(frame: HTMLIFrameElement): Promise<Playback
 
         const { widget, release } = build(create, frame)
         await widget.ready
+        await start(widget)
 
         return {
             isPlaying: !(await widget.getIsPaused()),
