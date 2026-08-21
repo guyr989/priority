@@ -55,6 +55,44 @@ function build(create: WidgetFactory, frame: HTMLIFrameElement) {
     }
 }
 
+/** Long enough for a slow embed, short enough that nothing waits on it forever. */
+const FRAME_TIMEOUT_MS = 8000
+
+/**
+ * A frame that has navigated cross-origin refuses to hand over its location,
+ * and that refusal is the signal we want: while it is still the about:blank
+ * the browser creates, reading it succeeds and returns exactly that.
+ */
+function remoteDocumentArrived(frame: HTMLIFrameElement): boolean {
+    try {
+        const href = frame.contentWindow?.location.href
+        return href !== undefined && href !== "about:blank"
+    } catch {
+        return true
+    }
+}
+
+/**
+ * Until the widget's own document is in the frame, its window carries this
+ * page's origin — so anything posted to it addressed to the widget's origin
+ * is delivered to the wrong recipient and dropped, which is what the console
+ * reports as a target origin mismatch. The timeout is a floor, not a plan: a
+ * frame that never loads must not leave the caller waiting on a promise.
+ */
+function whenFrameLoaded(frame: HTMLIFrameElement): Promise<void> {
+    if (remoteDocumentArrived(frame)) return Promise.resolve()
+
+    return new Promise<void>((resolve) => {
+        const done = () => {
+            window.clearTimeout(timer)
+            frame.removeEventListener("load", done)
+            resolve()
+        }
+        const timer = window.setTimeout(done, FRAME_TIMEOUT_MS)
+        frame.addEventListener("load", done)
+    })
+}
+
 /**
  * The embed's own autoplay flag is a request the browser may refuse, and it
  * races the frame's load either way — which is what left a listener pressing
@@ -102,6 +140,7 @@ function readWidgetFactory(): WidgetFactory | null {
  */
 export async function attachPlayback(frame: HTMLIFrameElement): Promise<PlaybackSource | null> {
     try {
+        await whenFrameLoaded(frame)
         await loadWidgetApi()
 
         const create = readWidgetFactory()
